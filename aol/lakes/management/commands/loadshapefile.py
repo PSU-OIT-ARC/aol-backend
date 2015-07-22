@@ -1,12 +1,14 @@
-from shapely.geometry import asShape
-from psycopg2 import extras
 import datetime
 import itertools
+
 import shapefile
-from django.db import connection, transaction
-from django.core.management.base import BaseCommand, CommandError
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
-from aol.lakes.models import NHDLake, LakeGeom
+from django.core.management.base import BaseCommand, CommandError
+from django.db import connection, transaction
+from psycopg2 import extras
+from shapely.geometry import asShape
+
+from aol.lakes.models import LakeGeom, NHDLake
 
 
 class Command(BaseCommand):

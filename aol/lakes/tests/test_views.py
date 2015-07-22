@@ -1,7 +1,8 @@
-from model_mommy.mommy import make
-from django.test import TestCase
 from django.core.urlresolvers import reverse
-from ..models import NHDLake as Lake, LakeGeom
+from django.test import TestCase
+from model_mommy.mommy import make
+
+from ..models import LakeGeom, NHDLake as Lake
 
 
 class LakesTest(TestCase):

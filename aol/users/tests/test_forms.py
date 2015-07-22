@@ -1,9 +1,11 @@
-from model_mommy.mommy import make
 from django.test import TestCase
+from model_mommy.mommy import make
+
 from aol.lakes.models import NHDLake as Lake
-from ..forms import LakeForm
-from aol.photos.models import Photo
 from aol.photos.forms import PhotoForm
+from aol.photos.models import Photo
+
+from ..forms import LakeForm
 
 
 class LakeFormTest(TestCase):

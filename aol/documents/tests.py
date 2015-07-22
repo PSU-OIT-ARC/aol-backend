@@ -1,10 +1,13 @@
 import os
-from model_mommy.mommy import make
-from django.core.urlresolvers import reverse
+
 from django.conf import settings as SETTINGS
-from .models import Document
+from django.core.urlresolvers import reverse
+from model_mommy.mommy import make
+
+from aol.lakes.models import LakeGeom, NHDLake as Lake
 from aol.users.tests.test_views import LoginMixin
-from aol.lakes.models import NHDLake as Lake, LakeGeom
+
+from .models import Document
 
 
 class ViewTest(LoginMixin):

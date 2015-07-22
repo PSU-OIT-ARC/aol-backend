@@ -1,13 +1,16 @@
 import os
-from model_mommy.mommy import make
-from model_mommy.generators import gen_image_field
-from django.test import TestCase
+
 from django.conf import settings as SETTINGS
 from django.core.urlresolvers import reverse
+from django.test import TestCase
 from django.utils.timezone import now
-from .models import Photo
+from model_mommy.generators import gen_image_field
+from model_mommy.mommy import make
+
 from aol.lakes.models import NHDLake as Lake
 from aol.users.tests.test_views import LoginMixin
+
+from .models import Photo
 
 
 class ModelTest(TestCase):

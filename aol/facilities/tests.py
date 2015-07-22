@@ -1,6 +1,7 @@
-from django.test import TestCase
-from .models import Facility
 from django.contrib.gis.geos import GEOSGeometry
+from django.test import TestCase
+
+from .models import Facility
 
 
 class FacilityManagerTest(TestCase):

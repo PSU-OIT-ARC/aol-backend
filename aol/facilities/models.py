@@ -1,8 +1,8 @@
 import requests
 from django.contrib.gis.db import models
-from django.db import transaction
-from django.contrib.gis.gdal import SpatialReference, CoordTransform
+from django.contrib.gis.gdal import CoordTransform, SpatialReference
 from django.contrib.gis.geos import Point
+from django.db import transaction
 
 
 class FacilityManager(models.Manager):

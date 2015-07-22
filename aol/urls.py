@@ -1,15 +1,16 @@
+from django.conf import settings as SETTINGS
 from django.conf.urls import patterns, url
 from django.conf.urls.static import static
-from django.conf import settings as SETTINGS
-from aol.lakes import views as lakes
-from aol.home import views as home
-from aol.maps import views as maps
-from aol.users import views as customadmin
-from aol.documents import views as documents
-from aol.photos import views as photos
-
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
+
+from aol.documents import views as documents
+from aol.home import views as home
+from aol.lakes import views as lakes
+from aol.maps import views as maps
+from aol.photos import views as photos
+from aol.users import views as customadmin
+
 admin.autodiscover()
 
 urlpatterns = patterns(

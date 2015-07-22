@@ -1,8 +1,10 @@
 import os
+
 from django.conf import settings as SETTINGS
 from django.contrib.gis.db import models
-from aol.lakes.models import NHDLake
 from PIL import Image
+
+from aol.lakes.models import NHDLake
 
 
 # this can't be a lambda because of Django migrations

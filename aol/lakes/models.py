@@ -1,8 +1,9 @@
 import re
+
 from django.conf import settings as SETTINGS
 from django.contrib.gis.db import models
+from django.db import connection, connections, transaction
 from django.db.models import Q
-from django.db import connections, transaction, connection
 
 # this is the distance we use to calculate if a mussel observation is near a lake
 DISTANCE_FROM_ITEM = 10 # feet since the projection 3644 is in feet

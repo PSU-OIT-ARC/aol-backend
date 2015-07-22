@@ -14,12 +14,15 @@ NativeSpecies, ObsDate, and Reachcode. We always assume the plant data source
 is "CLR" (other plant data comes from iMapInvasives
 """
 from __future__ import print_function
-import sys
-import datetime
+
 import csv
-from django.db import transaction
+import datetime
+import sys
+
 from django.core.management.base import BaseCommand, CommandError
-from aol.lakes.models import NHDLake, LakePlant, Plant
+from django.db import transaction
+
+from aol.lakes.models import LakePlant, NHDLake, Plant
 
 
 class Command(BaseCommand):

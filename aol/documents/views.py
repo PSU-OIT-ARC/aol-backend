@@ -1,11 +1,14 @@
 import mimetypes
 import os
-from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from django.shortcuts import render, get_object_or_404
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+
 from aol.lakes.models import NHDLake
+
 from .forms import DocumentForm
 from .models import Document
 

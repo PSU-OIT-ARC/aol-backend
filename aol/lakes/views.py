@@ -1,13 +1,16 @@
 import csv
 import string
-from django.http import HttpResponse, HttpResponseRedirect
+
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import slugify
-from django.shortcuts import render, get_object_or_404
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 from aol.documents.models import Document
 from aol.photos.models import Photo
-from .models import NHDLake, LakePlant
+
+from .models import LakePlant, NHDLake
 
 
 def listing(request, letter=None):

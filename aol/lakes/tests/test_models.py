@@ -1,6 +1,7 @@
-from model_mommy.mommy import make
 from django.test import TestCase
-from ..models import NHDLake as Lake, HUC6, LakeCounty, LakeGeom
+from model_mommy.mommy import make
+
+from ..models import HUC6, LakeCounty, LakeGeom, NHDLake as Lake
 
 
 class LakeManagerTest(TestCase):

@@ -1,13 +1,15 @@
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.flatpages.models import FlatPage
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+
+from aol.documents.models import Document
 from aol.lakes.models import NHDLake
 from aol.photos.models import Photo
-from aol.documents.models import Document
-from .forms import LakeForm, FlatPageForm
+
+from .forms import FlatPageForm, LakeForm
 
 
 @login_required

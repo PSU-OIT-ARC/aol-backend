@@ -1,5 +1,6 @@
-from django.core.urlresolvers import reverse
 from django.contrib.gis.db import models
+from django.core.urlresolvers import reverse
+
 from aol.lakes.models import NHDLake
 
 

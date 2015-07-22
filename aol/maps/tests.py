@@ -1,10 +1,12 @@
 from unittest.mock import Mock, patch
-from model_mommy.mommy import make
+
+from django.contrib.gis.geos import GEOSGeometry
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.contrib.gis.geos import GEOSGeometry
-from aol.lakes.models import NHDLake, LakeGeom
+from model_mommy.mommy import make
+
 from aol.facilities.models import Facility
+from aol.lakes.models import LakeGeom, NHDLake
 
 
 class HomeTest(TestCase):

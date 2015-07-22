@@ -1,9 +1,11 @@
-from model_mommy.mommy import make
-from django.test import TestCase
-from django.core.urlresolvers import reverse
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
-from aol.lakes.models import NHDLake as Lake, LakeGeom
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from model_mommy.mommy import make
+
+from aol.lakes.models import LakeGeom, NHDLake as Lake
+
 from ..models import User
 
 

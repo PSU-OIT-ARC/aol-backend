@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from aol.lakes.models import NHDLake
+
 from aol.facilities.models import Facility
+from aol.lakes.models import NHDLake
 from aol.lakes.views import detail
 
 
