@@ -1,6 +1,6 @@
-from django import forms
 from aol.forms import DeletableModelForm
 from .models import Photo
+
 
 class PhotoForm(DeletableModelForm):
     class Meta:
@@ -11,5 +11,3 @@ class PhotoForm(DeletableModelForm):
             'file',
             'taken_on',
         )
-
-

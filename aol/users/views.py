@@ -1,18 +1,19 @@
-from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse 
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.flatpages.models import FlatPage
-from aol.lakes.models import NHDLake, Plant 
+from aol.lakes.models import NHDLake
 from aol.photos.models import Photo
 from aol.documents.models import Document
 from .forms import LakeForm, FlatPageForm
 
+
 @login_required
 def listing(request):
     """List all the lakes that the admin can edit"""
-    q = request.GET.get('q','')
+    q = request.GET.get('q', '')
     if "q" in request.GET:
         lakes = NHDLake.objects.search(query=q)
     else:
@@ -23,6 +24,7 @@ def listing(request):
         "q": q,
         "flatpages": FlatPage.objects.all(),
     })
+
 
 @login_required
 def edit_flatpage(request, pk=None):
@@ -43,6 +45,7 @@ def edit_flatpage(request, pk=None):
     return render(request, "admin/edit_flatpage.html", {
         "form": form,
     })
+
 
 @login_required
 def edit_lake(request, reachcode):
@@ -66,4 +69,3 @@ def edit_lake(request, reachcode):
         "photos": photos,
         "documents": documents,
     })
-

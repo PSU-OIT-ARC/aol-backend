@@ -15,16 +15,12 @@ is "CLR" (other plant data comes from iMapInvasives
 """
 from __future__ import print_function
 import sys
-from shapely.geometry import asShape
-from psycopg2 import extras
 import datetime
-import itertools
-import shapefile
 import csv
-from django.db import connection, transaction
+from django.db import transaction
 from django.core.management.base import BaseCommand, CommandError
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
-from aol.lakes.models import NHDLake, LakeGeom, LakePlant, Plant
+from aol.lakes.models import NHDLake, LakePlant, Plant
+
 
 class Command(BaseCommand):
     args = 'path/to/plant_data.csv'
@@ -48,7 +44,7 @@ class Command(BaseCommand):
                 # break the row into a dict based on the header
                 row = dict((k, v) for k, v in zip(header, row))
 
-                # create or update the plant 
+                # create or update the plant
                 try:
                     plant = Plant.objects.get(normalized_name=row['ScientificName'].lower())
                 except Plant.DoesNotExist:
@@ -61,7 +57,6 @@ class Command(BaseCommand):
                 plant.is_native = row['NativeSpecies'] == "1"
                 plant.save()
 
-
                 # if we don't have a reachcode, there is nothing else to do
                 if not row['ReachCode']:
                     continue
@@ -70,12 +65,12 @@ class Command(BaseCommand):
                     # for some reason, the reachcodes have a .0 at the end so
                     # we conver them to ints
                     row['ReachCode'] = int(float(row['ReachCode']))
-                except ValueError as e:
+                except ValueError:
                     pass
 
                 try:
-                    lake = NHDLake.objects.get(pk=row['ReachCode'])
-                except NHDLake.DoesNotExist as e:
+                    NHDLake.objects.get(pk=row['ReachCode'])
+                except NHDLake.DoesNotExist:
                     print("Lake with reachcode = %s not found" % str(row['ReachCode']), file=sys.stderr)
                     continue
 

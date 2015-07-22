@@ -1,8 +1,8 @@
 from model_mommy.mommy import make
-from unittest.mock import Mock, patch
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from ..models import NHDLake as Lake, LakeGeom
+
 
 class LakesTest(TestCase):
     def test_listing(self):
@@ -24,23 +24,23 @@ class LakesTest(TestCase):
     def test_search(self):
         '''test that a blank query returns all lakes'''
         lakes = list(Lake.objects.all())
-        response = self.client.get("%s?q=%s" % (reverse('lakes-search'), "") )
+        response = self.client.get("%s?q=%s" % (reverse('lakes-search'), ""))
         self.assertEqual(len(lakes), len(response.context['lakes']))
- 
+
     def test_search_title(self):
         '''test lake title query returns lake page assumes unique ttile which is true of test data'''
         lakes = list(Lake.objects.all())
         # test the first couple lakes
         for lake in lakes:
-            response = self.client.get("%s?q=%s" % (reverse('lakes-search'), lake.title) )
-            #test that you get redirected
+            response = self.client.get("%s?q=%s" % (reverse('lakes-search'), lake.title))
+            # test that you get redirected
             self.assertEqual(response.status_code, 302)
-            #check if reachcode is in redirect url
-            self.assertIn(lake.reachcode,str(response))
-    
+            # check if reachcode is in redirect url
+            self.assertIn(lake.reachcode, str(response))
+
     def test_search_garbage(self):
         '''test garbage query returns error/no results'''
         response = self.client.get("%s?q=fhsy78rh" % reverse('lakes-search'))
-        #test context contains error
+        # test context contains error
         self.assertEqual(0, len(response.context['lakes']))
         self.assertEqual(response.status_code, 200)

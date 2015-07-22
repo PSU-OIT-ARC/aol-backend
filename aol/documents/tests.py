@@ -1,12 +1,11 @@
 import os
 from model_mommy.mommy import make
-from unittest.mock import Mock, patch
-from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.conf import settings as SETTINGS
 from .models import Document
 from aol.users.tests.test_views import LoginMixin
 from aol.lakes.models import NHDLake as Lake, LakeGeom
+
 
 class ViewTest(LoginMixin):
     def test_add_document(self):
@@ -50,4 +49,3 @@ class ViewTest(LoginMixin):
         # make sure the caption got updated
         document = Document.objects.get(pk=document.pk)
         self.assertEqual(document.name, data['name'])
-

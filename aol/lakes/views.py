@@ -4,14 +4,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.shortcuts import render, get_object_or_404
-from django.core.paginator import Paginator
-from django.views.decorators.cache import cache_page
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from aol.documents.models import Document
 from aol.photos.models import Photo
 from .models import NHDLake, LakePlant
 
-#@cache_page(60 * 15)
+
 def listing(request, letter=None):
     """Display a list of all the lakes in the Atlas, with pagination"""
     lakes = None
@@ -48,6 +46,7 @@ def listing(request, letter=None):
         "non_important_lakes": non_important_lakes,
     })
 
+
 def detail(request, reachcode, template=None):
     """Display the detail view for an individual lake"""
     lake = get_object_or_404(NHDLake, reachcode=reachcode)
@@ -64,18 +63,20 @@ def detail(request, reachcode, template=None):
         "maps": maps,
     })
 
+
 def search(request):
-    q = request.GET.get('q','')
+    q = request.GET.get('q', '')
     if "q" in request.GET:
         lakes = list(NHDLake.objects.search(query=q)[:100])
         if len(lakes) == 1:
             reachcode = lakes[0].reachcode
-            return HttpResponseRedirect(reverse('lakes-detail', kwargs={'reachcode':reachcode}))
+            return HttpResponseRedirect(reverse('lakes-detail', kwargs={'reachcode': reachcode}))
 
     return render(request, "lakes/results.html", {
-        'lakes': lakes, 
-        'query':q,
+        'lakes': lakes,
+        'query': q,
     })
+
 
 def plants_csv(request, reachcode):
     """
@@ -111,4 +112,3 @@ def plants_csv(request, reachcode):
         ])
 
     return response
-

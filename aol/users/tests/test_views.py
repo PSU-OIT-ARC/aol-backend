@@ -1,12 +1,11 @@
-import os
 from model_mommy.mommy import make
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.conf import settings as SETTINGS
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
 from aol.lakes.models import NHDLake as Lake, LakeGeom
 from ..models import User
+
 
 class LoginMixin(TestCase):
     def setUp(self):
@@ -72,4 +71,3 @@ class AdminTest(LoginMixin):
         del data['gnis_name']
         response = self.client.post(reverse('admin-edit-lake', args=(lake.pk,)), data)
         self.assertFalse(response.context['form'].is_valid())
-

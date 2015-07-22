@@ -1,12 +1,10 @@
 from model_mommy.mommy import make
 from django.test import TestCase
-from django.core.urlresolvers import reverse
 from aol.lakes.models import NHDLake as Lake
 from ..forms import LakeForm
-from aol.documents.forms import DocumentForm
-from aol.documents.models import Document
 from aol.photos.models import Photo
 from aol.photos.forms import PhotoForm
+
 
 class LakeFormTest(TestCase):
     def test_form(self):
@@ -52,5 +50,3 @@ class LakeFormTest(TestCase):
         # provided to the form
         form = PhotoForm()
         self.assertFalse("do_delete" in form.fields)
-
-

@@ -2,9 +2,11 @@ from django.core.urlresolvers import reverse
 from django.contrib.gis.db import models
 from aol.lakes.models import NHDLake
 
+
 # this can't be lambda because of Django migrations
 def upload_to(instance, filename):
     return instance.DOCUMENT_DIR + filename
+
 
 class Document(models.Model):
     """
@@ -25,14 +27,15 @@ class Document(models.Model):
         (OTHER, "Other"),
         (MAP, "Map"),
     ), help_text="Map documents will appear on the 'Maps' tab on the lake page")
-    friendly_filename = models.CharField(max_length=255, blank=True, help_text="When this document is downloaded, this will be the filename (if blank, it will default to the document's original filename)")
+    friendly_filename = models.CharField(max_length=255, blank=True, help_text="""
+        When this document is downloaded, this will be the filename (if blank, it will default to the document's original filename)
+    """)
 
     lake = models.ForeignKey(NHDLake, db_column="reachcode")
 
     class Meta:
         db_table = 'document'
         ordering = ['rank']
-
 
     @property
     def url(self):

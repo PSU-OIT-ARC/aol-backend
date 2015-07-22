@@ -1,8 +1,7 @@
-import datetime
-from django import forms
 from django.db.models import Max
 from aol.forms import DeletableModelForm
 from .models import Document
+
 
 class DocumentForm(DeletableModelForm):
     class Meta:
@@ -21,5 +20,3 @@ class DocumentForm(DeletableModelForm):
             kwargs['instance'].rank = (Document.objects.filter(lake=kwargs['instance'].lake).aggregate(Max('rank'))['rank__max'] or 0) + 1
 
         super(DocumentForm, self).__init__(*args, **kwargs)
-
-

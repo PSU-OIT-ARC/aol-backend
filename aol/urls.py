@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 from django.conf.urls.static import static
 from django.conf import settings as SETTINGS
 from aol.lakes import views as lakes
@@ -12,9 +12,10 @@ from aol.photos import views as photos
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^$', home.home, name='home'),
-	url(r'^search/?$', lakes.search, name='lakes-search'),
+    url(r'^search/?$', lakes.search, name='lakes-search'),
 
     url(r'^lakes/?$', lakes.listing, name='lakes-listing'),
     url(r'^lakes/(?P<letter>[a-z])/?$', lakes.listing, name='lakes-listing'),
@@ -36,7 +37,7 @@ urlpatterns = patterns('',
     url(r'^admin/edit/document/(?P<document_id>\d+)?$', documents.edit, name='admin-edit-document'),
     url(r'^admin/add/document/(?P<reachcode>.+)?$', documents.edit, name='admin-add-document'),
     url(r'^admin/add/flatpage/?$', customadmin.edit_flatpage, name='admin-add-flatpage'),
-    
+
     # login logout
     url(r'^admin/login/$', 'djangocas.views.login', name='admin-login'),
     url(r'^admin/logout/$', 'djangocas.views.logout', name='admin-logout', kwargs={"next_page": "/"}),

@@ -1,13 +1,14 @@
 import mimetypes
 import os
 from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse 
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from aol.lakes.models import NHDLake 
-from .forms import DocumentForm 
+from aol.lakes.models import NHDLake
+from .forms import DocumentForm
 from .models import Document
+
 
 def download(request, document_id):
     """
@@ -27,6 +28,7 @@ def download(request, document_id):
     response = HttpResponse(document.file, content_type=mimetypes.guess_type(document.file.path))
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
     return response
+
 
 @login_required
 def edit(request, reachcode=None, document_id=None):
@@ -56,4 +58,3 @@ def edit(request, reachcode=None, document_id=None):
         "document": document,
         "form": form,
     })
-

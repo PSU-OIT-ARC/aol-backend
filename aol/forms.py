@@ -1,5 +1,6 @@
 from django import forms
 
+
 class DeletableModelForm(forms.ModelForm):
     """
     This form adds a do_delete field which is checked when the modelform is
@@ -20,4 +21,3 @@ class DeletableModelForm(forms.ModelForm):
             self.instance.delete()
         else:
             super(DeletableModelForm, self).save(*args, **kwargs)
-

@@ -1,11 +1,8 @@
-import datetime
 from django import forms
-from django.db.models import Max
-from django.db import transaction
-from django.utils.translation import ugettext as _
 from django.contrib.flatpages.forms import FlatpageForm as FPF
 from aol.forms import DeletableModelForm
-from aol.lakes.models import NHDLake, LakeCounty, Plant, LakePlant
+from aol.lakes.models import NHDLake
+
 
 class LakeForm(forms.ModelForm):
     class Meta:
@@ -23,6 +20,7 @@ class LakeForm(forms.ModelForm):
             "parent": forms.widgets.TextInput,
         }
 
+
 class FlatPageForm(FPF, DeletableModelForm):
     class Meta(FPF.Meta):
         widgets = {
@@ -36,4 +34,3 @@ class FlatPageForm(FPF, DeletableModelForm):
             "template_name",
             "sites",
         )
-

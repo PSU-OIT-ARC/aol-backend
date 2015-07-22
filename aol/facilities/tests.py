@@ -1,8 +1,7 @@
 from django.test import TestCase
 from .models import Facility
 from django.contrib.gis.geos import GEOSGeometry
-from django.conf import settings as SETTINGS
-from aol.lakes.models import NHDLake
+
 
 class FacilityManagerTest(TestCase):
     def setUp(self):
@@ -36,4 +35,3 @@ class FacilityManagerTest(TestCase):
 
     def test_to_kml(self):
         self.assertTrue(Facility.objects.to_kml(bbox=(-50000, -50000, 50000, 50000))[0].kml)
-

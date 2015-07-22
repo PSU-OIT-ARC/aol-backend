@@ -1,15 +1,12 @@
-import string
 import re
 from django.conf import settings as SETTINGS
 from django.contrib.gis.db import models
 from django.db.models import Q
 from django.db import connections, transaction, connection
-from django.contrib.gis.gdal import SpatialReference, CoordTransform
-from django.core.cache import cache
-from django.contrib.gis.geos import Point
 
 # this is the distance we use to calculate if a mussel observation is near a lake
 DISTANCE_FROM_ITEM = 10 # feet since the projection 3644 is in feet
+
 
 def dictfetchall(cursor):
     "Returns all rows from a cursor as a dict"
@@ -18,6 +15,7 @@ def dictfetchall(cursor):
         dict(zip([col[0] for col in desc], row))
         for row in cursor.fetchall()
     ]
+
 
 class NHDLakeManager(models.Manager):
     def get_queryset(self):
@@ -48,7 +46,7 @@ class NHDLakeManager(models.Manager):
         qs = NHDLake.objects.filter(Q(gnis_name__icontains=query) | Q(title__icontains=query) | Q(gnis_id__icontains=query) | Q(reachcode__icontains=query))
         qs = qs.extra(
             tables=["lake_geom"],
-            select={"lake_area": "ST_AREA(lake_geom.the_geom)"}, 
+            select={"lake_area": "ST_AREA(lake_geom.the_geom)"},
             order_by=["-lake_area"],
             where=["lake_geom.reachcode = nhd.reachcode"]
         )
@@ -62,7 +60,7 @@ class NHDLakeManager(models.Manager):
             where=["""
                 (
                     substring(lower(COALESCE(NULLIF(title, ''), gnis_name)) FROM 1 for 1) = %s
-                    OR 
+                    OR
                     substring(lower(regexp_replace(COALESCE(NULLIF(title, ''), gnis_name), '^[lL]ake\s*', '')) FROM 1 for 1) = %s
                 )
             """],
@@ -162,12 +160,12 @@ class NHDLake(models.Model):
         It also refreshes the is_in_oregon flag
         """
         cursor = connection.cursor()
-        results = cursor.execute("""
-            SELECT 
-                reachcode, 
-                MAX(has_plants) AS has_plants, 
-                MAX(has_docs) AS has_docs, 
-                MAX(has_photos) AS has_photos, 
+        cursor.execute("""
+            SELECT
+                reachcode,
+                MAX(has_plants) AS has_plants,
+                MAX(has_docs) AS has_docs,
+                MAX(has_photos) AS has_photos,
                 MAX(has_aol_page) AS has_aol_page,
                 MAX(has_mussels) AS has_mussels
             FROM (
@@ -224,7 +222,7 @@ class NHDLake(models.Model):
     @property
     def bounding_box(self):
         if not hasattr(self, "_bbox"):
-            lakes = LakeGeom.objects.raw("""SELECT reachcode, Box2D(ST_Envelope(st_expand(the_geom,1000))) as coords from lake_geom WHERE reachcode = %s""", (self.pk,))
+            lakes = LakeGeom.objects.raw("""SELECT reachcode, Box2D(ST_Envelope(st_expand(the_geom,1000))) as coords from lake_geom WHERE reachcode = %s""", (self.pk,))  # noqa
             lake = list(lakes)[0]
             self._bbox = re.sub(r'[^0-9.-]', " ", lake.coords).split()
         return self._bbox
@@ -261,7 +259,7 @@ class NHDLake(models.Model):
             bbox = list(results)[0].bbox
         except IndexError:
             # this lake does not have a watershed
-            return None 
+            return None
 
         return self._bbox_thumbnail_url(bbox)
 
@@ -270,7 +268,7 @@ class NHDLake(models.Model):
         """
         Return the URL to the lakebasin tile thumbnail from the arcgis server
         """
-        # the magic 1000 here is from the original AOL too 
+        # the magic 1000 here is from the original AOL too
         results = LakeGeom.objects.raw("""
         SELECT Box2D(st_envelope(st_expand(the_geom,1000))) as bbox, reachcode
         FROM lake_geom where reachcode = %s
@@ -301,18 +299,18 @@ class NHDLake(models.Model):
         if not hasattr(self, "_mussels"):
             cursor = connection.cursor()
             cursor.execute("""
-                SELECT 
+                SELECT
                     DISTINCT
                     specie.name as species,
                     date_checked,
                     agency.name as agency
-                FROM 
+                FROM
                     mussels.observation
                 INNER JOIN
                     mussels.specie USING(specie_id)
                 INNER JOIN
                     mussels.agency USING(agency_id)
-                WHERE 
+                WHERE
                     ST_BUFFER(ST_TRANSFORM(the_geom, 3644), %s) && (SELECT the_geom FROM lake_geom WHERE reachcode = %s)
                 ORDER BY date_checked DESC
             """, (DISTANCE_FROM_ITEM, self.pk))
@@ -348,32 +346,39 @@ class LakeGeom(models.Model):
             cursor = connection.cursor()
             # update the fishing zone
             cursor.execute("""
-                UPDATE 
-                    nhd 
-                SET 
-                    fishing_zone_id = (SELECT fishing_zone_id FROM fishing_zone WHERE ST_Intersects(fishing_zone.the_geom, (SELECT the_geom FROM lake_geom WHERE reachcode = %s)) LIMIT 1)
-                WHERE 
+                UPDATE
+                    nhd
+                SET
+                    fishing_zone_id = (
+                        SELECT
+                            fishing_zone_id
+                        FROM
+                            fishing_zone
+                        WHERE
+                            ST_Intersects(fishing_zone.the_geom, (SELECT the_geom FROM lake_geom WHERE reachcode = %s)) LIMIT 1
+                    )
+                WHERE
                     nhd.reachcode = %s
                 """, (self.pk, self.pk))
             # update the huc6
             cursor.execute("""
                 WITH foo AS (
-                    SELECT 
-                        huc6.huc6_id, 
-                        reachcode 
-                    FROM 
-                        lake_geom 
-                    INNER JOIN 
+                    SELECT
+                        huc6.huc6_id,
+                        reachcode
+                    FROM
+                        lake_geom
+                    INNER JOIN
                         huc6 ON ST_Covers(huc6.the_geom, lake_geom.the_geom)
                     WHERE reachcode = %s
                 )
-                UPDATE 
-                    nhd 
-                SET 
-                    huc6_id = foo.huc6_id 
-                FROM 
-                    foo 
-                WHERE 
+                UPDATE
+                    nhd
+                SET
+                    huc6_id = foo.huc6_id
+                FROM
+                    foo
+                WHERE
                     nhd.reachcode = foo.reachcode
             """, (self.pk,))
 
@@ -385,7 +390,7 @@ class LakeGeom(models.Model):
                         county_id, lake_geom.reachcode
                     FROM
                        county
-                    INNER JOIN 
+                    INNER JOIN
                         lake_geom ON ST_INTERSECTS(county.the_geom, lake_geom.the_geom)
                     WHERE reachcode = %s
                 )
@@ -431,7 +436,7 @@ class FishingZone(models.Model):
         return "http://www.dfw.state.or.us/rr/%s/index.asp" % self.odfw.lower()
 
 
-class HUC6(models.Model): 
+class HUC6(models.Model):
     huc6_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, db_column="hu_12_name")
     the_geom = models.MultiPolygonField(srid=3644)
@@ -482,7 +487,7 @@ class Plant(models.Model):
 
     class Meta:
         db_table = "plant"
-    
+
     def __str__(self):
         return self.name
 
@@ -508,5 +513,3 @@ class LakePlant(models.Model):
             "CLR": "http://www.clr.pdx.edu/",
             "IMAP": "http://www.imapinvasives.org",
         }.get(self.source, '#')
-
-

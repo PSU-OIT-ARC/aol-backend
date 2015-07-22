@@ -1,12 +1,12 @@
-from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse 
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.flatpages.models import FlatPage
 from aol.lakes.models import NHDLake
-from .forms import PhotoForm 
+from .forms import PhotoForm
 from .models import Photo
+
 
 @login_required
 def edit(request, reachcode=None, photo_id=None):
@@ -36,4 +36,3 @@ def edit(request, reachcode=None, photo_id=None):
         "photo": photo,
         "form": form,
     })
-

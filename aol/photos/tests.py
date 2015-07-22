@@ -1,5 +1,4 @@
 import os
-from unittest.mock import Mock
 from model_mommy.mommy import make
 from model_mommy.generators import gen_image_field
 from django.test import TestCase
@@ -9,6 +8,7 @@ from django.utils.timezone import now
 from .models import Photo
 from aol.lakes.models import NHDLake as Lake
 from aol.users.tests.test_views import LoginMixin
+
 
 class ModelTest(TestCase):
     def test_url(self):
@@ -50,6 +50,7 @@ class ModelTest(TestCase):
             os.remove(thumb_path)
         except OSError:
             pass
+
 
 class ViewTest(LoginMixin):
     def test_add_photo(self):
@@ -93,4 +94,3 @@ class ViewTest(LoginMixin):
         # make sure the caption got updated
         photo = Photo.objects.get(pk=1)
         self.assertEqual(photo.caption, data['caption'])
-

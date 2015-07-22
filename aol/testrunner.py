@@ -1,5 +1,5 @@
-import os
 from django.test.runner import DiscoverRunner
+
 
 # for some tests, we need to ensure the mussels schema is created with a couple
 # tables
@@ -28,11 +28,11 @@ CREATE TABLE mussels.agency (
 SELECT AddGeometryColumn('mussels', 'observation', 'the_geom', 4326, 'POINT', 2);
 """
 
+
 class AOLRunner(DiscoverRunner):
     def setup_databases(self, *args, **kwargs):
         to_return = super(AOLRunner, self).setup_databases(*args, **kwargs)
         from django.db import connection
-        from django.conf import settings
         cursor = connection.cursor()
         cursor.execute(sql)
         return to_return

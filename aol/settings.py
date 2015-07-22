@@ -50,6 +50,7 @@ ALLOWED_HOSTS = ['.pdx.edu']
 # with a trailing slash
 TILE_URL = "http://gis.rc.pdx.edu/arcgis/rest/services/aol/nlcd/MapServer/"
 
+
 # allow the use of wildcards in the INTERAL_IPS setting
 class IPList(list):
     # do a unix-like glob match
@@ -117,14 +118,12 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -158,7 +157,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.flatpages',
-    #'debug_toolbar',
+    # 'debug_toolbar',
     'arcutils',
     'aol.users',
     'aol.lakes',
@@ -166,7 +165,7 @@ INSTALLED_APPS = (
     'aol.photos',
     'aol.facilities',
     # Uncomment the next line to enable the admin:
-    #'django.contrib.admin',
+    # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )

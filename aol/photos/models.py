@@ -4,9 +4,11 @@ from django.contrib.gis.db import models
 from aol.lakes.models import NHDLake
 from PIL import Image
 
+
 # this can't be a lambda because of Django migrations
 def upload_to(instance, filename):
     return instance.PHOTO_DIR + filename
+
 
 class Photo(models.Model):
     """Stores all the photos attached to a lake"""
@@ -60,5 +62,3 @@ class Photo(models.Model):
         im = Image.open(self.file.path)
         im.thumbnail(SIZE, Image.ANTIALIAS)
         im.save(save_to_location)
-
-

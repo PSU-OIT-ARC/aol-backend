@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from aol.lakes.models import NHDLake, LakeGeom
 
+
 class Command(BaseCommand):
     args = 'shapefile.shp'
     help = 'Load a shapefile'
@@ -16,7 +17,7 @@ class Command(BaseCommand):
         if len(args) == 0:
             raise CommandError("Pass me the shapefile path")
 
-        print "Assuming shapefile uses srid/epsg 4269!" 
+        print("Assuming shapefile uses srid/epsg 4269!")
 
         # read the shapefile
         sf = shapefile.Reader(args[0])
@@ -32,10 +33,10 @@ class Command(BaseCommand):
 
             # the first field is the DeleteFlg, which isn't stored in the actual
             # records, so we cut it off
-            fields = sf.fields[1:] 
+            fields = sf.fields[1:]
             # the fields *should* be labeled as such, so we use these keys to index
             # the record dictionary
-            #['Permanent_', 'FDate', 'Resolution', 'GNIS_ID', 'GNIS_Name',
+            # ['Permanent_', 'FDate', 'Resolution', 'GNIS_ID', 'GNIS_Name',
             # 'AreaSqKm', 'Elevation', 'ReachCode', 'FType', 'FCode', 'Shape_Leng',
             # 'Shape_Area', 'AOLReachCo', 'AOLGNIS_Na']
 
@@ -48,7 +49,7 @@ class Command(BaseCommand):
                 # make it so we can index by column name instead of column position
                 record = dict((field_description[0].upper(), field_value) for field_description, field_value in zip(fields, record))
                 if record['REACHCODE'].strip() == "":
-                    print "Skipping lake with no reachcode and permanent_id=%s" % record['PERMANENT_'].strip()
+                    print("Skipping lake with no reachcode and permanent_id=%s" % record['PERMANENT_'].strip())
 
                 # fetch the existing hstore for the lake, which tells us when
                 # each column was modified

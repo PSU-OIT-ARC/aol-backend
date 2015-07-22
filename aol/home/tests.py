@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
+
 class HomeTest(TestCase):
     # just make sure the views return a 200
     def test_homepage(self):
