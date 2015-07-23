@@ -22,6 +22,9 @@ TEMPLATE_DEBUG = DEBUG
 # ('Your Name', 'your_email@example.com'),
 ADMINS = variable("ADMINS", [])
 
+# ODIN users must be members of one of these groups to login to the admin area
+ALLOWED_LOGIN_GROUPS = ["resgrp116", "arc"]
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -39,6 +42,17 @@ DATABASES = {
         }
     }
 }
+
+
+LDAP = {
+    'default': {
+        'host': "ldaps://ldap-bulk.oit.pdx.edu",
+        'username': 'uid=aol,ou=service,dc=pdx,dc=edu',
+        'password': variable("LDAP_PASSWORD", default=''),
+        'search_dn': 'ou=Group,dc=pdx,dc=edu',
+    },
+}
+
 
 SECRET_KEY = variable("SECRET_KEY", default=os.urandom(64).decode("latin1"))
 
@@ -173,7 +187,7 @@ INSTALLED_APPS = (
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'djangocas.backends.CASBackend',
+    'aol.users.backends.AOLBackend',
 )
 
 # The HOST:PORT of the logstash server you want to pipe logs to
