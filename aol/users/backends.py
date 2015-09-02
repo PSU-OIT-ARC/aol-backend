@@ -1,7 +1,7 @@
-from djangocas.backends import CASBackend
-from django.contrib.auth import get_user_model
-from arcutils.ldap import ldapsearch, escape
+from arcutils.ldap import escape, ldapsearch
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from djangocas.backends import CASBackend
 
 
 class AOLBackend(CASBackend):

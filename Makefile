@@ -1,9 +1,6 @@
 .PHONY: run clean reload init
 
-DEFAULT_DB_NAME=aol
-WSGI_PATH=aol/wsgi.py
-
-
+PROJECT_NAME=aol
 PYTHON=python3
 # make sure pg_config is in the path otherwise psycopg2 won't compile
 export PATH:=.env/bin:/usr/pgsql-9.3/bin:$(PATH)
@@ -20,13 +17,16 @@ clean:
 reload: .env
 	python manage.py migrate
 	python manage.py collectstatic --noinput
-	touch $(WSGI_PATH)
+	touch $(PROJECT_NAME)/wsgi.py
+
+test:
+	python manage.py test --keepdb && flake8 && isort -rc --diff --check-only $(PROJECT_NAME)
 
 init:
 	rm -rf .env
 	$(MAKE) .env
-	psql postgres -c "CREATE DATABASE $(DEFAULT_DB_NAME);"
-	psql $(DEFAULT_DB_NAME) -c "CREATE EXTENSION postgis;"
+	psql postgres -c "CREATE DATABASE $(PROJECT_NAME);"
+	psql $(PROJECT_NAME) -c "CREATE EXTENSION postgis;"
 	python manage.py migrate
 
 .env: requirements.txt

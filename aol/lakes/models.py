@@ -185,7 +185,7 @@ class NHDLake(models.Model):
                 SELECT DISTINCT reachcode, 0 AS has_plants, 0 AS has_docs, 0 AS has_photos, 0 AS has_aol_page, 1 AS has_mussels FROM mussels.observation INNER JOIN "lake_geom" ON (ST_BUFFER(ST_TRANSFORM(observation.the_geom, 3644), %s) && lake_geom.the_geom)
             ) k
             GROUP BY reachcode
-        """, [DISTANCE_FROM_ITEM])
+        """, [DISTANCE_FROM_ITEM]) # noqa
         for row in dictfetchall(cursor):
             NHDLake.unfiltered.filter(reachcode=row['reachcode']).update(
                 has_plants=row['has_plants'],
