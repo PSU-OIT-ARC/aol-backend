@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2015-09-02
+### Added
+- Travis stuff
+- Upgraded django
+
 ## [1.1.0] - 2015-07-23
 ### Added
 - Authentication is now based on LDAP group membership
