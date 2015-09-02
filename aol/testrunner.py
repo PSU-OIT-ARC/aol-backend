@@ -4,11 +4,9 @@ from django.test.runner import DiscoverRunner
 # for some tests, we need to ensure the mussels schema is created with a couple
 # tables
 sql = """
-DO LANGUAGE plpgsql
-$$
-BEGIN
-CREATE SCHEMA IF NOT EXISTS mussels;
-CREATE TABLE IF NOT EXISTS mussels.observation
+DROP SCHEMA IF EXISTS mussels CASCADE;
+CREATE SCHEMA mussels;
+CREATE TABLE mussels.observation
 (
   waterbody_id integer,
   specie_id smallint,
@@ -20,21 +18,16 @@ CREATE TABLE IF NOT EXISTS mussels.observation
   user_id integer,
   observation_id serial NOT NULL
 );
-CREATE TABLE IF NOT EXISTS mussels.specie (
+CREATE TABLE mussels.specie (
     specie_id integer PRIMARY KEY,
     name text
 );
-CREATE TABLE IF NOT EXISTS mussels.agency (
+CREATE TABLE mussels.agency (
     agency_id integer PRIMARY KEY,
     name text
 );
 
 SELECT AddGeometryColumn('mussels', 'observation', 'the_geom', 4326, 'POINT', 2);
-
-EXCEPTION
-    WHEN OTHERS THEN NULL;
-END;
-$$;
 """
 
 
