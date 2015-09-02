@@ -47,7 +47,7 @@ DATABASES = {
 LDAP = {
     'default': {
         'host': "ldaps://ldap-bulk.oit.pdx.edu",
-        'username': 'uid=aol,ou=service,dc=pdx,dc=edu',
+        'username': 'uid=aolresearch,ou=service,dc=pdx,dc=edu',
         'password': variable("LDAP_PASSWORD", default=''),
         'search_dn': 'ou=Group,dc=pdx,dc=edu',
     },
@@ -189,8 +189,3 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'aol.users.backends.AOLBackend',
 )
-
-# The HOST:PORT of the logstash server you want to pipe logs to
-LOGSTASH_ADDRESS = variable("LOGSTASH_ADDRESS", "localhost:5000")
-
-LOGGING_CONFIG = 'arcutils.logging.basic'
