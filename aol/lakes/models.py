@@ -1,6 +1,6 @@
 import re
 
-from django.conf import settings as SETTINGS
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.db import connection, connections, transaction
 from django.db.models import Q
@@ -288,7 +288,7 @@ class NHDLake(models.Model):
         bbox = re.sub(r'[^0-9.-]', " ", bbox).split()
         bbox = ",".join(bbox)
         path = "export?bbox=%s&bboxSR=&layers=&layerdefs=&size=&imageSR=&format=jpg&transparent=false&dpi=&time=&layerTimeOptions=&f=image"
-        return SETTINGS.TILE_URL + (path % bbox)
+        return settings.TILE_URL + (path % bbox)
 
     @property
     def mussels(self):

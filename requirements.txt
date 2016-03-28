@@ -1,16 +1,3 @@
-Django<1.9
-Pillow==2.1.0
-psycopg2==2.5.1
-pytz==2013d
-https://github.com/PSU-OIT-ARC/djangocas/archive/master.zip
-Shapely==1.3.0
-pyshp
-requests
-mock
-model_mommy
-mommy_spatial_generators
-git+https://github.com/PSU-OIT-ARC/django-arcutils.git#egg=django-arcutils
-varlet
-ldap3
-flake8
-isort
+-f https://cdn.research.pdx.edu/pypi/dist/
+git+https://github.com/PSU-OIT-ARC/arctasks#egg=psu.oit.arc.tasks
+-e .[dev]

@@ -1,6 +1,5 @@
-import os
+import io
 
-from django.conf import settings as SETTINGS
 from django.core.urlresolvers import reverse
 from model_mommy.mommy import make
 
@@ -22,7 +21,7 @@ class ViewTest(LoginMixin):
         data = {
             'name': 'foo',
             'rank': '1',
-            'file': open(os.path.join(SETTINGS.MEDIA_ROOT, "photos", "test.jpg"), "rb"),
+            'file': io.BytesIO(b'fake file'),
             'type': Document.OTHER,
         }
         pre_count = Document.objects.filter(lake=lake).count()

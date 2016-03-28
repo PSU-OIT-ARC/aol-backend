@@ -8,7 +8,9 @@ CREATE INDEX lake_title_prefix_2 ON nhd USING BTREE(substring(lower(regexp_repla
 """
 
 class Migration(migrations.Migration):
-    dependencies = [("lakes", "0001_initial")]
+    dependencies = [
+        ('lakes', '0001_initial')
+    ]
 
     operations = [
         migrations.RunSQL(sql)

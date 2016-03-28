@@ -2,7 +2,7 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 <div id='home-row1' class='block'>
-    <img width='100%' src='{{STATIC_URL}}/img/aol_home_img.png' />
+    <img width='100%' src="{% static 'img/aol_home_img.png' %}" />
     <div id='home-overlay'></div>
     <div id='home-label'>
         Atlas of Oregon Lakes
@@ -19,12 +19,12 @@
     </div>
     <div class="col-md-4">
         <h2>Individual Lakes Pages</h2>
-        <img src="{{STATIC_URL }}img/lake_1.jpg" class="pull-left">
+        <img src="{% static 'img/lake_1.jpg' %}" class="pull-left">
         <p>Discover the rich diversity of Oregon’s lakes—learn about the current and historical topography, environmental relationships, and recreational and practical uses. View photos, water quality plots, and download resources including the original 1985 print atlas pages.</p>
     </div> 
     <div class="col-md-4">
         <h2>Atlas Features</h2>
-        <img src="{{STATIC_URL }}img/atlas_page.png" class="pull-left">
+        <img src="{% static 'img/atlas_page.png' %}" class="pull-left">
         <p>In addition to the comprehensive information in the 1985 print version, the online Atlas of Oregon lakes features updated information, more data types, and interactive functionality not possible through a print source, such as links to marine facilities information, water quality graphs, photographs, and downloadable data. All of these features are available through the interactive map as well as within each lake's page.</p>
     </div>
 </div>

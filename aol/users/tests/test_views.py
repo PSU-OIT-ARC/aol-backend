@@ -1,17 +1,18 @@
+from django.test import TestCase
+from django.core.urlresolvers import reverse
+from django.contrib.auth import get_user_model
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
-from django.test import TestCase
+
 from model_mommy.mommy import make, prepare
 
 from aol.lakes.models import LakeGeom, NHDLake as Lake
 
-from ..models import User
-
 
 class LoginMixin(TestCase):
     def setUp(self):
-        u = prepare(User, username="mdj2", email="mdj2@pdx.edu", first_name="M", last_name="J", is_staff=True)
+        user_model = get_user_model()
+        u = prepare(user_model, username="mdj2", email="mdj2@pdx.edu", first_name="M", last_name="J", is_staff=True)
         u.set_password("password")
         u.save()
         self.client.login(username=u.username, password="password")

@@ -1,8 +1,8 @@
-from django.conf import settings as SETTINGS
-from django.conf.urls import patterns, url
+from django.conf import settings
+from django.conf.urls import include, url
 from django.conf.urls.static import static
-# Uncomment the next two lines to enable the admin:
-from django.contrib import admin
+
+from arcutils.cas import urls as cas_urls
 
 from aol.documents import views as documents
 from aol.home import views as home
@@ -11,10 +11,7 @@ from aol.maps import views as maps
 from aol.photos import views as photos
 from aol.users import views as customadmin
 
-admin.autodiscover()
-
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$', home.home, name='home'),
     url(r'^search/?$', lakes.search, name='lakes-search'),
 
@@ -31,6 +28,7 @@ urlpatterns = patterns(
 
     # admin area
     url(r'^admin/?$', customadmin.listing, name='admin-listing'),
+    url(r'admin/', include(cas_urls)),
     url(r'^admin/edit/lake/(?P<reachcode>.+)?$', customadmin.edit_lake, name='admin-edit-lake'),
     url(r'^admin/edit/photo/(?P<photo_id>\d+)?$', photos.edit, name='admin-edit-photo'),
     url(r'^admin/edit/flatpage/(?P<pk>\d+)?$', customadmin.edit_flatpage, name='admin-edit-flatpage'),
@@ -39,21 +37,9 @@ urlpatterns = patterns(
     url(r'^admin/add/document/(?P<reachcode>.+)?$', documents.edit, name='admin-add-document'),
     url(r'^admin/add/flatpage/?$', customadmin.edit_flatpage, name='admin-add-flatpage'),
 
-    # login logout
-    url(r'^admin/login/$', 'djangocas.views.login', name='admin-login'),
-    url(r'^admin/logout/$', 'djangocas.views.logout', name='admin-logout', kwargs={"next_page": "/"}),
-
     # documents
     url(r'^documents/download/(?P<document_id>.+)?$', documents.download, name='documents-download'),
+]
 
-
-    # Examples:
-    # url(r'^$', 'aol.views.home', name='home'),
-    # url(r'^aol/', include('aol.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
-) + static(SETTINGS.MEDIA_URL, document_root=SETTINGS.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

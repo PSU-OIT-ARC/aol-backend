@@ -6,7 +6,7 @@
     <IconStyle>
       <scale>0.5</scale>
       <Icon>
-        <href>{{ STATIC_URL }}img/ombf_icons/boat_launch_small.png</href>
+        <href>{% static 'img/ombf_icons/boat_launch_small.png' %}</href>
       </Icon>
     </IconStyle>
   </Style>

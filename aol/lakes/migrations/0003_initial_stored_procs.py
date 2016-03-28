@@ -46,7 +46,9 @@ CREATE TRIGGER nhd_value_changed
 """
 
 class Migration(migrations.Migration):
-    dependencies = [("lakes", "initial_indexes")]
+    dependencies = [
+        ('lakes', '0002_initial_indexes'),
+    ]
 
     operations = [
         migrations.RunSQL(sql)

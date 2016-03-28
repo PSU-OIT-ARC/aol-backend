@@ -1,10 +1,16 @@
 language: python
+
 python:
   - "3.3"
+  - "3.4"
+  - "3.5"
+
 sudo: false
+
 # command to install dependencies
 install:
-  - cp variables.travis.py variables.py
-  - make init
+  - pip install -r requirements.txt
+
 # command to run tests
-script: make test
+script:
+  - LOCAL_SETTINGS_FILE="local.base.cfg#test" ./manage.py test

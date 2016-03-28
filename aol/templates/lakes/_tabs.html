@@ -1,13 +1,13 @@
-<ul class='nav nav-tabs'>
-    <li class="active"><a data-toggle="tab" title='maps' href='#maps'>Maps</a></li>
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" title="maps" href="#maps">Maps</a></li>
     <li><a data-toggle="tab" title='plants' href='#plants'>Plants</a></li>
-    <li><a data-toggle="tab" title='mussels' href='#mussels'>Molluscs</a></li>
-    <li><a data-toggle="tab" title='other-information' href='#other-information'>Documents</a></li>
-    <li><a data-toggle="tab" title='photos' href='#photos'>Photos</a></li>
+    <li><a data-toggle="tab" title="mussels" href="#mussels">Molluscs</a></li>
+    <li><a data-toggle="tab" title="other-information" href="#other-information">Documents</a></li>
+    <li><a data-toggle="tab" title="photos" href="#photos">Photos</a></li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane active" id='maps'>
+    <div class="tab-pane active" id="maps">
         {% if maps|length == 1 %}
             {% with map=maps|first %}
                 <a href="{{ map.url }}">{{ map.name }}</a>
@@ -22,7 +22,7 @@
 
         {% if maps %}<hr />{% endif %}
 
-        <select id='map-select' >
+        <select id="map-select">
             {% if lake.watershed_tile_url %}
                 <option value='#watershed'>Watershed</option>
             {% endif %}
@@ -33,19 +33,19 @@
         </select>
 
         {% if lake.watershed_tile_url %}
-            <div id='watershed' class='lake-watershed lake-map'>
+            <div id="watershed" class="lake-watershed lake-map">
                 <img src="{{ lake.watershed_tile_url }}" /> 
             </div>
         {% endif %}
 
         {% if lake.basin_tile_url %}
-            <div id='basin' class='lake-waterbasin lake-map'>
+            <div id="basin" class="lake-waterbasin lake-map">
                 <img src="{{ lake.basin_tile_url }}" />
             </div>
         {% endif %}
     </div>
 
-    <div class="tab-pane" id='mussels'>
+    <div class="tab-pane" id="mussels">
         {% if lake.mussels %}
             <p>The list below includes results of zebra and quagga mussels surveys conducted by the Center for Lakes and Reservoirs and other agencies.  The results "non-detect" and "results pending" indicate that surveys for zebra and quagga mussels were conducted, but none were detected or results are pending.  For more details on zebra and quagga mussel monitoring, please visit the <a href="http://www.pdx.edu/center-for-lakes-and-reservoirs/zebraquagga-mussel-substrate-monitoring">Online Mussel Monitoring Map</a>.</p> 
             <table class="table table-condensed table-striped">
@@ -71,7 +71,7 @@
         {% endif %}
     </div>
 
-    <div class="tab-pane" id='plants'>
+    <div class="tab-pane" id="plants">
         {% if lake_plants %}
             <p>The list of plants below includes results of aquatic plant surveys conducted by the <a href="http://www.pdx.edu/center-for-lakes-and-reservoirs">Center for Lakes and Reservoirs</a> as well as aquatic invasive plant species detections that have been reported to <a href="http://www.imapinvasives.org/orimi/map/">iMap Invasives</a>: an online, GIS-based invasive species reporting and querying tool. </p>
             <p>Plants listed in the table below are categorized as native to Oregon, on the Oregon Department of Agriculture’s (ODA’s) <a href="http://www.oregon.gov/ODA/PLANT/WEEDS/docs/weed_policy.pdf">Noxious Weed List</a>, on the Federal Noxious Weed List, or non-native but not listed as noxious.  Federal Noxious Weed List plants are plants determined by USDA to be serious threats to U.S. agriculture, irrigation, navigation, public health or the environment (7 C.F.R. 360.200). The ODA Noxious Weed categories are:</p>
@@ -120,49 +120,21 @@
             <div class="alert alert-warning">No documents available.</div>
         {% endif %}
     </div>
-    <div id='photos' class="tab-pane">
+    <div id="photos" class="tab-pane">
         {% if photos %}
-            <div id='photo-wrap'>
+            <div id="photo-wrap">
                 {% for photo in photos %}
                     <div class="lake-photo">
                         <a target="_blank" title="{{ photo.caption }}" href='{{ photo.url }}' data-lightbox="photo-1"><img src="{{ photo.thumbnail_url }}"/></a>
                     </div>
                 {% endfor %}
             </div>
-            <span id='previous'><img src='{{ STATIC_URL }}img/prev.png'></span>
-            <span id='next'><img src='{{ STATIC_URL }}img/next.png'></span>
-            <span id='numphotos'>0/0</span>
+            <span id="previous"><img src="{% static 'img/prev.png' %}"></span>
+            <span id="next"><img src="{% static 'img/next.png' %}"></span>
+            <span id="numphotos">0/0</span>
         {% else %}
             <div class="alert alert-warning">No photos available.</div>
             <p>If you would like your photos of Oregon lakes featured in the online atlas, <a href="/photo-submissions">click here</a> for submission criteria.</p>
         {% endif %}
     </div>
 </div>
-<script type='text/javascript'>
-    $(document).ready(function(){
-        //map select    
-        $('.lake-map:not(:first)').hide();
-        $('#map-select').change(function(){
-            $('.lake-map').hide(); 
-            $(this.value).show();
-        });
-        //slideshow 
-        var current = 1;
-        var numphotos = $('.lake-photo').length;
-        $('#numphotos').html(current + '/' + numphotos); 
-        $('#next').click(function(){
-            $('.lake-photo:nth-child('+current+'').hide();
-            current +=1; 
-            if(current > numphotos) current -= numphotos;
-            $('.lake-photo:nth-child('+current+'').show();
-            $('#numphotos').html(current + '/' + numphotos); 
-        });
-        $('#previous').click(function(){
-            $('.lake-photo:nth-child('+current+'').hide();
-            current -= 1; 
-            if(current < 1) current += numphotos;
-            $('.lake-photo:nth-child('+current+'').show();
-            $('#numphotos').html(current + '/' + numphotos); 
-        });
-    });
-</script>
