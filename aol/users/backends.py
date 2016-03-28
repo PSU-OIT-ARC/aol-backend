@@ -1,31 +1,22 @@
-from arcutils.ldap import escape, ldapsearch
 from django.conf import settings
-from django.contrib.auth import get_user_model
-from djangocas.backends import CASBackend
+from django.core.exceptions import PermissionDenied
+
+from arcutils.cas.backends import CASModelBackend
+from arcutils.ldap import escape, ldapsearch
 
 
-class AOLBackend(CASBackend):
-    """
-    Only allows user in ALLOWED_LOGIN_GROUPS to login
-    """
-    def get_or_init_user(self, username):
-        username = escape(username)
-        query = "(& (| %s) (memberuid=%s))" % (" ".join("(cn=%s)" % g for g in settings.ALLOWED_LOGIN_GROUPS), username)
-        results = ldapsearch(query)
+def in_allowed_groups(username):
+    uid = escape(username)
+    groups = ' '.join('(cn={group})'.format(group=g) for g in settings.ALLOWED_LOGIN_GROUPS)
+    query = '(& (memberUid={uid}) (| {groups}))'
+    query = query.format_map(locals())
+    results = ldapsearch(query)
+    return bool(results)
 
-        if len(results) == 0:
-            return None
 
-        User = get_user_model()
+class AOLCASModelBackend(CASModelBackend):
 
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            email = username + "@pdx.edu"
-            user = User(email=email, username=username)
-
-        user.is_active = True
-        user.is_staff = True
-        user.save()
-
-        return user
+    def get_or_create_user(self, cas_data):
+        if not in_allowed_groups(cas_data['username']):
+            raise PermissionDenied('You are not allowed to log in to this site.')
+        return super().get_or_create_user(cas_data, is_staff=True)

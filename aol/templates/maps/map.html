@@ -1,300 +1,308 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% block title %}Interactive Map{% endblock %}
-{% block head %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/OpenLayers/OpenLayers.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/proj4js.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/layers.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/map.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/purl.js"></script>
-    <link href="{{ STATIC_URL }}css/map.css" rel="stylesheet">
-    <script src="{{ STATIC_URL }}lightbox/js/lightbox-2.6.min.js"></script>
-    <link href="{{ STATIC_URL }}lightbox/css/lightbox.css" rel="stylesheet" />
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/map.css' %}" rel="stylesheet">
+    <link href="{% static 'lightbox/css/lightbox.css' %}" rel="stylesheet" />
 {% endblock %}
+
 {% block body %}
-<script type="text/javascript">
-$(document).ready(function(){
-    // when a lake is clicked on the map
-    $('#map').on("lake:selected", function(e, extras){
-        var feature = extras.feature;
-        var attrs = feature.attributes;
-        var reachcode = attrs.id
-        // click the right tab so the content area is exposed
-        $('#pull-out-tabs a[href="#info-panel-lake"]').click();
-        // show the loading bar, and hide any existing content on the tab 
-        $('#lake-loading').show();
-        $('#lake-content').html("")
-        // fetch the lake data, show the content and hide the loading bar
-        $.get('/maps/panel/' + reachcode, function(html){
-            $('#lake-content').html(html)
-            $('#lake-loading').hide();
-        });
-    });
+    <ul id="pull-out-tabs">
+        <li class="active"><a data-toggle="tab" href="#info-panel-legend" class="tab">Legend</a></li>
+        <li><a data-toggle="tab" href="#info-panel-search" class="tab">Search</a></li>
+        <li><a data-toggle="tab" href="#info-panel-lake" class="tab">Lake</a></li>
+    </ul>
 
-    // when a search is performed
-    $('#search-form').submit(function(e){
-        e.preventDefault();
-        // hide any existing search content and show the loading bar
-        $('#search-loading').show();
-        $('#search-content').html("")
-        // query the server for the results
-        $.get('{% url 'map-search' %}', $(this).serialize(), function(html){
-            // display the results and hide the loading bar
-            $('#search-content').html(html);
-            $('#search-loading').hide();
-        });
-    });
-
-    // when a search result is clicked
-    $('#search-content').on('click', '.zoom-to-view', function(e){
-        e.preventDefault();
-        var that = $(this);
-        MAP.zoomToExtent(new OpenLayers.Bounds(that.data('minx'), that.data('miny'), that.data('maxx'), that.data('maxy')), true);
-        $('#map').trigger("lake:selected", {feature: {attributes: {id: that.data('reachcode')}}});
-    });
-
-    // when the expand link on lake detail panel is clicked
-    var original_height = null;
-    $('#lake-content').on('click', '#expand-body', function(e){
-        e.preventDefault();
-        original_height = $('.body-spoiler').css("max-height");
-        $('.body-spoiler').animate({
-            'max-height': '100000px', // expand a lot
-        }, 1000).css("height", 'auto');
-        $('#collapse-body').show();
-        $('#body-wrapper .fadeout').hide();
-        $(this).hide();
-    });
-
-    // when the collapse link on a lake detail panel is clicked
-    $('#lake-content').on('click', '#collapse-body', function(e){
-        e.preventDefault();
-        $('.body-spoiler').animate({
-            'height': original_height, // expand a lot
-            'max-height': original_height, // expand a lot
-        }, 1000);
-        $('#expand-body').show();
-        $('#body-wrapper .fadeout').show();
-        $(this).hide();
-    });
-
-    // when a user clicks on one of the layer buttons
-    $('#layer-selector button').on('click', function(){
-        // toggle the base layer
-        $('#layer-selector button').removeClass("active");
-        $(this).addClass("active");
-        // find the layer that was clicked (based on the data-layer attribute,
-        // and the OpenLayer layer's name)
-        for(var i = 0; i < MAP.layers.length; i++){
-            if(MAP.layers[i].name == $(this).data("layer")){
-                MAP.setBaseLayer(MAP.layers[i]);
-                break;
-            }
-        }
-    })
-
-    // if there is a query parameter specifying the reachcode, click that lake
-    if($.url().param("reachcode")){
-        $('#map').trigger("lake:selected", {feature: {attributes: {id: $.url().param("reachcode")}}});
-    }
-});
-</script>
-
-<ul id="pull-out-tabs">
-    <li class="active"><a data-toggle="tab" href="#info-panel-legend" class="tab">Legend</a></li>
-    <li><a data-toggle="tab" href="#info-panel-search" class="tab">Search</a></li>
-    <li><a data-toggle="tab" href="#info-panel-lake" class="tab">Lake</a></li>
-</ul>
-
-<div id="layer-selector" class="btn-group btn-group-sm">
-    <button class="btn btn-default active" data-layer="Naturalistic">Naturalistic</button>
-    <button class="btn btn-default" data-layer="Ownership">Ownership</button>
-</div>
+    <div id="layer-selector" class="btn-group btn-group-sm">
+        <button class="btn btn-default active" data-layer="Naturalistic">Naturalistic</button>
+        <button class="btn btn-default" data-layer="Ownership">Ownership</button>
+    </div>
 
 
-<div id="map"></div>
+    <div id="map"></div>
 
-<div id="small-header">
-    <a href='/'><img id='logo' src='{{ STATIC_URL }}img/aol_logo.png' />Atlas of Oregon Lakes</a>
-</div>
+    <div id="small-header">
+        <a href='/'><img id='logo' src="{% static 'img/aol_logo.png' %}" />Atlas of Oregon Lakes</a>
+    </div>
 
-<div id="side-panel">
-    <div id="info-panel" class="tab-content">
-        <div id="info-panel-lake" class="tab-pane">
-            <div id="lake-content">
-                <div class="alert alert-warning">Click a lake on the map to view information about it. <strong>Note:</strong> You may need to zoom in on the lake before you can click it.</div>
+    <div id="side-panel">
+        <div id="info-panel" class="tab-content">
+            <div id="info-panel-lake" class="tab-pane">
+                <div id="lake-content">
+                    <div class="alert alert-warning">Click a lake on the map to view information about it. <strong>Note:</strong> You may need to zoom in on the lake before you can click it.</div>
+                </div>
+                <div id="lake-loading"><img src="{% static 'img/ajax-loader.gif' %}" /></div>
             </div>
-            <div id="lake-loading"><img src="{{ STATIC_URL }}img/ajax-loader.gif" /></div>
-        </div>
 
-        <div id="info-panel-search" class="tab-pane">
-            <label>Enter the name of a lake, its reachcode or GNIS ID:</label>
-            <form method="get" action="" id="search-form">
-                <input type="text" value="" name="query" />
-                <input type="submit" value="Search" />
-                <img id="search-loading" src="{{ STATIC_URL }}img/ajax-loader.gif" />
-            </form>
-            <div id="search-content"></div>
-        </div>
+            <div id="info-panel-search" class="tab-pane">
+                <label>Enter the name of a lake, its reachcode or GNIS ID:</label>
+                <form method="get" action="" id="search-form">
+                    <input type="text" value="" name="query" />
+                    <input type="submit" value="Search" />
+                    <img id="search-loading" src="{% static 'img/ajax-loader.gif' %}" />
+                </form>
+                <div id="search-content"></div>
+            </div>
 
-        <div id="info-panel-legend" class="tab-pane active">
-            <table>
-                <tr>
-                    <td><img src="/static/img/legend/icon1.png"></td>
-                    <td>Lake Data Available</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon2.png"></td>
-                    <td>Lake Watersheds</td>
-                </tr>
-                <tr>
-                    <th colspan="2">Waterbodies</th>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon3.png"></td>
-                    <td>Lake/Reservoir — Permanent</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon4.png"></td>
-                    <td>Lake/Reservoir — Intermittent</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon5.png"></td>
-                    <td>Playa</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon6.png"></td>
-                    <td>Ice/Snow</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon7.png"></td>
-                    <td>Swamp/Marsh</td>
-                </tr>
-                <tr>
-                    <th colspan="2">Streams</th>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon8.png"></td>
-                    <td>Permanent</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon9.png"></td>
-                    <td>Intermittent</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon10.png"></td>
-                    <td>Canal</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon11.png"></td>
-                    <td>Pipeline</td>
-                </tr>
-                <tr>
-                    <th colspan="2">Roads</th>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon12.png"></td>
-                    <td>Interstate</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon13.png"></td>
-                    <td>US</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon14.png"></td>
-                    <td>State</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon15.png"></td>
-                    <td>Non-State</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon16.png"></td>
-                    <td>Local</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon17.png"></td>
-                    <td>Railways</td>
-                </tr>
-                <tr>
-                    <th colspan="2">State/County/City</th>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon18.png"></td>
-                    <td>State/County</td>
-                </tr>
-                <tr>
-                    <td><img src="/static/img/legend/icon19.png"></td>
-                    <td>Cities/Places</td>
-                </tr>
-                <tr>
-                    <th colspan="2">Land Cover Classes</th>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#476BA1"></div></td>
-                    <td>Open Water</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#D1DEFA"></div></td>
-                    <td>Perenial Ice/Snow</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#DECACA"></div></td>
-                    <td>Developed, Open Space</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#D99482"></div></td>
-                    <td>Developed, Low Intensity</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#EE0000"></div></td>
-                    <td>Developed, Medium Intensity</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#AB0000"></div></td>
-                    <td>Developed, High Intensity</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#B3AEA3"></div></td>
-                    <td>Barren Land</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#68AB63"></div></td>
-                    <td>Deciduous Forest</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#1C6330"></div></td>
-                    <td>Evergreen Forest</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#B5CA8F"></div></td>
-                    <td>Mixed Forest</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#CCBA7D"></div></td>
-                    <td>Shrub/Scrub</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#E3E3C2"></div></td>
-                    <td>Grassland/Herbaceous</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#DCD93D"></div></td>
-                    <td>Pasture Hay</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#AB7028"></div></td>
-                    <td>Cultivated Crops</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#BAD9EB"></div></td>
-                    <td>Woody Wetlands</td>
-                </tr>
-                <tr>
-                    <td><div class="legend-color-box" style="background-color:#70A3BA"></div></td>
-                    <td>Emergent Herbaceous Wetlands</td>
-                </tr>
-            </table>
+            <div id="info-panel-legend" class="tab-pane active">
+                <table>
+                    <tr>
+                        <td><img src="/static/img/legend/icon1.png"></td>
+                        <td>Lake Data Available</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon2.png"></td>
+                        <td>Lake Watersheds</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Waterbodies</th>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon3.png"></td>
+                        <td>Lake/Reservoir — Permanent</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon4.png"></td>
+                        <td>Lake/Reservoir — Intermittent</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon5.png"></td>
+                        <td>Playa</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon6.png"></td>
+                        <td>Ice/Snow</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon7.png"></td>
+                        <td>Swamp/Marsh</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Streams</th>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon8.png"></td>
+                        <td>Permanent</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon9.png"></td>
+                        <td>Intermittent</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon10.png"></td>
+                        <td>Canal</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon11.png"></td>
+                        <td>Pipeline</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Roads</th>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon12.png"></td>
+                        <td>Interstate</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon13.png"></td>
+                        <td>US</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon14.png"></td>
+                        <td>State</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon15.png"></td>
+                        <td>Non-State</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon16.png"></td>
+                        <td>Local</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon17.png"></td>
+                        <td>Railways</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">State/County/City</th>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon18.png"></td>
+                        <td>State/County</td>
+                    </tr>
+                    <tr>
+                        <td><img src="/static/img/legend/icon19.png"></td>
+                        <td>Cities/Places</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Land Cover Classes</th>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#476BA1"></div></td>
+                        <td>Open Water</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#D1DEFA"></div></td>
+                        <td>Perenial Ice/Snow</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#DECACA"></div></td>
+                        <td>Developed, Open Space</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#D99482"></div></td>
+                        <td>Developed, Low Intensity</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#EE0000"></div></td>
+                        <td>Developed, Medium Intensity</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#AB0000"></div></td>
+                        <td>Developed, High Intensity</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#B3AEA3"></div></td>
+                        <td>Barren Land</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#68AB63"></div></td>
+                        <td>Deciduous Forest</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#1C6330"></div></td>
+                        <td>Evergreen Forest</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#B5CA8F"></div></td>
+                        <td>Mixed Forest</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#CCBA7D"></div></td>
+                        <td>Shrub/Scrub</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#E3E3C2"></div></td>
+                        <td>Grassland/Herbaceous</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#DCD93D"></div></td>
+                        <td>Pasture Hay</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#AB7028"></div></td>
+                        <td>Cultivated Crops</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#BAD9EB"></div></td>
+                        <td>Woody Wetlands</td>
+                    </tr>
+                    <tr>
+                        <td><div class="legend-color-box" style="background-color:#70A3BA"></div></td>
+                        <td>Emergent Herbaceous Wetlands</td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'js/OpenLayers/OpenLayers.js' %}"></script>
+    <script src="{% static 'js/proj4js.js' %}"></script>
+    <script src="{% static 'js/layers.js' %}"></script>
+    <script src="{% static 'js/map.js' %}"></script>
+    <script src="{% static 'js/purl.js' %}"></script>
+    <script src="{% static 'lightbox/js/lightbox-2.6.min.js' %}"></script>
+    <script>
+        $(document).ready(function(){
+            // when a lake is clicked on the map
+            $('#map').on("lake:selected", function(e, extras){
+                var feature = extras.feature;
+                var attrs = feature.attributes;
+                var reachcode = attrs.id
+                // click the right tab so the content area is exposed
+                $('#pull-out-tabs a[href="#info-panel-lake"]').click();
+                // show the loading bar, and hide any existing content on the tab
+                $('#lake-loading').show();
+                $('#lake-content').html("")
+                // fetch the lake data, show the content and hide the loading bar
+                $.get('/maps/panel/' + reachcode, function(html){
+                    $('#lake-content').html(html)
+                    $('#lake-loading').hide();
+                });
+            });
+
+            // when a search is performed
+            $('#search-form').submit(function(e){
+                e.preventDefault();
+                // hide any existing search content and show the loading bar
+                $('#search-loading').show();
+                $('#search-content').html("")
+                // query the server for the results
+                $.get('{% url 'map-search' %}', $(this).serialize(), function(html){
+                    // display the results and hide the loading bar
+                    $('#search-content').html(html);
+                    $('#search-loading').hide();
+                });
+            });
+
+            // when a search result is clicked
+            $('#search-content').on('click', '.zoom-to-view', function(e){
+                e.preventDefault();
+                var that = $(this);
+                MAP.zoomToExtent(new OpenLayers.Bounds(that.data('minx'), that.data('miny'), that.data('maxx'), that.data('maxy')), true);
+                $('#map').trigger("lake:selected", {feature: {attributes: {id: that.data('reachcode')}}});
+            });
+
+            // when the expand link on lake detail panel is clicked
+            var original_height = null;
+            $('#lake-content').on('click', '#expand-body', function(e){
+                e.preventDefault();
+                original_height = $('.body-spoiler').css("max-height");
+                $('.body-spoiler').animate({
+                    'max-height': '100000px', // expand a lot
+                }, 1000).css("height", 'auto');
+                $('#collapse-body').show();
+                $('#body-wrapper .fadeout').hide();
+                $(this).hide();
+            });
+
+            // when the collapse link on a lake detail panel is clicked
+            $('#lake-content').on('click', '#collapse-body', function(e){
+                e.preventDefault();
+                $('.body-spoiler').animate({
+                    'height': original_height, // expand a lot
+                    'max-height': original_height, // expand a lot
+                }, 1000);
+                $('#expand-body').show();
+                $('#body-wrapper .fadeout').show();
+                $(this).hide();
+            });
+
+            // when a user clicks on one of the layer buttons
+            $('#layer-selector button').on('click', function(){
+                // toggle the base layer
+                $('#layer-selector button').removeClass("active");
+                $(this).addClass("active");
+                // find the layer that was clicked (based on the data-layer attribute,
+                // and the OpenLayer layer's name)
+                for(var i = 0; i < MAP.layers.length; i++){
+                    if(MAP.layers[i].name == $(this).data("layer")){
+                        MAP.setBaseLayer(MAP.layers[i]);
+                        break;
+                    }
+                }
+            })
+
+            // if there is a query parameter specifying the reachcode, click that lake
+            if($.url().param("reachcode")){
+                $('#map').trigger("lake:selected", {feature: {attributes: {id: $.url().param("reachcode")}}});
+            }
+        });
+    </script>
+{% endblock %}
+

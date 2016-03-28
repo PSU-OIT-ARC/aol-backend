@@ -1,6 +1,8 @@
+import io
 import os
+import posixpath
 
-from django.conf import settings as SETTINGS
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.timezone import now
@@ -22,37 +24,28 @@ class ModelTest(TestCase):
     def test_thumbnail_url(self):
         photo = make(Photo, pk=1, file=gen_image_field())
 
-        # delete the thumbnail file
-        thumb_path = SETTINGS.ROOT('media', 'photos', 'thumbnail-%s' % os.path.basename(photo.file.name))
-        thumb_url = "/media/photos/thumbnail-%s" % os.path.basename(photo.file.name)
-        try:
-            os.remove(thumb_path)
-        except OSError:
-            pass
+        name = 'thumbnail-{name}'.format(name=os.path.basename(photo.file.name))
+        path = os.path.join(settings.MEDIA_ROOT, 'photos', name)
+        url = posixpath.join(settings.MEDIA_URL, 'photos', name)
 
-        # this should generate a thumbnail
-        self.assertEqual(photo.thumbnail_url, thumb_url)
-        # make sure the thumbnail file actually exists
-        self.assertTrue(os.path.exists(thumb_path))
+        if os.path.exists(path):
+            os.remove(path)
 
-        # now we want to make sure subsequent calls to the thumbnail_url do not
-        # recreate the image (since that would be expensive)
+        self.assertEqual(photo.thumbnail_url, url)
+        self.assertTrue(os.path.exists(path))
 
-        # overwrite the file
-        flag_text = "this should not be overwritten!"
-        with open(thumb_path, 'w') as f:
+        # Now we want to make sure subsequent calls to the thumbnail_url
+        # do not recreate the image (since that would be expensive).
+
+        flag_text = 'this should not be overwritten!'
+        with open(path, 'w') as f:
             f.write(flag_text)
-        # try getting the thumbnail URL again
-        self.assertEqual(photo.thumbnail_url, thumb_url)
-        # make sure it didn't recreate the thumbnail
-        with open(thumb_path) as f:
+
+        self.assertEqual(photo.thumbnail_url, url)
+        with open(path) as f:
             self.assertEqual(f.read(), flag_text)
 
-        # delete the thumbnail file
-        try:
-            os.remove(thumb_path)
-        except OSError:
-            pass
+        os.remove(path)
 
 
 class ViewTest(LoginMixin):
@@ -66,7 +59,7 @@ class ViewTest(LoginMixin):
         data = {
             'caption': 'foo',
             'author': 'bar',
-            'file': open(os.path.join(SETTINGS.MEDIA_ROOT, "photos", "test.jpg"), "rb"),
+            'file': io.BytesIO(b'fake jpeg'),
             'taken_on': '2012-12-12',
         }
         pre_count = Photo.objects.filter(lake=lake).count()

@@ -1,36 +1,41 @@
-{% extends "main.html" %}
+{% extends 'main.html' %}
+
 {% block content %}
-<script type="text/javascript" src="{{ STATIC_URL }}ckeditor/ckeditor.js"></script>
-<h2>Edit Lake</h2>
-<div class="row">
-    <div class="col-md-8">
-        <form method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <input type="submit" name="submit" value="submit" />
-        </form>
+    <h2>Edit Lake</h2>
+
+    <div class="row">
+        <div class="col-md-8">
+            <form method="post">
+                {% csrf_token %}
+                {{ form|bootstrap }}
+                <input type="submit" name="submit" value="submit" />
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <h3>Assets</h3>
+            <h4>Photos <a href="{% url 'admin-add-photo' reachcode=lake.pk %}">(Add)</a></h4>
+            {% if photos %}
+                <ul>
+                    {% for photo in photos %}
+                        <li><a href="{% url 'admin-edit-photo' photo_id=photo.pk %}">{{ photo.pk }} - {{ photo.caption }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <h4>Documents <a href="{% url 'admin-add-document' reachcode=lake.pk %}">(Add)</a></h4>
+            {% if documents %}
+                <ul>
+                    {% for document in documents %}
+                        <li><a href="{% url 'admin-edit-document' document_id=document.pk %}">{{ document.pk }} - {{ document.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
     </div>
+{% endblock %}
 
-    <div class="col-md-4">
-        <h3>Assets</h3>
-        <h4>Photos <a href="{% url 'admin-add-photo' reachcode=lake.pk %}">(Add)</a></h4> 
-        {% if photos %}
-            <ul>
-                {% for photo in photos %}
-                    <li><a href="{% url 'admin-edit-photo' photo_id=photo.pk %}">{{ photo.pk }} - {{ photo.caption }}</a></li>
-                {% endfor %} 
-            </ul>
-        {% endif %}
-
-        <h4>Documents <a href="{% url 'admin-add-document' reachcode=lake.pk %}">(Add)</a></h4>
-        {% if documents %}
-            <ul>
-                {% for document in documents %}
-                    <li><a href="{% url 'admin-edit-document' document_id=document.pk %}">{{ document.pk }} - {{ document.name }}</a></li>
-                {% endfor %} 
-            </ul>
-        {% endif %}
-    </div>
-</div>
-
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'ckeditor/ckeditor.js' %}"></script>
 {% endblock %}

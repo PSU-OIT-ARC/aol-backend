@@ -1,6 +1,6 @@
 import os
 
-from django.conf import settings as SETTINGS
+from django.conf import settings
 from django.contrib.gis.db import models
 from PIL import Image
 
@@ -44,7 +44,7 @@ class Photo(models.Model):
     @property
     def thumbnail_url(self):
         """Returns the complete path to the photo's thumbnail from MEDIA_URL"""
-        return SETTINGS.MEDIA_URL + os.path.relpath(self._thumbnail_path, SETTINGS.MEDIA_ROOT)
+        return settings.MEDIA_URL + os.path.relpath(self._thumbnail_path, settings.MEDIA_ROOT)
 
     @property
     def _thumbnail_path(self):

@@ -1,20 +1,29 @@
 <!DOCTYPE html>
+
+{% load staticfiles %}
+{% load arc %}
+
 <html>
     <head>
         <title>{% block title %}{% endblock %} - Atlas of Oregon Lakes</title>
-        <script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-1.10.2.min.js"></script>
-        <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet">
-        <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
-        <link href="{{ STATIC_URL }}css/main.css" rel="stylesheet" media="screen">
-		<link rel="icon" type="image/png" href="{{ STATIC_URL }}img/aol_favicon.png"/>
-        <script type="text/javascript">
-            $(document).ready(function(){
-                $('.has-tooltip').tooltip();
-            });
-        </script>
-        {% block head %}{% endblock %}
+        <link rel="icon" type="image/png" href="{% static 'img/aol_favicon.png' %}"/>
+        {% block css %}
+            <link href="{% cdn_url '/bootstrap/3.3.6/css/bootstrap.min.css' %}" rel="stylesheet">
+            <link href="{% static 'css/main.css' %}" rel="stylesheet" media="screen">
+        {% endblock %}
     </head>
+
     <body>
         {% block body %}{% endblock %}
+        {% block js %}
+            <script src="{% cdn_url '/jquery/1.12.1/jquery-1.12.1.min.js' %}"></script>
+            <script src="{% cdn_url '/bootstrap/3.3.6/js/bootstrap.min.js' %}"></script>
+            <script>
+                $(document).ready(function(){
+                    $('.has-tooltip').tooltip();
+                });
+            </script>
+            {% google_analytics %}
+        {% endblock %}
     </body>
 </html>

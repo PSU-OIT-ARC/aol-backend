@@ -1,10 +1,14 @@
+# Root
+/.env/
+/media/
+/static/
+/local*.cfg
+
+# Anywhere
+__pycache__/
 *.log
 *.pot
 *.pyc
-aol/settings/local.py
-.env
-media/*
+*.pyo
 *.sql
 plant_data.txt
-/variables.py
-/static

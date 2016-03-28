@@ -1,35 +1,54 @@
-.PHONY: run clean reload init
+venv ?= .env
+venv_python ?= python3.3
+bin = $(venv)/bin
+arctasks = $(venv)/lib/$(venv_python)/site-packages/arctasks/__init__.py
 
-PROJECT_NAME=aol
-PYTHON=python3
-# make sure pg_config is in the path otherwise psycopg2 won't compile
-export PATH:=.env/bin:/usr/pgsql-9.3/bin:$(PATH)
+# The init task creates a temporary virtualenv with arctasks installed
+# for bootstrapping purposes and then delegates to the arctasks init
+# task to do the actual initialization.
+init: $(venv) local.dev.cfg local.test.cfg $(arctasks)
+	$(bin)/inv init --overwrite
+	$(bin)/inv test
 
+reinit: clean-egg-info clean-pyc clean-venv init
 
-run: .env
-	python manage.py runserver 0.0.0.0:8000
+$(arctasks):
+	$(bin)/pip install git+https://github.com/PSU-OIT-ARC/arctasks#egg=psu.oit.arc.tasks
 
-clean:
-	find . -iname "*.pyc" -delete
-	find . -iname "*.pyo" -delete
-	find . -iname "__pycache__" -delete
+local.dev.cfg:
+	echo '[dev]' >> $@
+	echo 'extends = "local.base.cfg"' >> $@
 
-reload: .env
-	python manage.py migrate
-	python manage.py collectstatic --noinput
-	touch $(PROJECT_NAME)/wsgi.py
+local.test.cfg:
+	echo '[test]' >> $@
+	echo 'extends = "local.base.cfg"' >> $@
+
+$(venv):
+	virtualenv -p $(venv_python) $(venv)
+clean-venv:
+	rm -rf $(venv)
 
 test:
-	python manage.py test --keepdb && flake8 && isort -rc --diff --check-only $(PROJECT_NAME)
+	$(bin)/inv test
 
-init:
-	rm -rf .env
-	$(MAKE) .env
-	psql postgres -c "CREATE DATABASE $(PROJECT_NAME);"
-	psql $(PROJECT_NAME) -c "CREATE EXTENSION postgis;"
-	python manage.py migrate
+run:
+	$(bin)/inv runserver
 
-.env: requirements.txt
-	$(PYTHON) -m venv .env
-	curl https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python
-	pip install -r requirements.txt
+to ?= stage
+deploy:
+	$(bin)/inv --echo configure --env $(to) deploy
+
+clean: clean-pyc
+clean-all: clean-build clean-dist clean-egg-info clean-pyc clean-venv
+clean-build:
+	rm -rf build
+clean-dist:
+	rm -rf dist
+clean-egg-info:
+	rm -rf *.egg-info
+clean-pyc:
+	find . -name __pycache__ -type d -print0 | xargs -0 rm -r
+	find . -name '*.py[co]' -type f -print0 | xargs -0 rm
+
+.PHONY = init reinit test run deploy \
+         clean clean-all clean-build clean-dist clean-egg-info clean-pyc clean-venv
