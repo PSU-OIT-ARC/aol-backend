@@ -24,8 +24,8 @@ setup(
         'psycopg2>=2.6.2',
         'pyshp>=1.2.3',
         'pytz>=2016.4',
-        'Shapely>=1.5.16',
         'requests>=2.10.0',
+        'Shapely>=1.5.16',
     ],
     extras_require={
         'dev': [
