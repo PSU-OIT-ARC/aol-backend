@@ -19,7 +19,7 @@ setup(
         'django-arcutils[ldap]>=2.11.1',
         'django-bootstrap-form>=3.2.1',
         'django-local-settings>=1.0a20',
-        'django_pgcli>=0.0.2',
+        'django-pgcli>=0.0.2',
         'Pillow>=3.3.0',
         'psycopg2>=2.6.2',
         'pyshp>=1.2.3',
