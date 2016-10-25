@@ -1,6 +1,6 @@
 # Change Log for Atlas of Oregon Lakes
 
-## 1.3.0 - unreleased
+## 1.3.0 - 2016-10-25
 
 In progress...
 
