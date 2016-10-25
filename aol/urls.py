@@ -3,6 +3,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 
 from arcutils.cas import urls as cas_urls
+from arcutils.cas import views as cas_views
 
 from aol.documents import views as documents
 from aol.home import views as home
@@ -26,9 +27,13 @@ urlpatterns = [
     url(r'^map/facilities\.kml$', maps.facilities, name='facilities-kml'),
     url(r'^maps/panel/(?P<reachcode>.+)?$', maps.panel, name='lakes-panel'),
 
-    # admin area
+    # CAS Authentication
+    url(r'^accounts/login/$', cas_views.login, name='login'),
+    url(r'^accounts/logout/$', cas_views.logout, name='logout'),
+    url(r'^accounts/validate/$', cas_views.validate, name='cas-validate'),
+
+    # Admin area
     url(r'^admin/?$', customadmin.listing, name='admin-listing'),
-    url(r'admin/', include(cas_urls)),
     url(r'^admin/edit/lake/(?P<reachcode>.+)?$', customadmin.edit_lake, name='admin-edit-lake'),
     url(r'^admin/edit/photo/(?P<photo_id>\d+)?$', photos.edit, name='admin-edit-photo'),
     url(r'^admin/edit/flatpage/(?P<pk>\d+)?$', customadmin.edit_flatpage, name='admin-edit-flatpage'),
