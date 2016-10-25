@@ -26,6 +26,7 @@ setup(
         'pytz>=2016.4',
         'requests>=2.10.0',
         'Shapely>=1.5.16',
+	'raven>=5.31.0',
     ],
     extras_require={
         'dev': [
