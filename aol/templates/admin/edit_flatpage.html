@@ -11,5 +11,8 @@
 
 {% block js %}
     {{ block.super }}
+    <script >
+        var CKEDITOR_BASEPATH = '/static/ckeditor/';
+    </script>
     <script src="{% static 'ckeditor/ckeditor.js' %}"></script>
 {% endblock %}
