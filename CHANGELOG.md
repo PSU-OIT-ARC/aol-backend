@@ -1,9 +1,13 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.3.1 - 2016-11-03
+
+- Fix ckeditor urls in production
+
 ## 1.3.0 - 2016-10-25
 
-In progress...
-
+- Fix CAS account url patterns.
+- Adds Sentry Support.
 
 ## 1.3b1 - 2016-03-28
 
