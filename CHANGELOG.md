@@ -1,5 +1,10 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.4.0 - unreleased
+
+In progress...
+
+
 ## 1.3.1 - 2016-11-03
 
 - Fix ckeditor urls in production
