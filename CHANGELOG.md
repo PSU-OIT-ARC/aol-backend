@@ -1,5 +1,9 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.3.2 - 2016-11-04
+
+- Revert ldap3 requirement to older version to fix lookup error.
+
 ## 1.3.1 - 2016-11-03
 
 - Fix ckeditor urls in production

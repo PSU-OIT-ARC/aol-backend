@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-VERSION = '1.3.1'
+VERSION = '1.3.2'
 
 
 setup(
@@ -16,6 +16,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'django>=1.8.13,<1.9',
+        'ldap3<2.0',
         'django-arcutils[ldap]>=2.11.1',
         'django-bootstrap-form>=3.2.1',
         'django-local-settings>=1.0a20',
