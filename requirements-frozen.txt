@@ -1,5 +1,5 @@
 -f https://cdn.research.pdx.edu/pypi/dist/
-psu.oit.arc.aol==1.3.1
+psu.oit.arc.aol==1.3.2
 psu.oit.arc.tasks
 certifi==2016.9.26
 click==6.6
@@ -13,7 +13,7 @@ django-pgcli==0.0.2
 flake8==3.0.4
 humanize==0.5.1
 invoke==0.11.1
-ldap3==2.1.0
+ldap3==1.4.0
 mccabe==0.5.2
 mock==2.0.0
 model-mommy==1.3.0
