@@ -1,0 +1,19 @@
+version: "3"
+
+networks:
+    default:
+        driver: bridge
+
+services:
+    postgres:
+        image: kartoza/postgis:9.5-2.2
+        networks:
+            - default
+        ports:
+            - 5432:5432
+        volumes:
+            - ./volumes/postgres:/var/lib/postgresql
+        environment:
+            - POSTGRES_USER=aol
+            - POSTGRES_PASS=aol
+            - POSTGRES_DBNAME=aol

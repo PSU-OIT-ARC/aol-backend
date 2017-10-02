@@ -34,6 +34,7 @@ setup(
             'mock',
             'model_mommy',
             'mommy_spatial_generators',
+            'docker-compose'
         ]
     },
 )
