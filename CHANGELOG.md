@@ -2,7 +2,7 @@
 
 ## 1.4.0 - unreleased
 
-In progress...
+- Configures the project to use the 'emcee.backends.aws' backend.
 
 ## 1.3.3 - 2019-03-07
 

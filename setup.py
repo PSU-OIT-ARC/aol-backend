@@ -15,6 +15,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
+        'psu.oit.wdt.emcee>=1.0.0.rc2',
         'django>=1.8.18,<1.9',
         'django-arcutils[ldap]>=2.24',
         'django-bootstrap-form>=3.2.1',
@@ -29,7 +30,6 @@ setup(
     ],
     extras_require={
         'dev': [
-            'psu.oit.arc.tasks',
             'flake8',
             'mock',
             'model_mommy',

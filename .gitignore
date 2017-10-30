@@ -2,7 +2,6 @@
 /.env/
 /media/
 /static/
-/local*.cfg
 
 # Anywhere
 __pycache__/
