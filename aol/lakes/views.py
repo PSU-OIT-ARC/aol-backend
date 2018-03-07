@@ -68,7 +68,7 @@ def detail(request, reachcode, template=None):
 
 
 def search(request):
-    q = request.GET.get('q', '')
+    (lakes, q) = ([], request.GET.get('q', ''))
     if "q" in request.GET:
         lakes = list(NHDLake.objects.search(query=q)[:100])
         if len(lakes) == 1:
