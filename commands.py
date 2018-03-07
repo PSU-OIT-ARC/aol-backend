@@ -6,6 +6,7 @@ from emcee.commands.django import manage
 from emcee.commands.deploy import deploy
 
 from emcee.backends.dev.db import provision_database as provision_database_local
+from emcee.backends.aws.provision.base import patch_host
 from emcee.backends.aws.provision.python import provision_python
 from emcee.backends.aws.provision.services.local import provision_nginx
 from emcee.backends.aws.provision.services.remote import provision_database
