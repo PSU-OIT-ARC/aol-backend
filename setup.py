@@ -16,7 +16,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'psu.oit.wdt.emcee>=1.0.0.rc2',
-        'django>=1.8.18,<1.9',
+        'django>=1.11.11,<2.0',
         'django-arcutils[ldap]>=2.24',
         'django-bootstrap-form>=3.3',
         'django-pgcli>=0.0.2',
