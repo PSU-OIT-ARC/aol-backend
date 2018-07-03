@@ -2,6 +2,13 @@
 /.env/
 /media/
 /static/
+/build/
+/dist/
+/media/
+/static/
+/volumes/
+/*.egg-info/
+/.coverage
 
 # Anywhere
 __pycache__/

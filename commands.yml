@@ -1,0 +1,23 @@
+extends: emcee.backends.aws:commands.yml
+name: Atlas of Oregon Lakes
+distribution: psu.oit.arc.aol
+package: aol
+iam:
+  user: aol
+remote:
+  host_name: aol
+  nginx:
+    csp_policy: "default-src 'unsafe-inline' 'unsafe-eval' *.wdt.pdx.edu *.rc.pdx.edu *.research.pdx.edu http://*.rc.pdx.edu"
+environment:
+  dev:
+    python:
+      venv: venv
+  docker:
+    python:
+      venv: /venv/venv-docker
+  stage:
+    db:
+      host: aol.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
+  prod:
+    db:
+      host:

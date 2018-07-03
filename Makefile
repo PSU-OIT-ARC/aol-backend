@@ -1,33 +1,33 @@
-venv ?= .env
+package = aol
+distribution = psu.oit.arc.$(package)
+egg_name = $(distribution)
+egg_info = $(egg_name).egg-info
+
+venv ?= venv
 venv_python ?= python3
 bin = $(venv)/bin
 
-
-local.dev.cfg:
-	echo '[dev]' >> $@
-	echo 'extends = "local.base.cfg"' >> $@
-
-local.test.cfg:
-	echo '[test]' >> $@
-	echo 'extends = "local.base.cfg"' >> $@
 
 venv: $(venv)
 $(venv):
 	$(venv_python) -m venv $(venv)
 
-install: $(venv)
-	$(venv)/bin/pip install -r requirements.txt
+egg-info: $(egg_info)
+$(egg_info):
+	$(bin)/python setup.py egg_info
 
-init: install local.dev.cfg local.test.cfg
-	$(bin)/runcommand init --overwrite
-	$(bin)/runcommand test
+install: $(venv) $(egg_info)
+	$(venv)/bin/pip install -r requirements.txt
+reinstall: clean-install install
+
+init: install
+	$(bin)/mc init --overwrite
 reinit: clean-egg-info clean-pyc clean-venv init
 
-test:
-	$(bin)/runcommand test
-
+test: install
+	LOCAL_SETTINGS_FILE="local.base.cfg#test" $(bin)/python manage.py test -k
 run:
-	$(bin)/runcommand runserver
+	@$(bin)/python manage.py runserver
 
 clean: clean-pyc
 clean-all: clean-build clean-dist clean-egg-info clean-pyc clean-venv
