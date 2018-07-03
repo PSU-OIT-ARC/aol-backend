@@ -21,20 +21,26 @@ services:
     ports:
       - 5432:5432
     environment:
+      # In some cases, the logic present in the kartoza/postgis
+      # entrypoint may fail to recognize that this database already
+      # exists when the container volume has already such a database
+      # present; in this case, comment the 'POSTGRES_DBNAME' entry
+      # in order to succesfully boot the container.
       - POSTGRES_USER=aol
       - POSTGRES_PASS=aol
       - POSTGRES_DBNAME=aol
+      - ALLOW_IP_RANGE=172.20.0.0/16
     volumes:
       - ./volumes/postgres:/var/lib/postgresql
 
   aol:
     image: psu.oit.wdt/aol
-    build: app
+    build: docker
     user: aol
     environment:
       - LOCAL_SETTINGS_FILE=local.docker.cfg
-      - WSGI_ROOT=/webapps/aol
-      - WSGI_VENV=/webapps/aol/venv-docker
+      - APP_ROOT=/webapps/aol
+      - APP_VENV=/venv/venv-docker
     networks:
       - default
     ports:

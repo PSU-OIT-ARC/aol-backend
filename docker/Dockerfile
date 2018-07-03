@@ -14,5 +14,7 @@ RUN apt install -y \
   nodejs
 
 RUN adduser --no-create-home --home ${PROJECT_DIR} ${PROJECT_NAME}
+RUN mkdir /venv && chown ${PROJECT_NAME} /venv
+
 COPY ./entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
