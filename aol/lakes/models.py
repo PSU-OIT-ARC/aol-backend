@@ -434,7 +434,7 @@ class FishingZone(models.Model):
         return self.odfw.capitalize()
 
     def get_absolute_url(self):
-        return "http://www.dfw.state.or.us/rr/%s/index.asp" % self.odfw.lower()
+        return "https://myodfw.com/recreation-report/fishing-report/{}-zone".format(self.odfw.lower())
 
 
 class HUC6(models.Model):
