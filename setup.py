@@ -76,7 +76,6 @@ setup(
             'flake8',
             'mock',
             'model_mommy',
-            'mommy_spatial_generators',
             'docker-compose'
         ]
     },

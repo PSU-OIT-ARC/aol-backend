@@ -1,23 +1,26 @@
 from django.test import TestCase
 from model_mommy.mommy import make
 
-from ..models import HUC6, LakeCounty, LakeGeom, NHDLake as Lake
+from ..models import HUC6, LakeCounty, NHDLake as Lake
+from . import make_lake
 
 
 class LakeManagerTest(TestCase):
     def test_get_query_set(self):
-        lake = make(Lake, title="Matt Lake", ftype=390, is_in_oregon=True)
+        (lake, geom) = make_lake(lake_kwargs={'title': "Matt Lake"})
         make(LakeCounty, lake=lake, county__name="Clark")
         make(LakeCounty, lake=lake, county__name="Washington")
-        lake = Lake.objects.get(title="Matt Lake")
-        # the lake should have a comma separated list of counties
+
+        # the lake should have a comma separated list of counties as
+        # loading the instance should cache the computed 'counties' attribute.
+        lake = Lake.objects.get(pk=lake.pk)
         with self.assertNumQueries(0):
             # the ordering matters here. It's alphabetical
             self.assertTrue(lake.counties, "Clark, Washington")
 
     def test_search(self):
-        make(LakeGeom, reachcode=make(Lake, title="Matt Lake", ftype=390, is_in_oregon=True))
-        make(LakeGeom, reachcode=make(Lake, title="Bob Lake", ftype=390, is_in_oregon=True))
+        for title in ["Matt Lake", "Bob Lake"]:
+            (lake, geom) = make_lake(lake_kwargs={'title':title})
         lakes = Lake.objects.search("")[:2]
         self.assertTrue(len(lakes), 2)
 
@@ -34,34 +37,34 @@ class LakeManagerTest(TestCase):
 
 class LakeTest(TestCase):
     def test_area(self):
-        make(LakeGeom, reachcode=make(Lake, title="Matt Lake", ftype=390, is_in_oregon=True))
-        lake = Lake.objects.get(title="Matt Lake")
+        (lake, geom) = make_lake()
         self.assertTrue(lake.area)
         # check to make sure we cache the result
         with self.assertNumQueries(0):
             self.assertTrue(lake.area)
 
     def test_perimeter(self):
-        make(LakeGeom, reachcode=make(Lake, title="Matt Lake", ftype=390, is_in_oregon=True))
-        lake = Lake.objects.get(title="Matt Lake")
+        (lake, geom) = make_lake()
         self.assertTrue(lake.perimeter)
         # check to make sure we cache the result
         with self.assertNumQueries(0):
             self.assertTrue(lake.perimeter)
 
     def test_bounding_box(self):
-        make(LakeGeom, reachcode=make(Lake, title="Matt Lake", ftype=390, is_in_oregon=True))
-        lake = Lake.objects.get(title="Matt Lake")
+        (lake, geom) = make_lake()
         self.assertTrue(lake.bounding_box)
         # check to make sure we cache the result
         with self.assertNumQueries(0):
             self.assertTrue(lake.bounding_box)
 
     def test_counties(self):
-        lake = make(Lake, title="Matt Lake", ftype=390, is_in_oregon=True)
+        (lake, geom) = make_lake(lake_kwargs={'title': "Matt Lake"})
         make(LakeCounty, lake=lake, county__name="Clark")
         make(LakeCounty, lake=lake, county__name="Washington")
-        lake = Lake.objects.get(title="Matt Lake")
+
+        # the lake should have a comma separated list of counties as
+        # loading the instance should cache the computed 'counties' attribute.
+        lake = Lake.objects.get(pk=lake.pk)
         self.assertEqual(lake.counties, "Clark, Washington")
         # check to make sure we cache the result
         with self.assertNumQueries(0):
@@ -73,18 +76,19 @@ class LakeTest(TestCase):
 
     def test_watershed_tile_url(self):
         huc6 = make(HUC6, the_geom="MULTIPOLYGON (((30.0000000000000000 20.0000000000000000, 10.0000000000000000 40.0000000000000000, 45.0000000000000000 40.0000000000000000, 30.0000000000000000 20.0000000000000000)), ((15.0000000000000000 5.0000000000000000, 40.0000000000000000 10.0000000000000000, 10.0000000000000000 20.0000000000000000, 5.0000000000000000 10.0000000000000000, 15.0000000000000000 5.0000000000000000)))")  # noqa
-        make(
-            LakeGeom,
-            the_geom="MULTIPOLYGON (((30.0000000000000000 20.0000000000000000, 10.0000000000000000 40.0000000000000000, 45.0000000000000000 40.0000000000000000, 30.0000000000000000 20.0000000000000000)), ((15.0000000000000000 5.0000000000000000, 40.0000000000000000 10.0000000000000000, 10.0000000000000000 20.0000000000000000, 5.0000000000000000 10.0000000000000000, 15.0000000000000000 5.0000000000000000)))",  # noqa
-            reachcode=make(Lake, huc6=huc6, title="Matt Lake", ftype=390, is_in_oregon=True)
-        )
+
+        (lake, geom) = make_lake(lake_kwargs={'title':"Matt Lake"},
+                                 geom_kwargs={'the_geom': "MULTIPOLYGON (((30.0000000000000000 20.0000000000000000, 10.0000000000000000 40.0000000000000000, 45.0000000000000000 40.0000000000000000, 30.0000000000000000 20.0000000000000000)), ((15.0000000000000000 5.0000000000000000, 40.0000000000000000 10.0000000000000000, 10.0000000000000000 20.0000000000000000, 5.0000000000000000 10.0000000000000000, 15.0000000000000000 5.0000000000000000)))"})
+
         # just make sure the URL has a bbox set in it
         lake = Lake.objects.get(title="Matt Lake")
         url = lake.watershed_tile_url
         self.assertTrue("?bbox=-295,-295,345,340" in url)
 
     def test_basin_tile_url(self):
-        make(LakeGeom, the_geom="MULTIPOLYGON (((30.0000000000000000 20.0000000000000000, 10.0000000000000000 40.0000000000000000, 45.0000000000000000 40.0000000000000000, 30.0000000000000000 20.0000000000000000)), ((15.0000000000000000 5.0000000000000000, 40.0000000000000000 10.0000000000000000, 10.0000000000000000 20.0000000000000000, 5.0000000000000000 10.0000000000000000, 15.0000000000000000 5.0000000000000000)))", reachcode=make(Lake, title="Matt Lake", ftype=390, is_in_oregon=True))  # noqa
+        (lake, geom) = make_lake(lake_kwargs={'title':"Matt Lake"},
+                                 geom_kwargs={'the_geom': "MULTIPOLYGON (((30.0000000000000000 20.0000000000000000, 10.0000000000000000 40.0000000000000000, 45.0000000000000000 40.0000000000000000, 30.0000000000000000 20.0000000000000000)), ((15.0000000000000000 5.0000000000000000, 40.0000000000000000 10.0000000000000000, 10.0000000000000000 20.0000000000000000, 5.0000000000000000 10.0000000000000000, 15.0000000000000000 5.0000000000000000)))"})
+
         # just make sure the URL has a bbox set in it
         lake = Lake.objects.get(title="Matt Lake")
         url = lake.basin_tile_url

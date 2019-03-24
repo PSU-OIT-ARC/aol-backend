@@ -1,8 +1,8 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from model_mommy.mommy import make
 
-from ..models import LakeGeom, NHDLake as Lake
+from ..models import NHDLake as Lake
+from . import make_lake
 
 
 class LakesTest(TestCase):
@@ -17,8 +17,7 @@ class LakesTest(TestCase):
 
     def test_detail(self):
         """Make sure the lake detail page loads"""
-        lake = make(Lake, reachcode="123", title="Matt Lake", ftype=390, is_in_oregon=True)
-        make(LakeGeom, reachcode=lake)
+        (lake, geom) = make_lake(lake_kwargs={'reachcode':"123", 'title':"Matt Lake"})
         response = self.client.get(reverse('lakes-detail', args=(123,)))
         self.assertEqual(response.status_code, 200)
 

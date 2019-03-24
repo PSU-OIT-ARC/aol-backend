@@ -16,5 +16,4 @@ __pycache__/
 *.pot
 *.pyc
 *.pyo
-*.sql
 plant_data.txt

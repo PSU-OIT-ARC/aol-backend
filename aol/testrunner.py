@@ -1,40 +1,35 @@
+import os.path
+
 from django.test.runner import DiscoverRunner
+from django.db import connection
+
+from model_mommy.mommy import generators
+from mommy_spatial_generators import MOMMY_SPATIAL_FIELDS
 
 
-# for some tests, we need to ensure the mussels schema is created with a couple
-# tables
-sql = """
-DROP SCHEMA IF EXISTS mussels CASCADE;
-CREATE SCHEMA mussels;
-CREATE TABLE mussels.observation
-(
-  waterbody_id integer,
-  specie_id smallint,
-  date_checked date,
-  physical_description text,
-  agency_id integer,
-  approved boolean,
-  clr_substrate_id smallint,
-  user_id integer,
-  observation_id serial NOT NULL
-);
-CREATE TABLE mussels.specie (
-    specie_id integer PRIMARY KEY,
-    name text
-);
-CREATE TABLE mussels.agency (
-    agency_id integer PRIMARY KEY,
-    name text
-);
+class TestRunner(DiscoverRunner):
+    """
+    Loads out-of-scope schema which is managed by a separate project.
+    """
+    def __register_geospatial_generators(self):
+        """
+        Registers model_mommy generators from 'mommy_spatial_generators'.
+        """
+        for _type, gen in MOMMY_SPATIAL_FIELDS.items():
+            generators.add(_type, gen)
 
-SELECT AddGeometryColumn('mussels', 'observation', 'the_geom', 4326, 'POINT', 2);
-"""
-
-
-class AOLRunner(DiscoverRunner):
-    def setup_databases(self, *args, **kwargs):
-        to_return = super(AOLRunner, self).setup_databases(*args, **kwargs)
-        from django.db import connection
+    def __load_mussels_schema_sql(self):
+        path = os.path.join(os.path.dirname(__file__), '..', 'assets', 'create-mussels-schema.sql')
         cursor = connection.cursor()
-        cursor.execute(sql)
+
+        with open(path, 'r') as f:
+            cursor.execute(f.read())
+
+    def setup_test_environment(self, **kwargs):
+        super().setup_test_environment(**kwargs)
+        self.__register_geospatial_generators()
+
+    def setup_databases(self, *args, **kwargs):
+        to_return = super().setup_databases(*args, **kwargs)
+        self.__load_mussels_schema_sql()
         return to_return
