@@ -7,10 +7,24 @@ python:
 
 sudo: false
 
-# command to install dependencies
+addons:
+    postgresql: "10"
+    apt:
+      packages:
+        - postgresql-10-postgis-2.4
+
+services:
+    - postgresql
+
 install:
   - pip install -r requirements.txt
 
-# command to run tests
+before_script:
+    - psql -U postgres -c 'create user aol;'
+    - psql -U postgres -c 'create database aol owner aol;'
+    - psql -U postgres -d aol -c 'create extension postgis;'
+    - psql -U postgres -c 'create database test_aol owner aol;'
+    - psql -U postgres -d test_aol -c 'create extension postgis;'
+
 script:
-  - LOCAL_SETTINGS_FILE="local.base.cfg#test" ./manage.py test
+    - LOCAL_SETTINGS_FILE="local.base.cfg#travis" python manage.py test

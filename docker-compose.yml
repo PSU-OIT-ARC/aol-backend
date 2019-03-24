@@ -15,7 +15,7 @@ networks:
 
 services:
   postgres:
-    image: kartoza/postgis:9.6-2.4
+    image: kartoza/postgis:10.0-2.4
     networks:
       - default
     ports:
