@@ -57,7 +57,7 @@ setup(
     zip_safe=False,
 
     install_requires=[
-        'psu.oit.wdt.emcee>=1.0.0.rc7,<1.1',
+        'psu.oit.wdt.emcee>=1.0.0.rc8,<1.1',
         'django~=1.11.20',
         'django-arcutils[ldap]~=2.24',
         'django-bootstrap-form~=3.4',
@@ -68,7 +68,7 @@ setup(
         'psycopg2-binary~=2.8.2',
         'pyshp~=2.1.0',
         'Shapely~=1.6.4',
-        'raven~=6.9.0',
+        'sentry-sdk~=0.7.14'
     ],
     extras_require={
         'dev': [
