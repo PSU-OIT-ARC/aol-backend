@@ -23,8 +23,10 @@ before_script:
     - psql -U postgres -c 'create user aol;'
     - psql -U postgres -c 'create database aol owner aol;'
     - psql -U postgres -d aol -c 'create extension postgis;'
+    - psql -U postgres -d aol -c 'create extension hstore;'
     - psql -U postgres -c 'create database test_aol owner aol;'
     - psql -U postgres -d test_aol -c 'create extension postgis;'
+    - psql -U postgres -d test_aol -c 'create extension hstore;'
 
 script:
     - LOCAL_SETTINGS_FILE="local.base.cfg#travis" python manage.py test --keepdb
