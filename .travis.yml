@@ -1,5 +1,5 @@
+dist: xenial
 language: python
-
 python:
   - "3.5"
   - "3.6"
@@ -27,4 +27,4 @@ before_script:
     - psql -U postgres -d test_aol -c 'create extension postgis;'
 
 script:
-    - LOCAL_SETTINGS_FILE="local.base.cfg#travis" python manage.py test
+    - LOCAL_SETTINGS_FILE="local.base.cfg#travis" python manage.py test --keepdb
