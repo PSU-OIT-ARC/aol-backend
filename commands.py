@@ -11,9 +11,11 @@ from emcee.commands.deploy import deploy
 from emcee.commands.python import virtualenv, install
 from emcee.commands.django import manage, manage_remote
 from emcee.commands.javascript import npm_install
+from emcee.commands.files import copy_file
 
 from emcee.provision.base import provision_host, patch_host
 from emcee.provision.python import provision_python
+from emcee.provision.gis import provision_gis
 from emcee.provision.services import provision_nginx
 from emcee.provision.secrets import show_secret
 from emcee.deploy.base import push_nginx_config
@@ -44,6 +46,7 @@ def provision_app(createdb=False):
     # Configure host properties and prepare host platforms
     provision_host(initialize_host=True)
     provision_python()
+    provision_gis()
     provision_nginx()
 
     # Initialize/prepare attached EBS volume
