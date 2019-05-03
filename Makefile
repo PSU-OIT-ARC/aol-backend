@@ -18,7 +18,6 @@ $(egg_info):
 
 install: $(venv) $(egg_info)
 	$(venv)/bin/pip install -r requirements.txt
-reinstall: clean-install install
 
 init: install
 	$(bin)/mc init --overwrite
@@ -26,6 +25,8 @@ reinit: clean-egg-info clean-pyc clean-venv init
 
 test: install
 	LOCAL_SETTINGS_FILE="local.base.cfg#test" $(bin)/python manage.py test -k
+test_container: install
+	$(bin)/docker-compose run --user=aol --rm --entrypoint=/entrypoint-test.sh aol
 run:
 	@$(bin)/python manage.py runserver
 
