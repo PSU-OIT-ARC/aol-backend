@@ -58,16 +58,15 @@ setup(
 
     install_requires=[
         'psu.oit.wdt.emcee>=1.0.0.rc7,<1.1',
-        'django~=1.11.14',
+        'django~=1.11.20',
         'django-arcutils[ldap]~=2.24',
         'django-bootstrap-form~=3.4',
-        'django-pgcli~=0.0.2',
-
-        'requests~=2.19.1',
-        'Pillow~=5.2.0',
-        'psycopg2~=2.7.5',
-        'pyshp~=1.2.12',
-        'pytz~=2018.3',
+        'django-pgcli~=0.0.3',
+        'pytz',
+        'requests~=2.21.0',
+        'Pillow~=6.0.0',
+        'psycopg2-binary~=2.8.2',
+        'pyshp~=2.1.0',
         'Shapely~=1.6.4',
         'raven~=6.9.0',
     ],
