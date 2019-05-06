@@ -1,4 +1,6 @@
 {% extends 'main.html' %}
+{% load static %}
+
 
 {% block title %}{{ lake }}{% endblock %}
 
@@ -15,7 +17,7 @@
                 <strong>Reachcode:</strong> {{ lake.reachcode }} |
                 <strong>Area:</strong> {{ lake.area|floatformat }} acres |
                 <strong>Shoreline:</strong> {{ lake.perimeter|floatformat }} mi |
-                <a href="{% url 'map' %}?minx={{ lake.bounding_box.0 }}&miny={{ lake.bounding_box.1 }}&maxx={{ lake.bounding_box.2 }}&maxy={{ lake.bounding_box.3 }}&reachcode={{ lake.reachcode }}">View on Interactive Map</a>
+                <a href="{% url 'map' %}?minx={{ lake.bounding_box.topleft.x }}&miny={{ lake.bounding_box.topleft.y }}&maxx={{ lake.bounding_box.bottomright.x }}&maxy={{ lake.bounding_box.bottomright.y }}&reachcode={{ lake.reachcode }}">View on Interactive Map</a>
                 {% if user.is_authenticated %}
                     | <a href="{% url 'admin-edit-lake' lake.reachcode %}">Edit</a>
                 {% endif %}

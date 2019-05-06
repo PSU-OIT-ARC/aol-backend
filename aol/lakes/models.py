@@ -1,10 +1,15 @@
+import collections
 import re
 
-from django.conf import settings
+from django.utils.functional import cached_property
+from django.contrib.gis.db.models import functions
 from django.contrib.gis.db import models
 from django.db import connection, connections, transaction
 from django.db.models import Q
+from django.conf import settings
 
+Point = collections.namedtuple('Point', ['x','y'])
+BoundingBox = collections.namedtuple('BoundingBox', ['topleft', 'bottomright'])
 # this is the distance we use to calculate if a mussel observation is near a lake
 DISTANCE_FROM_ITEM = 10 # feet since the projection 3644 is in feet
 
@@ -200,37 +205,52 @@ class NHDLake(models.Model):
             UPDATE nhd SET is_in_oregon = foo.the_count > 0 FROM foo WHERE foo.reachcode = nhd.reachcode
         """)
 
-    @property
+    @cached_property
     def area(self):
-        """Returns the number of acres this lake is"""
-        if not hasattr(self, "_area"):
-            cursor = connections['default'].cursor()
-            # 43560 is the number of square feet in an arre
-            cursor.execute("SELECT ST_AREA(the_geom)/43560 FROM lake_geom WHERE reachcode = %s", (self.reachcode,))
-            self._area = cursor.fetchone()[0]
-        return self._area
+        """
+        Returns the area of the lake in acres.
 
-    @property
+        Pre-existing implementation used 'ST_AREA' and assumed a measurement given in sq. ft.,
+        due to http://spatialreference.org/ref/epsg/3644/.
+
+        While the result given by postgis (with standard units determined by SRID) claims to
+        be m^2, this value is interpreted as sqft. nonetheless in order to match existing values.
+        Additionally, it appears that performing the conversion to acre in PostgreSQL yields
+        marginally different values than when converted in Python.
+
+        E.g., McKay Reservoir
+              1174.2 acres (pg) v. 1171.8 acres (py)
+        """
+        lake_geoms = LakeGeom.objects.filter(reachcode=self.pk).annotate(area=functions.Area('the_geom'))
+        return lake_geoms[0].area.standard / 43650.
+
+    @cached_property
     def perimeter(self):
-        """Returns the number of acres this lake is"""
-        if not hasattr(self, "_perimeter"):
-            cursor = connections['default'].cursor()
-            # 5280 is the number of feet in a mile
-            cursor.execute("SELECT ST_PERIMETER(the_geom)/5280 FROM lake_geom WHERE reachcode = %s", (self.reachcode,))
-            self._perimeter = cursor.fetchone()[0]
-        return self._perimeter
+        """
+        Returns the perimeter length of the lake in miles.
 
-    @property
+        Pre-existing implementation used 'ST_DISTANCE' and assumed a measurement given in ft.,
+        due to http://spatialreference.org/ref/epsg/3644/
+        """
+        lake_geoms = LakeGeom.objects.filter(reachcode=self.pk).annotate(perimeter=functions.Perimeter('the_geom'))
+        return lake_geoms[0].perimeter.mi
+
+    @cached_property
     def bounding_box(self):
-        if not hasattr(self, "_bbox"):
-            lakes = LakeGeom.objects.raw("""SELECT reachcode, Box2D(ST_Envelope(st_expand(the_geom,1000))) as coords from lake_geom WHERE reachcode = %s""", (self.pk,))  # noqa
-            lake = list(lakes)[0]
-            self._bbox = re.sub(r'[^0-9.-]', " ", lake.coords).split()
-        return self._bbox
+        lake_geoms = LakeGeom.objects.filter(reachcode=self.pk).annotate(envelope=functions.Envelope('the_geom'))
+        coords = lake_geoms[0].envelope.coords[0]
+        expand_factor = 1000
+
+        return BoundingBox(topleft=Point(x=coords[0][0]-expand_factor,
+                                         y=coords[0][1]-expand_factor),
+                           bottomright=Point(x=coords[2][0]+expand_factor,
+                                             y=coords[2][1]+expand_factor))
 
     @property
     def counties(self):
-        """Return a nice comma separated list of the counties this lake belongs to"""
+        """
+        Return a nice comma separated list of the counties this lake belongs to
+        """
         if not hasattr(self, "_counties"):
             self._counties = ", ".join(c.name for c in self.county_set.all())
         return self._counties
@@ -335,8 +355,6 @@ class LakeGeom(models.Model):
     the_geom_108k = models.MultiPolygonField(srid=3644)
     the_geom_54k = models.MultiPolygonField(srid=3644)
     the_geom_27k = models.MultiPolygonField(srid=3644)
-
-    objects = models.GeoManager()
 
     class Meta:
         db_table = "lake_geom"

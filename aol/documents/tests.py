@@ -1,9 +1,11 @@
-import io
-
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
+
+from model_mommy.random_gen import gen_file_field
 from model_mommy.mommy import make
 
-from aol.lakes.models import LakeGeom, NHDLake as Lake
+from aol.lakes.tests import make_lake
+from aol.lakes.models import NHDLake as Lake
 from aol.users.tests.test_views import LoginMixin
 
 from .models import Document
@@ -11,9 +13,7 @@ from .models import Document
 
 class ViewTest(LoginMixin):
     def test_add_document(self):
-        lake = make(Lake, title="Matt Lake", is_in_oregon=True, ftype=390)
-        make(LakeGeom, reachcode=lake)
-        lake = Lake.objects.get(title="Matt Lake")
+        (lake, geom) = make_lake(lake_kwargs={'title': "Matt Lake"})
         response = self.client.get(reverse('admin-add-document', args=(lake.pk,)))
         self.assertEqual(response.status_code, 200)
 
@@ -21,7 +21,7 @@ class ViewTest(LoginMixin):
         data = {
             'name': 'foo',
             'rank': '1',
-            'file': io.BytesIO(b'fake file'),
+            'file': SimpleUploadedFile('doc.pdf', b'fake content', content_type='application/pdf'),
             'type': Document.OTHER,
         }
         pre_count = Document.objects.filter(lake=lake).count()
@@ -37,7 +37,7 @@ class ViewTest(LoginMixin):
         self.assertFalse(response.context['form'].is_valid())
 
     def test_edit_document(self):
-        document = make(Document)
+        document = make(Document, file=gen_file_field())
         response = self.client.get(reverse('admin-edit-document', args=(document.pk,)))
         self.assertEqual(response.status_code, 200)
 

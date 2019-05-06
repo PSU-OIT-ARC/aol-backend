@@ -2,7 +2,13 @@
 /.env/
 /media/
 /static/
-/local*.cfg
+/build/
+/dist/
+/media/
+/static/
+/volumes/
+/*.egg-info/
+/.coverage
 
 # Anywhere
 __pycache__/
@@ -10,5 +16,4 @@ __pycache__/
 *.pot
 *.pyc
 *.pyo
-*.sql
 plant_data.txt

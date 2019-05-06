@@ -1,5 +1,11 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.4.0 - 2019-05-06
+
+- Configures the project to use the 'emcee.backends.aws' backend.
+- Uses the Django 1.11 LTS release.
+- Updates Python dependencies.
+
 ## 1.3.3 - 2019-03-07
 
 - Updates ODFW fishing report URL.

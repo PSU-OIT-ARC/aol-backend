@@ -1,42 +1,34 @@
-venv ?= .env
-venv_python ?= python3.3
+package = aol
+distribution = psu.oit.arc.$(package)
+egg_name = $(distribution)
+egg_info = $(egg_name).egg-info
+
+venv ?= venv
+venv_python ?= python3
 bin = $(venv)/bin
-arctasks = $(venv)/lib/$(venv_python)/site-packages/arctasks/__init__.py
 
-# The init task creates a temporary virtualenv with arctasks installed
-# for bootstrapping purposes and then delegates to the arctasks init
-# task to do the actual initialization.
-init: $(venv) local.dev.cfg local.test.cfg $(arctasks)
-	$(bin)/inv init --overwrite
-	$(bin)/inv test
 
+venv: $(venv)
+$(venv):
+	$(venv_python) -m venv $(venv)
+
+egg-info: $(egg_info)
+$(egg_info):
+	$(bin)/python setup.py egg_info
+
+install: $(venv) $(egg_info)
+	$(venv)/bin/pip install -r requirements.txt
+
+init: install
+	$(bin)/mc init --overwrite
 reinit: clean-egg-info clean-pyc clean-venv init
 
-$(arctasks):
-	$(bin)/pip install git+https://github.com/PSU-OIT-ARC/arctasks#egg=psu.oit.arc.tasks
-
-local.dev.cfg:
-	echo '[dev]' >> $@
-	echo 'extends = "local.base.cfg"' >> $@
-
-local.test.cfg:
-	echo '[test]' >> $@
-	echo 'extends = "local.base.cfg"' >> $@
-
-$(venv):
-	virtualenv -p $(venv_python) $(venv)
-clean-venv:
-	rm -rf $(venv)
-
-test:
-	$(bin)/inv test
-
+test: install
+	LOCAL_SETTINGS_FILE="local.base.cfg#test" $(bin)/python manage.py test --keepdb --failfast
+test_container: install
+	$(bin)/docker-compose run --user=aol --rm --entrypoint=/entrypoint-test.sh aol
 run:
-	$(bin)/inv runserver
-
-to ?= stage
-deploy:
-	$(bin)/inv --echo configure --env $(to) deploy
+	@$(bin)/python manage.py runserver
 
 clean: clean-pyc
 clean-all: clean-build clean-dist clean-egg-info clean-pyc clean-venv
@@ -49,6 +41,8 @@ clean-egg-info:
 clean-pyc:
 	find . -name __pycache__ -type d -print0 | xargs -0 rm -r
 	find . -name '*.py[co]' -type f -print0 | xargs -0 rm
+clean-venv:
+	rm -rf $(venv)
 
 .PHONY = init reinit test run deploy \
          clean clean-all clean-build clean-dist clean-egg-info clean-pyc clean-venv

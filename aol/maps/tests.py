@@ -3,10 +3,10 @@ from unittest.mock import Mock, patch
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from model_mommy.mommy import make
 
 from aol.facilities.models import Facility
-from aol.lakes.models import LakeGeom, NHDLake
+from aol.lakes.tests import make_lake
+from aol.lakes.models import NHDLake
 
 
 class HomeTest(TestCase):
@@ -61,16 +61,14 @@ class FacilitiesTest(TestCase):
 
 class PanelTest(TestCase):
     def test_load(self):
-        lake = make(NHDLake, title="Matt Lake", ftype=390, is_in_oregon=True)
-        make(LakeGeom, reachcode=lake)
+        (lake, geom) = make_lake(lake_kwargs={'title': "Matt Lake"})
         response = self.client.get(reverse("lakes-panel", args=(lake.pk,)))
         self.assertTrue(response.status_code, 200)
 
 
 class SearchTest(TestCase):
     def test_load(self):
-        lake = make(NHDLake, title="Matt Lake", ftype=390, is_in_oregon=True)
-        make(LakeGeom, reachcode=lake)
+        (lake, geom) = make_lake(lake_kwargs={'title': "Matt Lake"})
         response = self.client.get(reverse("map-search")+"?query=matt")
         self.assertTrue(response.status_code, 200)
         # Matt lake should be in the results

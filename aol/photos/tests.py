@@ -1,14 +1,16 @@
-import io
-import os
 import posixpath
+import os
 
-from django.conf import settings
+from django.utils.timezone import now
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.utils.timezone import now
-from model_mommy.generators import gen_image_field
+from django.conf import settings
+
+from model_mommy.random_gen import gen_image_field
 from model_mommy.mommy import make
 
+from aol.lakes.tests import make_lake
 from aol.lakes.models import NHDLake as Lake
 from aol.users.tests.test_views import LoginMixin
 
@@ -50,8 +52,7 @@ class ModelTest(TestCase):
 
 class ViewTest(LoginMixin):
     def test_add_photo(self):
-        make(Lake, title="Matt Lake", ftype=390, is_in_oregon=True)
-        lake = Lake.objects.get(title="Matt Lake")
+        (lake, geom) = make_lake(lake_kwargs={'title': "Matt Lake"})
         response = self.client.get(reverse('admin-add-photo', args=(lake.pk,)))
         self.assertEqual(response.status_code, 200)
 
@@ -59,7 +60,7 @@ class ViewTest(LoginMixin):
         data = {
             'caption': 'foo',
             'author': 'bar',
-            'file': io.BytesIO(b'fake jpeg'),
+            'file': SimpleUploadedFile('image.jpg', b'fake content', content_type='image/jpeg'),
             'taken_on': '2012-12-12',
         }
         pre_count = Photo.objects.filter(lake=lake).count()
@@ -75,8 +76,8 @@ class ViewTest(LoginMixin):
         self.assertFalse(response.context['form'].is_valid())
 
     def test_edit_photo(self):
-        photo = make(Photo, pk=1, taken_on=now())
-        photo = Photo.objects.get(pk=1)
+        photo = make(Photo, pk=1, file=gen_image_field(), taken_on=now())
+
         response = self.client.get(reverse('admin-edit-photo', args=(photo.pk,)))
         self.assertEqual(response.status_code, 200)
 

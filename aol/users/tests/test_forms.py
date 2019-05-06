@@ -1,6 +1,9 @@
 from django.test import TestCase
+
+from model_mommy.random_gen import gen_image_field
 from model_mommy.mommy import make
 
+from aol.lakes.tests import make_lake
 from aol.lakes.models import NHDLake as Lake
 from aol.photos.forms import PhotoForm
 from aol.photos.models import Photo
@@ -10,8 +13,7 @@ from ..forms import LakeForm
 
 class LakeFormTest(TestCase):
     def test_form(self):
-        lake = make(Lake, title="Matt Lake", ftype=390, parent=None, is_in_oregon=True)
-        lake = Lake.objects.get(title="Matt Lake")
+        (lake, geom) = make_lake(lake_kwargs={'title': "Matt Lake"})
         data = {
             "title": lake.title,
             "body": lake.body,
@@ -25,8 +27,9 @@ class LakeFormTest(TestCase):
         form.save()
 
     def test_deletable_model_form(self):
-        lake = make(Lake, title="Matt Lake", ftype=390, parent=None, is_in_oregon=True)
-        make(Photo, lake=lake)
+        (lake, geom) = make_lake(lake_kwargs={'title': "Matt Lake"})
+        make(Photo, lake=lake, file=gen_image_field())
+
         # this tests the DeletableModelForm by testing PhotoForm (which subclasses it)
         lake = Lake.objects.get(title="Matt Lake")
         photo = Photo.objects.filter(lake=lake)[0]
