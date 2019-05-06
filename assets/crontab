@@ -1,0 +1,8 @@
+#################################
+# Atlas of Oregon Lakes Crontab #
+#################################
+
+
+# Updates cached lake datasets
+# Runs every hour
+0  * * * *       cd {remote.build.dir}; {remote.build.python.bin} {remote.build.python.manage} cache_lakes > /dev/null 2>&1
