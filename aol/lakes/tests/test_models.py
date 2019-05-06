@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from model_mommy.mommy import make
 
 from ..models import HUC6, LakeCounty, NHDLake as Lake

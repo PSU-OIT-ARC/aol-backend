@@ -4,8 +4,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
 
-from model_mommy.mommy import make, prepare
+from model_mommy.mommy import prepare
 
+from aol.lakes.tests import make_lake
 from aol.lakes.models import LakeGeom, NHDLake as Lake
 
 
@@ -23,8 +24,7 @@ class LoginMixin(TestCase):
 class AdminTest(LoginMixin):
     # just make sure the views return a 200
     def test_listing(self):
-        lake = make(Lake, title="Matt Lake", ftype=390, is_in_oregon=True)
-        make(LakeGeom, reachcode=lake)
+        (lake, geom) = make_lake(lake_kwargs={'title': "Matt Lake"})
         response = self.client.get(reverse('admin-listing'))
         self.assertEqual(response.status_code, 200)
 
@@ -58,8 +58,7 @@ class AdminTest(LoginMixin):
         self.assertRedirects(response, reverse("admin-listing"))
 
     def test_edit_lake(self):
-        make(Lake, title="Matt Lake", ftype=390, is_in_oregon=True, aol_page=5)
-        lake = Lake.objects.get(title="Matt Lake")
+        (lake, geom) = make_lake(lake_kwargs={'title': "Matt Lake", 'aol_page': 5})
         response = self.client.get(reverse('admin-edit-lake', args=(lake.pk,)))
         self.assertEqual(response.status_code, 200)
 
