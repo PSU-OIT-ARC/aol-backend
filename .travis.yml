@@ -29,4 +29,4 @@ before_script:
     - psql -U postgres -d test_aol -c 'create extension hstore;'
 
 script:
-    - LOCAL_SETTINGS_FILE="local.base.cfg#travis" python manage.py test --keepdb
+    - LOCAL_SETTINGS_FILE="local.base.cfg#travis" python manage.py test --keepdb --failfast

@@ -24,7 +24,7 @@ init: install
 reinit: clean-egg-info clean-pyc clean-venv init
 
 test: install
-	LOCAL_SETTINGS_FILE="local.base.cfg#test" $(bin)/python manage.py test -k
+	LOCAL_SETTINGS_FILE="local.base.cfg#test" $(bin)/python manage.py test --keepdb --failfast
 test_container: install
 	$(bin)/docker-compose run --user=aol --rm --entrypoint=/entrypoint-test.sh aol
 run:
