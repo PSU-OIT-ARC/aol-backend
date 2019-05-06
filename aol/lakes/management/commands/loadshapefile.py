@@ -105,3 +105,4 @@ class Command(BaseCommand):
             cursor.execute("UPDATE  lake_geom SET the_geom_54k = ST_MULTI(st_simplify(the_geom, 242))")
             cursor.execute("UPDATE lake_geom SET the_geom_108k = ST_MULTI(st_simplify(the_geom, 610))")
             cursor.execute("UPDATE lake_geom SET the_geom_217k = ST_MULTI(st_simplify(the_geom, 1220))")
+            cursor.execute("UPDATE lake_geom SET the_geom_866k = ST_MULTI(st_simplify(the_geom, 4880))")

@@ -349,12 +349,12 @@ class NHDLake(models.Model):
 
 class LakeGeom(models.Model):
     reachcode = models.OneToOneField(NHDLake, primary_key=True, db_column="reachcode")
-    the_geom = models.MultiPolygonField(srid=3644, null=True)
-    the_geom_866k = models.MultiPolygonField(srid=3644, null=True)
-    the_geom_217k = models.MultiPolygonField(srid=3644, null=True)
-    the_geom_108k = models.MultiPolygonField(srid=3644, null=True)
-    the_geom_54k = models.MultiPolygonField(srid=3644, null=True)
-    the_geom_27k = models.MultiPolygonField(srid=3644, null=True)
+    the_geom = models.MultiPolygonField(srid=3644)
+    the_geom_866k = models.MultiPolygonField(srid=3644)
+    the_geom_217k = models.MultiPolygonField(srid=3644)
+    the_geom_108k = models.MultiPolygonField(srid=3644)
+    the_geom_54k = models.MultiPolygonField(srid=3644)
+    the_geom_27k = models.MultiPolygonField(srid=3644)
 
     class Meta:
         db_table = "lake_geom"
