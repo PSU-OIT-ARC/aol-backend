@@ -1,6 +1,7 @@
 import logging
 
 from django.template.defaultfilters import striptags, floatformat
+from django.conf import settings
 
 from rest_framework import serializers
 
@@ -31,9 +32,13 @@ class LakeBaseSerializer(serializers.Serializer):
         return [line for line in lines if line.strip()]
 
     def get_photo(self, obj):
-        request = self.context.get('request', None)
-        if request is None or not obj.photo:
+        if not obj.photo:
             return ''
+
+        request = self.context.get('request', None)
+        if request is None:
+            host = settings.ALLOWED_HOSTS[0]
+            return 'https://{}/{}'.format(host, obj.photo.file.url)
         return request.build_absolute_uri(obj.photo.file.url)
 
     def get_county_set(self, obj):
