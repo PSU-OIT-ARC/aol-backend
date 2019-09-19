@@ -5,6 +5,9 @@ from django import forms
 
 from ckeditor.widgets import CKEditorWidget
 
+from aol.photos.admin import PhotoInline
+from aol.documents.admin import DocumentInline
+
 
 class LakeForm(forms.ModelForm):
     body = forms.CharField(widget=CKEditorWidget())
@@ -55,6 +58,11 @@ class LakeAdmin(admin.ModelAdmin):
                        'has_docs', 'has_photos')
         })
     )
+    inlines = [
+        PhotoInline,
+        DocumentInline,
+        ResourceInline
+    ]
 
     def has_mussels(self, obj):
         return obj.has_mussels
