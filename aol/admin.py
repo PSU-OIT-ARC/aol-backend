@@ -27,8 +27,6 @@ class AdminSite(admin.AdminSite):
 admin_site = AdminSite(name='admin')
 
 # lake admin registration
-admin_site.register(lakes_models.County)
-admin_site.register(lakes_models.FishingZone)
 admin_site.register(lakes_models.Lake, lakes_admin.LakeAdmin)
 # document admin registration
 admin_site.register(documents_models.Document, documents_admin.DocumentAdmin)
