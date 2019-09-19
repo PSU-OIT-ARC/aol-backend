@@ -11,6 +11,8 @@ from aol.lakes import models as lakes_models
 from aol.lakes import admin as lakes_admin
 from aol.documents import models as documents_models
 from aol.documents import admin as documents_admin
+from aol.resources import models as resources_models
+from aol.resources import admin as resources_admin
 from aol.photos import models as photos_models
 from aol.photos import admin as photos_admin
 from aol.plants import models as plants_models
@@ -30,6 +32,8 @@ admin_site.register(lakes_models.FishingZone)
 admin_site.register(lakes_models.Lake, lakes_admin.LakeAdmin)
 # document admin registration
 admin_site.register(documents_models.Document, documents_admin.DocumentAdmin)
+# resource admin registration
+admin_site.register(resources_models.Resource, resources_admin.ResourceAdmin)
 # photo admin registration
 admin_site.register(photos_models.Photo, photos_admin.PhotoAdmin)
 # plant admin registration

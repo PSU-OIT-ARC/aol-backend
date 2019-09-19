@@ -7,6 +7,7 @@ from rest_framework import serializers
 
 from aol.photos.serializers import PhotoSerializer
 from aol.documents.serializers import DocumentSerializer
+from aol.resources.serializers import ResourceSerializer
 from aol.plants.serializers import PlantObservationSerializer
 from aol.mussels.serializers import MusselObservationSerializer
 from aol.lakes import models
@@ -61,12 +62,14 @@ class LakeIndexSerializer(LakeBaseSerializer, serializers.ModelSerializer):
                   'title', 'body', 'photo',
                   'county_set',
                   'waterbody_type', 'area', 'shoreline', 
-                  'has_mussels', 'has_plants', 'has_docs', 'has_photos')
+                  'has_mussels', 'has_plants',
+                  'has_photos', 'has_docs', 'has_resources')
 
 
 class LakeDetailSerializer(LakeBaseSerializer, serializers.ModelSerializer):
     photos = PhotoSerializer(many=True)
     documents = DocumentSerializer(many=True)
+    resources = ResourceSerializer(many=True)
     plants = PlantObservationSerializer(many=True, source='plant_observations')
     mussels = MusselObservationSerializer(many=True, source='mussel_observations')
 
@@ -76,4 +79,6 @@ class LakeDetailSerializer(LakeBaseSerializer, serializers.ModelSerializer):
                   'title', 'body', 'photo',
                   'county_set',
                   'waterbody_type', 'area', 'shoreline', 
-                  'aol_page', 'photos', 'documents', 'plants', 'mussels')
+                  'aol_page',
+                  'photos', 'documents', 'resources',
+                  'plants', 'mussels')

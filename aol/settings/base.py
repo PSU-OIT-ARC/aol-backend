@@ -127,6 +127,7 @@ INSTALLED_APPS = [
     'aol.apps.MainAppConfig',
     'aol.lakes',
     'aol.documents',
+    'aol.resources',
     'aol.photos',
     'aol.plants',
     'aol.mussels'

@@ -7,6 +7,7 @@ from ckeditor.widgets import CKEditorWidget
 
 from aol.photos.admin import PhotoInline
 from aol.documents.admin import DocumentInline
+from aol.resources.admin import ResourceInline
 
 
 class LakeForm(forms.ModelForm):
@@ -26,7 +27,9 @@ class LakeAdmin(admin.ModelAdmin):
     list_display = ('reachcode', 'get_name', 'parent',
                     'permanent_id', 'gnis_id',
                     'waterbody_type',
-                    'aol_page', 'has_mussels', 'has_plants', 'has_docs', 'has_photos')
+                    'aol_page',
+                    'has_mussels', 'has_plants',
+                    'has_photos', 'has_docs', 'has_resources')
     list_display_links = ('reachcode', )
     list_filter = ('is_major', 'waterbody_type',
                    'has_docs', 'has_photos', 'has_plants', 'has_mussels')
@@ -34,7 +37,7 @@ class LakeAdmin(admin.ModelAdmin):
     search_fields = ('reachcode', 'gnis_id', 'gnis_name')
     raw_id_fields = ('parent',)
     readonly_fields = ('has_plants', 'has_mussels',
-                       'has_docs', 'has_photos')
+                       'has_photos', 'has_docs', 'has_resources')
 
     filter_horizontal = ('county_set',)
 
@@ -55,7 +58,7 @@ class LakeAdmin(admin.ModelAdmin):
         }),
         ('Properties', {
             'fields': ('has_plants', 'has_mussels',
-                       'has_docs', 'has_photos')
+                       'has_photos', 'has_docs', 'has_resources')
         })
     )
     inlines = [
@@ -70,11 +73,14 @@ class LakeAdmin(admin.ModelAdmin):
     def has_plants(self, obj):
         return obj.has_plants
 
+    def has_photos(self, obj):
+        return obj.has_photos
+
     def has_documents(self, obj):
         return obj.has_documents
 
-    def has_photos(self, obj):
-        return obj.has_photos
+    def has_resources(self, obj):
+        return obj.has_resources
 
     def get_name(self, obj):
         if obj.title:

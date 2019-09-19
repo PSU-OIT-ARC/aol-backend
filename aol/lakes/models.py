@@ -83,8 +83,9 @@ class Lake(models.Model):
                                          default=enums.WATERBODY_TYPE_UNKNOWN)
 
     is_major = models.BooleanField(default=False, db_index=True)
-    has_docs = models.BooleanField(default=False, db_index=True)
     has_photos = models.BooleanField(default=False, db_index=True)
+    has_docs = models.BooleanField(default=False, db_index=True)
+    has_resources = models.BooleanField(default=False, db_index=True)
     has_plants = models.BooleanField(default=False, db_index=True)
     has_mussels = models.BooleanField(default=False, db_index=True)
 
@@ -125,15 +126,17 @@ class Lake(models.Model):
         """
         self._status_updated = True
 
-        self.has_docs = self.documents.exists()
         self.has_photos = self.photos.exists()
+        self.has_docs = self.documents.exists()
+        self.has_resources = self.resources.exists()
         self.has_plants = self.plants.exists()
         self.has_mussels = self.mussels.exists()
 
         self.is_major = False
         if any([self.aol_page is not None,
-                self.has_docs,
                 self.has_photos,
+                self.has_docs,
+                self.has_resources,
                 self.has_plants,
                 self.has_mussels]):
             self.is_major = True
