@@ -12,6 +12,7 @@ django:
 remote:
   host_name: aol-backend
   nginx:
+    client_max_body_size: 5m
     csp_policy: "default-src 'unsafe-inline' *.wdt.pdx.edu"
 environment:
   dev:
