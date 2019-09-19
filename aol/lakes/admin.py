@@ -53,9 +53,6 @@ class LakeAdmin(admin.ModelAdmin):
             'fields': ('reachcode', 'permanent_id', 'parent',
                        'gnis_id', 'gnis_name')
         }),
-        ('Spatial information', {
-            'fields': ('the_geom',)
-        }),
         ('Properties', {
             'fields': ('has_plants', 'has_mussels',
                        'has_photos', 'has_docs', 'has_resources')
