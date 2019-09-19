@@ -19,6 +19,7 @@ app_name = 'backend'
 urlpatterns = [
     url(r'^$', schema_view),
     url(r'^token/$', views.ArcGISAuthTokenView.as_view(), name='fetch-authtoken'),
+    url(r'^flatpage/$', views.FlatPageListView.as_view(), name='flatpage-index'),
     url(r'^flatpage/(?P<slug>[-_\w]+)/$', views.FlatPageDetailView.as_view(), name='flatpage-detail'),
     url(r'^lake/$', lake_views.LakeListView.as_view(), name='lake-index'),
     url(r'^lake/(?P<pk>\d+)/$', lake_views.LakeDetailView.as_view(), name='lake-detail'),

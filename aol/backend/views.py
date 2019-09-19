@@ -36,6 +36,14 @@ class ArcGISAuthTokenView(APIView):
         return Response(response.json())
 
 
+class FlatPageListView(generics.ListAPIView):
+    """
+    TBD
+    """
+    queryset = FlatPage.objects.all()
+    serializer_class = serializers.FlatPageSerializer
+
+
 class FlatPageDetailView(generics.RetrieveAPIView):
     """
     TBD
