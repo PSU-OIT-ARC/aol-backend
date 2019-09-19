@@ -5,19 +5,19 @@ from aol.plants import enums
 
 class Plant(models.Model):
     name = models.CharField(max_length=255)
-    # the name of the plant in lower case
     normalized_name = models.CharField(max_length=255, unique=True)
-    common_name = models.CharField(max_length=255) # Common name of the plant
+    common_name = models.CharField(max_length=255)
     noxious_weed_designation = models.CharField(max_length=255,
                                                 default=enums.NOXIOUS_WEED_DESIGNATION_NONE,
                                                 choices=enums.NOXIOUS_WEED_DESIGNATION_CHOICES)
-    is_native = models.NullBooleanField(default=None)  # , choices=enums.NATIVE_CHOICES)
+    is_native = models.NullBooleanField(default=None,
+                                        choices=enums.NATIVE_CHOICES)
 
     class Meta:
         ordering = ('normalized_name', )
 
     def __str__(self):
-        return self.name
+        return self.normalized_name
 
 
 class PlantObservation(models.Model):
@@ -32,9 +32,13 @@ class PlantObservation(models.Model):
     survey_org = models.CharField(max_length=255)
 
     class Meta:
-        verbose_name = 'invasive plant observation'
+        unique_together = ('lake', 'plant', 'observation_date')
         ordering = ('-observation_date', )
 
     def source_link(self):
         urls = dict(enums.REPORTING_SOURCE_URL)
         return urls.get(self.source, None)
+
+    def __str__(self):
+        params = (self.lake, self.plant, self.observation_date, self.survey_org)
+        return '{} - {} ({}, {})'.format(*params)

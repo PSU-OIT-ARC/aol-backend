@@ -35,7 +35,7 @@ admin_site.register(resources_models.Resource, resources_admin.ResourceAdmin)
 # photo admin registration
 admin_site.register(photos_models.Photo, photos_admin.PhotoAdmin)
 # plant admin registration
-admin_site.register(plants_models.Plant)
+admin_site.register(plants_models.Plant, plants_admin.PlantAdmin)
 admin_site.register(plants_models.PlantObservation, plants_admin.PlantObservationAdmin)
 # mussel admin registration
 admin_site.register(mussels_models.ReportingAgency)

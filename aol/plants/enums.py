@@ -8,11 +8,11 @@ NOXIOUS_WEED_DESIGNATION_CHOICES = (
     ("Federal", "Federal")
 )
 
-# NATIVE_CHOICES = (
-#     (True, "Native"),
-#     (False, "Non-native"),
-#     (None, "")
-# )
+NATIVE_CHOICES = (
+    (True, "Native"),
+    (False, "Non-native"),
+    (None, "Unknown")
+)
 
 REPORTING_SOURCE_NONE = ""
 REPORTING_SOURCE_CLR = "CLR"

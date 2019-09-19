@@ -22,6 +22,7 @@ class PlantSerializer(serializers.ModelSerializer):
 
 class PlantObservationSerializer(serializers.ModelSerializer):
     plant = PlantSerializer()
+
     source_display = serializers.SerializerMethodField()
     
     class Meta:
