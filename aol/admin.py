@@ -1,7 +1,8 @@
-from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 from django.contrib.flatpages import models as flatpages_models
 from django.contrib.flatpages import forms as flatpages_forms
 from django.contrib.flatpages import admin as flatpages_admin
+from django.contrib import admin
 from django import forms
 
 from ckeditor.widgets import CKEditorWidget
@@ -43,6 +44,13 @@ class FlatPageForm(flatpages_forms.FlatpageForm):
     content = forms.CharField(widget=CKEditorWidget())
 
 class FlatPageAdmin(flatpages_admin.FlatPageAdmin):
+    list_display = ('url', 'title')
+    list_filter = ()
+    search_fields = ('url', 'title')
+
     form = FlatPageForm
+    fieldsets = (
+        (None, {'fields': ('url', 'title', 'content')}),
+    )
 
 admin_site.register(flatpages_models.FlatPage, FlatPageAdmin)
