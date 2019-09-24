@@ -1,4 +1,6 @@
 from django.utils.functional import cached_property
+from django.contrib.gis.gdal import SpatialReference, CoordTransform
+from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Area, Perimeter
 from django.contrib.gis.db import models
 from django.db.models import Q
@@ -36,6 +38,14 @@ class LakeManager(models.Manager):
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(parent__isnull=True)
+
+    def get_for_point(self, lon, lat):
+        queryset = self.get_queryset()
+        coord_transform = CoordTransform(SpatialReference(4326),
+                                         SpatialReference(3644))
+        point_geom = Point(lon, lat)
+        point_geom.transform(coord_transform)
+        return queryset.filter(the_geom__contains=point_geom)
 
     def major(self):
         queryset = self.get_queryset()
