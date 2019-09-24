@@ -58,6 +58,7 @@ setup(
 
     install_requires=[
         'pytz',
+        'dateparser~=0.7.1',
         'requests~=2.21.0',
         'coreapi~=2.3.3',
         'Pillow~=6.0.0',
