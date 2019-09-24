@@ -1,0 +1,10 @@
+
+
+STATUS_PENDING = 1
+STATUS_NON_DETECT = 2
+STATUS_DETECT = 3
+STATUS_CHOICES = (
+    (STATUS_PENDING, 'Pending'),
+    (STATUS_NON_DETECT, 'Non-detect'),
+    (STATUS_DETECT, 'Detect'),
+)

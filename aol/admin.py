@@ -38,8 +38,7 @@ admin_site.register(photos_models.Photo, photos_admin.PhotoAdmin)
 admin_site.register(plants_models.Plant, plants_admin.PlantAdmin)
 admin_site.register(plants_models.PlantObservation, plants_admin.PlantObservationAdmin)
 # mussel admin registration
-admin_site.register(mussels_models.ReportingAgency)
-admin_site.register(mussels_models.Mussel)
+admin_site.register(mussels_models.Mussel, mussels_admin.MusselAdmin)
 admin_site.register(mussels_models.MusselObservation, mussels_admin.MusselObservationAdmin)
 # flatpages admin registration
 class FlatPageForm(flatpages_forms.FlatpageForm):
