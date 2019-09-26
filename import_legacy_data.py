@@ -1,4 +1,4 @@
-#!/home/thom/code/aol/venv/bin/python
+#!.env/bin/python
 import csv
 import sys
 import os
@@ -6,6 +6,7 @@ import os
 import django
 from django.apps import apps
 from django.db import transaction
+from django.db.models import Q
 
 
 IMPORT_ARCHIVE_PATH = 'legacy_data'
@@ -55,10 +56,14 @@ def import_lakes():
 
     def import_lake(row):
         try:
-            if not Lake.objects.filter(pk=row.get('reachcode')).exists():
-                print("Skipping unknown lake {}".format(row.get('reachcode')))
+            queryset = Lake.all_objects.filter(Q(reachcode=row.get('reachcode')) |
+                                               Q(permanent_id=row.get('permanent_id')) |
+                                               Q(gnis_id=row.get('gnis_name')))
+            if not queryset.exists():
+                print("Processing unknown lake {}".format(row))
+                row['title'] = '{} (Legacy)'.format(row.get('title', ''))
+                Lake.all_objects.create(**row)
                 return
-            # Lake.objects.update_or_create(defaults=row, **row)
             Lake.objects.update_or_create(defaults=row, pk=row.get('reachcode'))
         except Exception as e:
             print("An error occurred while importing lake '{}': {}".format(row, str(e)))
@@ -75,7 +80,7 @@ def import_membership_models():
             if 'lake_id' not in row:
                 print("No lake reference for county membership: {}".format(row))
                 return
-            lake = Lake.objects.get(pk=row['lake_id'])
+            lake = Lake.all_objects.get(pk=row['lake_id'])
             county = County.objects.get(pk=row['county_id'])
             lake.county_set.add(county)
         except Lake.DoesNotExist:
@@ -97,7 +102,7 @@ def import_related_models():
             if 'lake_id' not in row:
                 print("No lake reference for document: {}".format(row))
                 return
-            lake = row['lake'] = Lake.objects.get(pk=row['lake_id'])
+            lake = row['lake'] = Lake.all_objects.get(pk=row['lake_id'])
             row['pk'] = row.pop('document_id')
             (document, created) = Document.objects.update_or_create(defaults=row, **row)
             lake.documents.add(document)
@@ -112,7 +117,7 @@ def import_related_models():
             if 'lake_id' not in row:
                 print("No lake reference for photo: {}".format(row))
                 return
-            lake = row['lake'] = Lake.objects.get(pk=row['lake_id'])
+            lake = row['lake'] = Lake.all_objects.get(pk=row['lake_id'])
             row['pk'] = row.pop('photo_id')
             (photo, created) = Photo.objects.update_or_create(defaults=row, **row)
             lake.photos.add(photo)

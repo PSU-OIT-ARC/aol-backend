@@ -53,7 +53,8 @@ class LakeManager(models.Manager):
         return queryset.filter(
             is_major=True,
             waterbody_type__in=[enums.WATERBODY_TYPE_LAKE_POND,
-                                enums.WATERBODY_TYPE_RESERVOIR]
+                                enums.WATERBODY_TYPE_RESERVOIR,
+                                enums.WATERBODY_TYPE_UNKNOWN]
         )
 
     def minor(self):
@@ -62,7 +63,8 @@ class LakeManager(models.Manager):
         return queryset.filter(
             is_major=False,
             waterbody_type__in=[enums.WATERBODY_TYPE_LAKE_POND,
-                                enums.WATERBODY_TYPE_RESERVOIR]
+                                enums.WATERBODY_TYPE_RESERVOIR,
+                                enums.WATERBODY_TYPE_UNKNOWN]
         )
 
 
@@ -88,7 +90,7 @@ class Lake(models.Model):
     plants = models.ManyToManyField('plants.Plant', through="plants.PlantObservation")
     mussels = models.ManyToManyField('mussels.Mussel', through="mussels.MusselObservation")
 
-    the_geom = models.MultiPolygonField('Lake geometry', srid=3644)
+    the_geom = models.MultiPolygonField('Lake geometry', srid=3644, null=True)
     waterbody_type = models.IntegerField(choices=enums.WATERBODY_TYPE_CHOICES,
                                          default=enums.WATERBODY_TYPE_UNKNOWN)
 
@@ -121,12 +123,16 @@ class Lake(models.Model):
 
     @property
     def area(self):
+        if self.the_geom is None:
+            return 0
         obj = Lake.objects.filter(pk=self.pk).annotate(computed_area=Area('the_geom')).get()
         # area is given in sq ft.; however, GeoDjango believes it to be sq m.
         return obj.computed_area.standard / 43560.04
 
     @property
     def shoreline(self):
+        if self.the_geom is None:
+            return 0
         obj = Lake.objects.filter(pk=self.pk).annotate(computed_shoreline=Perimeter('the_geom')).get()
         return obj.computed_shoreline.mi
 
@@ -155,3 +161,4 @@ class Lake(models.Model):
         return self.title or self.gnis_name
 
     objects = LakeManager()
+    all_objects = models.Manager()
