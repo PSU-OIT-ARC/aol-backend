@@ -19,7 +19,7 @@ class LakeBaseSerializer(serializers.Serializer):
     title = serializers.SerializerMethodField()
     body = serializers.SerializerMethodField()
     photo = serializers.SerializerMethodField()
-    county_set = serializers.SerializerMethodField()
+    counties = serializers.SerializerMethodField()
     waterbody_type = serializers.SerializerMethodField()
     area = serializers.SerializerMethodField()
     shoreline = serializers.SerializerMethodField()
@@ -42,8 +42,8 @@ class LakeBaseSerializer(serializers.Serializer):
             return 'https://{}/{}'.format(host, obj.photo.file.url)
         return request.build_absolute_uri(obj.photo.file.url)
 
-    def get_county_set(self, obj):
-        return ','.join([str(c) for c in obj.county_set.all()])
+    def get_counties(self, obj):
+        return [str(c) for c in obj.county_set.all()]
 
     def get_area(self, obj):
         return floatformat(obj.area, 2)
@@ -60,7 +60,7 @@ class LakeIndexSerializer(LakeBaseSerializer, serializers.ModelSerializer):
         model = models.Lake
         fields = ('reachcode', 'is_major',
                   'title', 'body', 'photo',
-                  'county_set',
+                  'counties',
                   'waterbody_type', 'area', 'shoreline', 
                   'has_mussels', 'has_plants',
                   'has_photos', 'has_docs', 'has_resources')
@@ -77,7 +77,7 @@ class LakeDetailSerializer(LakeBaseSerializer, serializers.ModelSerializer):
         model = models.Lake
         fields = ('reachcode', 'is_major',
                   'title', 'body', 'photo',
-                  'county_set',
+                  'counties',
                   'waterbody_type', 'area', 'shoreline', 
                   'aol_page',
                   'photos', 'documents', 'resources',
