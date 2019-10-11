@@ -1,4 +1,6 @@
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import models as auth_models
+from django.contrib.auth import admin as auth_admin
 from django.contrib.flatpages import models as flatpages_models
 from django.contrib.flatpages import forms as flatpages_forms
 from django.contrib.flatpages import admin as flatpages_admin
@@ -26,6 +28,26 @@ class AdminSite(admin.AdminSite):
 
 admin_site = AdminSite(name='admin')
 
+# auth admin registration
+admin_site.register(auth_models.Group, auth_admin.GroupAdmin)
+admin_site.register(auth_models.User, auth_admin.UserAdmin)
+
+# flatpages admin registration
+class FlatPageForm(flatpages_forms.FlatpageForm):
+    content = forms.CharField(widget=CKEditorWidget())
+
+class FlatPageAdmin(flatpages_admin.FlatPageAdmin):
+    list_display = ('url', 'title')
+    list_filter = ()
+    search_fields = ('url', 'title')
+
+    form = FlatPageForm
+    fieldsets = (
+        (None, {'fields': ('url', 'title', 'content')}),
+    )
+
+admin_site.register(flatpages_models.FlatPage, FlatPageAdmin)
+
 # lake admin registration
 admin_site.register(lakes_models.Lake, lakes_admin.LakeAdmin)
 # document admin registration
@@ -42,18 +64,3 @@ admin_site.register(plants_models.ImportedPlantObservation, plants_admin.Importe
 admin_site.register(mussels_models.Mussel, mussels_admin.MusselAdmin)
 admin_site.register(mussels_models.MusselObservation, mussels_admin.MusselObservationAdmin)
 admin_site.register(mussels_models.ImportedMusselObservation, mussels_admin.ImportedMusselObservationAdmin)
-# flatpages admin registration
-class FlatPageForm(flatpages_forms.FlatpageForm):
-    content = forms.CharField(widget=CKEditorWidget())
-
-class FlatPageAdmin(flatpages_admin.FlatPageAdmin):
-    list_display = ('url', 'title')
-    list_filter = ()
-    search_fields = ('url', 'title')
-
-    form = FlatPageForm
-    fieldsets = (
-        (None, {'fields': ('url', 'title', 'content')}),
-    )
-
-admin_site.register(flatpages_models.FlatPage, FlatPageAdmin)
