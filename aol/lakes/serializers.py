@@ -1,6 +1,11 @@
 import logging
+import urllib
+import html
+import bs4
 
-from django.template.defaultfilters import striptags, floatformat
+from django.template.defaultfilters import (striptags, floatformat,
+                                            truncatechars)
+from django.contrib.sites.models import Site
 from django.conf import settings
 
 from rest_framework import serializers
@@ -17,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 class LakeBaseSerializer(serializers.Serializer):
     title = serializers.SerializerMethodField()
+    summary = serializers.SerializerMethodField()
     body = serializers.SerializerMethodField()
     photo = serializers.SerializerMethodField()
     counties = serializers.SerializerMethodField()
@@ -27,20 +33,32 @@ class LakeBaseSerializer(serializers.Serializer):
     def get_title(self, obj):
         return str(obj)
 
+    def get_summary(self, obj):
+        parser = bs4.BeautifulSoup(obj.body, 'html.parser')
+        paragraphs = parser.find_all('p')
+        text = ''
+
+        if not paragraphs:
+            text = obj.body
+        else:
+            for p in paragraphs:
+                if striptags(p).strip():
+                    text = p
+                    break
+
+        return truncatechars(html.unescape(striptags(text)).strip(), 2000)
+
     def get_body(self, obj):
-        text = obj.body.replace("&nbsp;", "")
-        lines = striptags(text).split('\n')
-        return [line for line in lines if line.strip()]
+        # TODO: sanitize?
+        return obj.body
 
     def get_photo(self, obj):
         if not obj.photo:
             return ''
 
-        request = self.context.get('request', None)
-        if request is None:
-            host = settings.ALLOWED_HOSTS[0]
-            return 'https://{}/{}'.format(host, obj.photo.file.url)
-        return request.build_absolute_uri(obj.photo.file.url)
+        site = Site.objects.get_current()
+        return urllib.parse.urljoin('//{}'.format(site.domain),
+                                    obj.photo.file.url)
 
     def get_counties(self, obj):
         return [str(c) for c in obj.county_set.all()]
@@ -59,7 +77,7 @@ class LakeIndexSerializer(LakeBaseSerializer, serializers.ModelSerializer):
     class Meta:
         model = models.Lake
         fields = ('reachcode', 'is_major',
-                  'title', 'body', 'photo',
+                  'title', 'summary', 'photo',
                   'counties',
                   'waterbody_type', 'area', 'shoreline', 
                   'has_mussels', 'has_plants',
