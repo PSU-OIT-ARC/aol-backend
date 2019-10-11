@@ -3,6 +3,9 @@
 from django.db import migrations
 
 
+# Note: This migration remains here for historical reasons.
+#       Equivalent functionality is now available via the
+#       admin action of the same name.
 def populate_cover_photos(apps, schema_editor):
     Lake = apps.get_model('lakes', 'Lake')
 

@@ -24,6 +24,8 @@ class LakeForm(forms.ModelForm):
 
 
 class LakeAdmin(admin.ModelAdmin):
+    actions = ['populate_cover_photo']
+
     list_display = ('reachcode', 'get_name', 'parent',
                     'permanent_id', 'gnis_id',
                     'waterbody_type',
@@ -86,3 +88,12 @@ class LakeAdmin(admin.ModelAdmin):
             return obj.gnis_name
         return '-'
     get_name.short_description = 'Name'
+
+    def populate_cover_photo(self, request, queryset):
+        """
+        Performs cover photo population via a naive selection.
+        """
+        for lake in queryset.iterator():
+            photo_queryset = lake.photos.order_by('-taken_on')
+            lake.photo = photo_queryset.first()
+            lake.save()
