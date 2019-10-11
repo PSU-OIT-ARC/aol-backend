@@ -30,15 +30,6 @@ class LakeListView(generics.ListAPIView):
 
     # @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):
-        request_format = self.request.query_params.get('format')
-        if request_format == 'json':
-            status = self.request.query_params.get('status', 'major')
-            dataset = 'lakes-{}.json'.format(status)
-            path = os.path.join(settings.MEDIA_ROOT, dataset)
-            if os.path.exists(path):
-                with open(path, 'r') as f:
-                    return HttpResponse(f.read())
-
         return super().list(request, *args, **kwargs)
 
 
