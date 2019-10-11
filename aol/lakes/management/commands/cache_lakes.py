@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
     def generate_cache(self, serializer, path):
         data = io.StringIO()
-        data.write(json.dumps(serializer.data))
+        data.write(json.dumps(serializer.data, separators=(',', ':')))
         data.seek(0)
 
         with open(path, 'w') as f:
