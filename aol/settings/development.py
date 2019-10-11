@@ -30,3 +30,5 @@ DATABASES['default']['NAME'] = 'aol'
 # DATABASES['mussels']['USER'] = 'aol'
 # DATABASES['mussels']['PASSWORD'] = 'aol'
 # DATABASES['mussels']['NAME'] = 'aol'
+
+CELERY_BROKER_URL = 'pyamqp://guest:guest@172.20.0.1//'  # rabbitmq//'

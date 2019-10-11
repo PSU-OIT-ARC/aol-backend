@@ -160,3 +160,20 @@ CACHES = {
         'LOCATION': os.path.join(BASE_PATH, '.cache')
     }
 }
+
+CELERY_ENABLE_UTC = True
+CELERY_TIMEZONE = TIME_ZONE
+# CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_ALWAYS_EAGER = False
+CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_SEND_TASK_ERROR_EMAILS = True
+
+CELERY_ACCEPT_CONTENT = ['json', 'pickle']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+## Celeryd settings
+CELERY_WORKER_CONCURRENCY = 1
+## Result store settings
+CELERY_TASK_IGNORE_RESULT = True
+## Celerybeat settings
+CELERY_BEAT_SCHEDULER = 'celery.beat.PersistentScheduler'

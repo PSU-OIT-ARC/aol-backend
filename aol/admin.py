@@ -37,9 +37,11 @@ admin_site.register(photos_models.Photo, photos_admin.PhotoAdmin)
 # plant admin registration
 admin_site.register(plants_models.Plant, plants_admin.PlantAdmin)
 admin_site.register(plants_models.PlantObservation, plants_admin.PlantObservationAdmin)
+admin_site.register(plants_models.ImportedPlantObservation, plants_admin.ImportedPlantObservationAdmin)
 # mussel admin registration
 admin_site.register(mussels_models.Mussel, mussels_admin.MusselAdmin)
 admin_site.register(mussels_models.MusselObservation, mussels_admin.MusselObservationAdmin)
+admin_site.register(mussels_models.ImportedMusselObservation, mussels_admin.ImportedMusselObservationAdmin)
 # flatpages admin registration
 class FlatPageForm(flatpages_forms.FlatpageForm):
     content = forms.CharField(widget=CKEditorWidget())

@@ -33,6 +33,13 @@ services:
     volumes:
       - ./volumes/postgres:/var/lib/postgresql
 
+  rabbitmq:
+    image: rabbitmq
+    networks:
+      - default
+    ports:
+      - "5672:5672"
+
   aol:
     build: docker
     user: aol

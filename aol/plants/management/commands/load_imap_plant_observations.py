@@ -33,11 +33,10 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        existing_lakes = set(Lake.objects.filter(has_plants=True).values_list('pk', flat=True))
-        updated_lakes = set()
-
         # Delete all extant IMAP observations (each dataset is considered the full dataset)
         PlantObservation.objects.filter(source=enums.REPORTING_SOURCE_IMAP).delete()
+        # Mark all applicable lakes as having no plant observations
+        Lake.objects.filter(plant_observations__isnull=True, has_plants=True).update(has_plants=False)
 
         with open(options['csv'], 'r') as csv_file:
             reader = csv.DictReader(csv_file)
@@ -60,21 +59,5 @@ class Command(BaseCommand):
                                 observation_date=dateparser.parse(row['observation_date']),
                                 defaults={'source': enums.REPORTING_SOURCE_IMAP,
                                           'survey_org': row['organization_name']})
-                            # Record lake as it has been updated
-                            updated_lakes.add(lake)
                     except ValueError:
                         print("Point coordinates '{}, {}' are invalid or not given".format(row['x'], row['y']))
-
-            # Marks updated lakes as having plant observation data
-            queryset = Lake.objects.filter(pk__in=[l.pk for l in updated_lakes])
-            print("Updating {} lakes with plant observation data.".format(queryset.count()))
-            queryset.update(has_plants=True)
-
-            # Evaluates those lakes not updated to determine whether they
-            # have current plant observation data.
-            queryset = Lake.objects.filter(pk__in=existing_lakes)
-            queryset = queryset.exclude(pk__in=[l.pk for l in updated_lakes])
-            print("Clearing {} lakes without plant observation data.".format(queryset.count()))
-            for lake in queryset.iterator():
-                lake.update_status()
-                lake.save()

@@ -1,3 +1,6 @@
+import tempfile
+
+from django.core.management import call_command
 from django.db import models
 
 from aol.mussels import enums
@@ -40,3 +43,20 @@ class MusselObservation(models.Model):
 
         params = (self.lake, self.date_sampled, self.collecting_agency)
         return '{} ({}, {})'.format(*params)
+
+
+class ImportedMusselObservation(models.Model):
+    status = models.PositiveSmallIntegerField(choices=enums.IMPORT_STATUS_CHOICES,
+                                              default=enums.IMPORT_STATUS_INITIALIZED)
+    datafile = models.FileField()
+    output = models.TextField()
+
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'imported mollusc datafile'
+        ordering = ('-created_on', '-updated_on')
+
+    def __str__(self):
+        return '{} ({})'.format(self.datafile, self.created_on)

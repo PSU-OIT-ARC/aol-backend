@@ -68,6 +68,7 @@ setup(
         'psu.oit.wdt.emcee>=1.0.0.rc9,<1.1',
         'django~=2.2.1',
         'djangorestframework~=3.9.0',
+        'celery~=4.3.0',
         'django-bootstrap-form~=3.4',
         'django-filter~=2.1.0',
         'social-auth-core~=3.0.0',

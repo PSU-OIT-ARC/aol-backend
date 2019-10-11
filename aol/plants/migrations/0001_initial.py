@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('observation_date', models.DateField(null=True)),
-                ('source', models.CharField(choices=[('', ''), ('CLR', 'Center for Lakes and Reservoir'), ('IMAP', 'iMapInvasives')], default='', max_length=255)),
+                ('source', models.CharField(choices=[('CLR', 'Center for Lakes and Reservoir'), ('IMAP', 'iMapInvasives')], default='', max_length=255)),
                 ('survey_org', models.CharField(max_length=255)),
                 ('lake', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='plant_observations', to='lakes.Lake')),
                 ('plant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lakes', to='plants.Plant')),

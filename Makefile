@@ -34,6 +34,9 @@ shell:
 run: settings_module="aol.settings.development"
 run:
 	@DJANGO_SETTINGS_MODULE=$(settings_module) $(bin)/python manage.py runserver
+celery: settings_module="aol.settings.development"
+celery:
+	@DJANGO_SETTINGS_MODULE=$(settings_module) $(bin)/celery -A aol worker -l INFO
 
 clean: clean-pyc
 clean-all: clean-build clean-dist clean-egg-info clean-pyc clean-venv

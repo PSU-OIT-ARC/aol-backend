@@ -15,11 +15,13 @@ from emcee.commands.files import copy_file
 from emcee.provision.base import provision_host, patch_host
 from emcee.provision.python import provision_python
 from emcee.provision.gis import provision_gis
-from emcee.provision.services import provision_nginx
+from emcee.provision.services import (provision_nginx,
+                                      provision_supervisor,
+                                      provision_rabbitmq)
 from emcee.provision.secrets import provision_secret, show_secret
 
 from emcee.deploy.utils import copy_file_local
-from emcee.deploy.base import push_nginx_config, push_crontab
+from emcee.deploy.base import push_crontab, push_supervisor_config
 from emcee.deploy.python import push_uwsgi_ini, push_uwsgi_config, restart_uwsgi
 from emcee.deploy.django import LocalProcessor, Deployer
 
@@ -40,6 +42,8 @@ def provision_app(createdb=False):
     provision_python()
     provision_gis()
     provision_nginx()
+    provision_supervisor()
+    provision_rabbitmq()
 
     # Initialize/prepare attached EBS volume
     provision_volume(mount_point='/vol/store')
@@ -116,6 +120,12 @@ class AOLDeployer(Deployer):
 
         # Install crontab
         push_crontab(template='assets/crontab')
+
+    def make_active(self):
+        super().make_active()
+
+        # Install supervisor worker configuration
+        push_supervisor_config(template='assets/supervisor.conf')
 
 
 @command

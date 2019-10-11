@@ -33,11 +33,10 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        existing_lakes = set(Lake.objects.filter(has_plants=True).values_list('pk', flat=True))
-        updated_lakes = set()
-
         # Delete all extant observations (each dataset is considered the full dataset)
         MusselObservation.objects.all().delete()
+        # Mark all applicable lakes as having no mussel observations
+        Lake.objects.filter(has_mussels=True).update(has_mussels=False)
 
         with open(options['csv'], 'r') as csv_file:
             reader = csv.DictReader(csv_file)
@@ -62,20 +61,8 @@ class Command(BaseCommand):
                             collection_method=row['Sample Collection Method'],
                             collecting_agency=row['Collecting Agency'],
                             defaults={'status': enums.STATUS_NON_DETECT})
-                        # Record lake as it has been updated
-                        updated_lakes.add(lake)
                     except Lake.DoesNotExist:
                         log_args = (row['REACHCODE'], row['PERMANENT_IDENTIFIER'])
                         print("Lake with reachcode '{}' or permanent ID '{}' not found".format(*log_args))
                     except ValueError:
                         print("Point coordinates '{}, {}' are invalid or not given".format(row['x'], row['y']))
-
-            # Marks updated lakes as having mussel observation data
-            queryset = Lake.objects.filter(pk__in=[l.pk for l in updated_lakes])
-            print("Updating {} lakes with mussel observation data.".format(queryset.count()))
-            queryset.update(has_mussels=True)
-
-            # Marks those lakes not updated as not having observation data
-            queryset = Lake.objects.filter(pk__in=existing_lakes)
-            print("Clearing {} lakes without mussel observation data.".format(queryset.count()))
-            queryset.update(has_mussels=False)
