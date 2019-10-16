@@ -69,7 +69,7 @@ class Lake(models.Model):
     title = models.CharField(max_length=255, blank=True)
     aol_page = models.IntegerField(null=True, blank=True)
     body = models.TextField()
-    photo = models.ForeignKey('photos.Photo', null=True,
+    photo = models.ForeignKey('photos.Photo', null=True, blank=True,
                               related_name='lake_cover_photo',
                               on_delete=models.SET_NULL)
 
