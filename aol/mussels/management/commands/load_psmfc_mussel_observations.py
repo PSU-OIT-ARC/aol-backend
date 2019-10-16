@@ -50,6 +50,11 @@ class Command(BaseCommand):
                         #     defaults={'name': row['Name'],
                         #               'machine_name': row['Machine Name']})
 
+                        # Guard against an observation with no valid cross-reference ID.
+                        if not row['REACHCODE'] or not row['PERMANENT_IDENTIFIER']:
+                            print("Observation contains undefined reachcode and permanent_id: {}".format(row))
+                            continue
+
                         # Fetch the associated lake
                         lake = Lake.active.get(Q(reachcode=row['REACHCODE']) |
                                                Q(permanent_id=row['PERMANENT_IDENTIFIER']))
