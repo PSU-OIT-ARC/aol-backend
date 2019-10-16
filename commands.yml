@@ -29,4 +29,6 @@ environment:
       name: aol
   prod:
     db:
-      host: null
+      host: aol-backend-prod.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
+      user: aol_backend_l
+      name: aol

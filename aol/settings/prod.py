@@ -23,7 +23,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = processors.ssm('GoogleOAuth2Secret', ssm_pref
 STATIC_ROOT = "/vol/www/aol-backend/static/prod"
 MEDIA_ROOT = "/vol/www/aol-backend/media/prod"
 
-DATABASES['default']['HOST'] = ''
+DATABASES['default']['HOST'] = 'aol-backend-prod.c6xuiyamhpsi.us-west-2.rds.amazonaws.com'
 DATABASES['default']['NAME'] = 'aol'
 DATABASES['default']['USER'] = 'aol_backend_l'
 

@@ -25,7 +25,7 @@ from emcee.deploy.base import push_crontab, push_supervisor_config
 from emcee.deploy.python import push_uwsgi_ini, push_uwsgi_config, restart_uwsgi
 from emcee.deploy.django import LocalProcessor, Deployer
 
-from emcee.backends.aws.provision.db import provision_database, import_database
+from emcee.backends.aws.provision.db import provision_database, import_database, update_database_ca
 from emcee.backends.aws.provision.volumes import provision_volume
 from emcee.backends.aws.deploy import EC2RemoteProcessor
 from emcee.backends.aws.infrastructure.commands import *
@@ -63,10 +63,6 @@ def provision_app(createdb=False):
     provision_secret('GoogleOAuth2Secret', oauth_secret)
 
 
-# Loading data model will cause instantiation of 'ClearableImageInput' which
-# will require that the path '{remote.path.root}/media' exist and be readable
-# by {service.user} so it's execution must be delayed until media assets have
-# been imported.
 @command
 def provision_media_assets():
     app_media_root = os.path.join(config.remote.path.root, 'media')
