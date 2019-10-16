@@ -9,8 +9,8 @@ def initialize_lake_status(apps, schema_editor):
     for record in Lake.objects.iterator():
         record.has_docs = record.documents.exists()
         record.has_photos = record.photos.exists()
-        record.has_plants = record.plants.exists()
-        record.has_mussels = record.mussels.exists()
+        record.has_plants = record.plant_observations.exists()
+        record.has_mussels = record.mussel_observationss.exists()
 
         record.is_major = False
         if any([record.aol_page is not None,

@@ -138,8 +138,8 @@ class Lake(models.Model):
         self.has_photos = self.photos.exists()
         self.has_docs = self.documents.exists()
         self.has_resources = self.resources.exists()
-        self.has_plants = self.plants.exists()
-        self.has_mussels = self.mussels.exists()
+        self.has_plants = self.plant_observations.exists()
+        self.has_mussels = self.mussel_observations.exists()
 
         self.is_major = False
         if any([self.aol_page is not None,
