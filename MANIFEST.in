@@ -1,5 +1,6 @@
 include CHANGELOG.md
 include README.md
+include import_legacy_data.py
 recursive-include aol/static *
 recursive-include aol/templates *
 recursive-exclude volumes *
