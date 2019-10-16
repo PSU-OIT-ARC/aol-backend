@@ -49,7 +49,6 @@ class LakeManager(models.Manager):
 
     def major(self):
         queryset = self.get_queryset()
-        queryset = queryset.exclude(gnis_id='')
         return queryset.filter(
             is_major=True,
             waterbody_type__in=[enums.WATERBODY_TYPE_LAKE_POND,
@@ -154,4 +153,5 @@ class Lake(models.Model):
     def __str__(self):
         return self.title or self.gnis_name
 
-    objects = LakeManager()
+    objects = models.Manager()
+    active = LakeManager()

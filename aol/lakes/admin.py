@@ -36,7 +36,7 @@ class LakeAdmin(admin.ModelAdmin):
     list_filter = ('is_major', 'waterbody_type',
                    'has_docs', 'has_photos', 'has_plants', 'has_mussels')
 
-    search_fields = ('reachcode', 'gnis_id', 'gnis_name')
+    search_fields = ('reachcode', 'permanent_id', 'gnis_id', 'gnis_name', 'aol_page')
     raw_id_fields = ('parent',)
     readonly_fields = ('has_plants', 'has_mussels',
                        'has_photos', 'has_docs', 'has_resources')

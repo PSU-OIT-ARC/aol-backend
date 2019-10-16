@@ -36,7 +36,7 @@ class Command(BaseCommand):
         # Delete all extant observations (each dataset is considered the full dataset)
         MusselObservation.objects.all().delete()
         # Mark all applicable lakes as having no mussel observations
-        Lake.objects.filter(has_mussels=True).update(has_mussels=False)
+        Lake.active.filter(has_mussels=True).update(has_mussels=False)
 
         with open(options['csv'], 'r') as csv_file:
             reader = csv.DictReader(csv_file)
@@ -51,7 +51,8 @@ class Command(BaseCommand):
                         #               'machine_name': row['Machine Name']})
 
                         # Fetch the associated lake
-                        lake = Lake.objects.get(Q(reachcode=row['REACHCODE']) | Q(permanent_id=row['PERMANENT_IDENTIFIER']))
+                        lake = Lake.active.get(Q(reachcode=row['REACHCODE']) |
+                                               Q(permanent_id=row['PERMANENT_IDENTIFIER']))
                         # Create a new observation record for this row data
                         MusselObservation.objects.update_or_create(
                             lake=lake,

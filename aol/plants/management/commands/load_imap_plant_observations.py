@@ -36,7 +36,7 @@ class Command(BaseCommand):
         # Delete all extant IMAP observations (each dataset is considered the full dataset)
         PlantObservation.objects.filter(source=enums.REPORTING_SOURCE_IMAP).delete()
         # Mark all applicable lakes as having no plant observations
-        Lake.objects.filter(plant_observations__isnull=True, has_plants=True).update(has_plants=False)
+        Lake.active.filter(plant_observations__isnull=True, has_plants=True).update(has_plants=False)
 
         with open(options['csv'], 'r') as csv_file:
             reader = csv.DictReader(csv_file)
@@ -50,7 +50,7 @@ class Command(BaseCommand):
                                       'common_name': row['common_name'].title()})
 
                         # Fetch the associated lakes
-                        lakes = Lake.objects.get_for_point(float(row['x']), float(row['y']))
+                        lakes = Lake.active.get_for_point(float(row['x']), float(row['y']))
                         for lake in lakes.iterator():
                             # Create a new observation record for this row data
                             PlantObservation.objects.update_or_create(

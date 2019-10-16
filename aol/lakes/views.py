@@ -25,8 +25,8 @@ class LakeListView(generics.ListAPIView):
         """
         status = self.request.query_params.get('status', 'major')
         if status == 'major':
-            return models.Lake.objects.major()
-        return models.Lake.objects.minor()
+            return models.Lake.active.major()
+        return models.Lake.active.minor()
 
     # @method_decorator(cache_page(60 * 60))
     def list(self, request, *args, **kwargs):

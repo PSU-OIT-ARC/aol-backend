@@ -21,10 +21,10 @@ class Command(BaseCommand):
             f.write(data.read())
 
     def handle(self, *args, **options):
-        serializer = LakeIndexSerializer(Lake.objects.major(), many=True)
+        serializer = LakeIndexSerializer(Lake.active.major(), many=True)
         path = os.path.join(settings.MEDIA_ROOT, 'lakes-major.json')
         self.generate_cache(serializer, path)
 
-        serializer = LakeIndexSerializer(Lake.objects.minor(), many=True)
+        serializer = LakeIndexSerializer(Lake.active.minor(), many=True)
         path = os.path.join(settings.MEDIA_ROOT, 'lakes-minor.json')
         self.generate_cache(serializer, path)

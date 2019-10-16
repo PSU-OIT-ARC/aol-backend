@@ -36,7 +36,7 @@ class Command(BaseCommand):
         # Delete all extant CLR observations (each dataset is considered the full dataset)
         PlantObservation.objects.filter(source=enums.REPORTING_SOURCE_CLR).delete()
         # Mark all applicable lakes as having no plant observations
-        Lake.objects.filter(plant_observations__isnull=True, has_plants=True).update(has_plants=False)
+        Lake.active.filter(plant_observations__isnull=True, has_plants=True).update(has_plants=False)
 
         with open(options['csv'], 'r') as csv_file:
             reader = csv.DictReader(csv_file)
@@ -52,7 +52,7 @@ class Command(BaseCommand):
                                       'is_native': row['NativeSpecies'] == "1"})
 
                         # Fetch the associated lake
-                        lake = Lake.objects.get(pk=int(float(row['ReachCode'])))
+                        lake = Lake.active.get(pk=int(float(row['ReachCode'])))
                         # Create a new observation record for this row data
                         PlantObservation.objects.update_or_create(
                             lake=lake,
