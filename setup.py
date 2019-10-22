@@ -64,7 +64,7 @@ setup(
         'django-pgcli~=0.0.3',
         'pytz',
         'requests~=2.21.0',
-        'Pillow~=6.0.0',
+        'Pillow>=6.0,<6.3',
         'psycopg2-binary~=2.8.2',
         'pyshp~=2.1.0',
         'Shapely~=1.6.4',
