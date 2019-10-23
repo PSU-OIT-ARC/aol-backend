@@ -6,7 +6,6 @@
 
 - PostgreSQL 10
 - PostGIS 2.4
-- Elasticsearch 2.x
 - Python 3.7
 - Django 1.11.x
 - ArcGIS (Cloud/SaaS)

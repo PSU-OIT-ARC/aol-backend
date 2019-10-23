@@ -10,35 +10,29 @@ from emcee.commands.db import pg_dump, pg_restore
 from emcee.commands.deploy import deploy
 from emcee.commands.python import virtualenv, install
 from emcee.commands.django import manage, manage_remote
-from emcee.commands.javascript import npm_install
 from emcee.commands.files import copy_file
 
 from emcee.provision.base import provision_host, patch_host
 from emcee.provision.python import provision_python
 from emcee.provision.gis import provision_gis
-from emcee.provision.services import provision_nginx
-from emcee.provision.secrets import show_secret
-from emcee.deploy.base import push_nginx_config
-from emcee.deploy.python import push_uwsgi_ini, push_uwsgi_config, restart_uwsgi
-from emcee.deploy.django import Deployer as DjangoDeployer
+from emcee.provision.services import (provision_nginx,
+                                      provision_supervisor,
+                                      provision_rabbitmq)
+from emcee.provision.secrets import provision_secret, show_secret
 
-# from emcee.backends.dev.provision.db import provision_database as provision_database_local
-from emcee.backends.aws.infrastructure.commands import *
-from emcee.backends.aws.provision.db import provision_database, import_database
+from emcee.deploy.utils import copy_file_local
+from emcee.deploy.base import push_crontab, push_supervisor_config
+from emcee.deploy.python import push_uwsgi_ini, push_uwsgi_config, restart_uwsgi
+from emcee.deploy.django import LocalProcessor, Deployer
+
+from emcee.backends.aws.provision.db import provision_database, import_database, update_database_ca
 from emcee.backends.aws.provision.volumes import provision_volume
+from emcee.backends.aws.deploy import EC2RemoteProcessor
+from emcee.backends.aws.infrastructure.commands import *
 
 
 configs.load('default', 'commands.yml', YAMLCommandConfiguration)
-app_configs.load('default', LegacyAppConfiguration)
-
-
-@command(timed=True)
-def init(overwrite=False):
-    virtualenv(config.python.venv, overwrite=overwrite)
-    install()
-    npm_install()
-    # provision_database_local(config, drop=drop_db, with_postgis=True)
-    manage(('migrate', '--noinput'))
+# app_configs.load('default', LegacyAppConfiguration)
 
 
 @command
@@ -48,6 +42,8 @@ def provision_app(createdb=False):
     provision_python()
     provision_gis()
     provision_nginx()
+    provision_supervisor()
+    provision_rabbitmq()
 
     # Initialize/prepare attached EBS volume
     provision_volume(mount_point='/vol/store')
@@ -58,11 +54,15 @@ def provision_app(createdb=False):
                          'extensions': ['hstore']}
         provision_database(backend_options=backend_options)
 
+    # Provision application secrets
+    client_id = input("Enter the ArcGIS Client ID: ")
+    provision_secret('ArcGISClientID', client_id)
+    client_secret = input("Enter the ArcGIS Client Secret: ")
+    provision_secret('ArcGISClientSecret', client_secret)
+    oauth_secret = input("Enter the Google OAuth secret: ")
+    provision_secret('GoogleOAuth2Secret', oauth_secret)
 
-# Loading data model will cause instantiation of 'ClearableImageInput' which
-# will require that the path '{remote.path.root}/media' exist and be readable
-# by {service.user} so it's execution must be delayed until media assets have
-# been imported.
+
 @command
 def provision_media_assets():
     app_media_root = os.path.join(config.remote.path.root, 'media')
@@ -91,10 +91,37 @@ def provision_media_assets():
         )
 
 
-class AOLDeployer(DjangoDeployer):
+class AOLLocalProcessor(LocalProcessor):
+    def make_dists(self):
+        """
+        Handles preparation of the environment-specific settings module
+        as this project utilizes pure-python configuration and does not
+        engage built-in support in Emcee to manage app configuration.
+        """
+        copy_file_local('aol/settings/{}.py'.format(config.env),
+                        'aol/settings/current.py')
+
+        super(AOLLocalProcessor, self).make_dists()
+
+
+class AOLDeployer(Deployer):
     """
     TBD
     """
+    local_processor_cls = AOLLocalProcessor
+    remote_processor_cls = EC2RemoteProcessor
+
+    def bootstrap_application(self):
+        super().bootstrap_application()
+
+        # Install crontab
+        push_crontab(template='assets/crontab')
+
+    def make_active(self):
+        super().make_active()
+
+        # Install supervisor worker configuration
+        push_supervisor_config(template='assets/supervisor.conf')
 
 
 @command

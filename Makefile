@@ -23,12 +23,20 @@ init: install
 	$(bin)/mc init --overwrite
 reinit: clean-egg-info clean-pyc clean-venv init
 
+test: settings_module="aol.settings.test"
 test: install
-	LOCAL_SETTINGS_FILE="local.base.cfg#test" $(bin)/python manage.py test --keepdb --failfast
+	@DJANGO_SETTINGS_MODULE=$(settings_module) $(bin)/python manage.py test --keepdb --failfast
 test_container: install
 	$(bin)/docker-compose run --user=aol --rm --entrypoint=/entrypoint-test.sh aol
+shell: settings_module="aol.settings.development"
+shell:
+	@DJANGO_SETTINGS_MODULE=$(settings_module) $(bin)/python manage.py shell
+run: settings_module="aol.settings.development"
 run:
-	@$(bin)/python manage.py runserver
+	@DJANGO_SETTINGS_MODULE=$(settings_module) $(bin)/python manage.py runserver
+celery: settings_module="aol.settings.development"
+celery:
+	@DJANGO_SETTINGS_MODULE=$(settings_module) $(bin)/celery -A aol worker -l INFO
 
 clean: clean-pyc
 clean-all: clean-build clean-dist clean-egg-info clean-pyc clean-venv

@@ -10,6 +10,8 @@
 /*.egg-info/
 /.coverage
 
+/aol/settings/current.py
+
 # Anywhere
 __pycache__/
 *.log

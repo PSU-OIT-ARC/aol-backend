@@ -1,250 +1,105 @@
-import collections
-import re
-
 from django.utils.functional import cached_property
-from django.contrib.gis.db.models import functions
+from django.contrib.gis.gdal import SpatialReference, CoordTransform
+from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Area, Perimeter
 from django.contrib.gis.db import models
-from django.db import connection, connections, transaction
 from django.db.models import Q
-from django.conf import settings
 
-Point = collections.namedtuple('Point', ['x','y'])
-BoundingBox = collections.namedtuple('BoundingBox', ['topleft', 'bottomright'])
-# this is the distance we use to calculate if a mussel observation is near a lake
-DISTANCE_FROM_ITEM = 10 # feet since the projection 3644 is in feet
+from aol.lakes import enums
 
 
-def dictfetchall(cursor):
-    "Returns all rows from a cursor as a dict"
-    desc = cursor.description
-    return [
-        dict(zip([col[0] for col in desc], row))
-        for row in cursor.fetchall()
-    ]
-
-
-class NHDLakeManager(models.Manager):
-    def get_queryset(self):
-        """
-        We only want to return lakes that are coded as LakePond or Reservoir
-        which have the types 390, 436 in the NHD. See
-        http://nhd.usgs.gov/NHDv2.0_poster_6_2_2010.pdf
-
-        We also only want to get lakes in oregon
-        """
-        qs = super(NHDLakeManager, self).get_queryset().filter(
-            ftype__in=[390, 436],
-            parent=None,
-            is_in_oregon=True
-        )
-        qs = qs.prefetch_related("county_set")
-        qs = qs.extra(
-            select={"is_important": "has_mussels OR has_docs OR has_photos OR has_plants OR (aol_page IS NOT NULL)"},
-            order_by=['-is_important'],
-        )
-        return qs
-
-    def search(self, query):
-        """
-        This searches all the NHDLake objects with a gnis_name, title, gnis_id
-        or reachcode containing the particular query keyword
-        """
-        qs = NHDLake.objects.filter(Q(gnis_name__icontains=query) | Q(title__icontains=query) | Q(gnis_id__icontains=query) | Q(reachcode__icontains=query))
-        qs = qs.extra(
-            tables=["lake_geom"],
-            select={"lake_area": "ST_AREA(lake_geom.the_geom)"},
-            order_by=["-lake_area"],
-            where=["lake_geom.reachcode = nhd.reachcode"]
-        )
-        return qs
-
-    def by_letter(self, letter):
-        """Return a queryset of all the lakes that start with the letter"""
-        letter = letter.lower()
-        qs = self.all().extra(
-            select={"alphabetic_title": "regexp_replace(COALESCE(NULLIF(title, ''), gnis_name), '^[lL]ake\s*', '')"},
-            where=["""
-                (
-                    substring(lower(COALESCE(NULLIF(title, ''), gnis_name)) FROM 1 for 1) = %s
-                    OR
-                    substring(lower(regexp_replace(COALESCE(NULLIF(title, ''), gnis_name), '^[lL]ake\s*', '')) FROM 1 for 1) = %s
-                )
-            """],
-            params=(letter,)*2,
-            # we want to list important lakes first, and then sort by the alphabetic title
-            order_by=['-is_important', "alphabetic_title"],
-        )
-        return qs
-
-    def to_kml(self, scale, bbox):
-        """
-        Returns a query set of Lake objects with a "kml" attribute, which
-        contains the KML string representing the lake geometry at the specific
-        scale. Only lakes within the bbox (a 4-tuple of floats) are returned
-        """
-        if scale in [1728004, 864002, 432001]:
-            geom_col = "the_geom_217k"
-        elif scale in [216001]:
-            geom_col = "the_geom_108k"
-        elif scale in [108000]:
-            geom_col = "the_geom_54k"
-        elif scale in [54000, 27000, 13500, 6750]:
-            geom_col = "the_geom_27k"
-        else:
-            raise ValueError("scale not valid")
-
-        qs = self.all().extra(
-            select={'kml': 'st_askml(lake_geom.%s)' % (geom_col)},
-            tables=["lake_geom"],
-            where=[
-                "lake_geom.reachcode = nhd.reachcode",
-                "lake_geom.the_geom && st_setsrid(st_makebox2d(st_point(%s, %s), st_point(%s, %s)), 3644)",
-                "ST_AREA(lake_geom.%s) > 0" % geom_col
-            ],
-            params=bbox
-        )
-
-        return qs
-
-
-class NHDLake(models.Model):
-    # FYI: We add an hstore field (called changed_on) in a migration that tracks
-    # when each field was updated (which is triggered with a trigger -- also
-    # defined in a migration)
-
-    reachcode = models.CharField(max_length=32, primary_key=True)
-    title = models.CharField(max_length=255, blank=True)
-    permanent_id = models.CharField(max_length=64)
-    fdate = models.DateField()
-    ftype = models.IntegerField()
-    fcode = models.IntegerField()
-    shape_length = models.FloatField()
-    shape_area = models.FloatField()
-    resolution = models.IntegerField()
-    gnis_id = models.CharField(max_length=32)
-    gnis_name = models.CharField(max_length=255)
-    area_sq_km = models.FloatField()
-    elevation = models.FloatField()
-    parent = models.ForeignKey('self', null=True, db_column="parent", blank=True)
-    aol_page = models.IntegerField(null=True, blank=True)
-    body = models.TextField()
-
-    fishing_zone = models.ForeignKey('FishingZone', null=True)
-    huc6 = models.ForeignKey('HUC6', null=True, blank=True)
-    county_set = models.ManyToManyField('County', through="LakeCounty")
-    plants = models.ManyToManyField('Plant', through="LakePlant")
-
-    # denormalized fields
-    # unfortunately, for performance reasons, we need to cache whether a lake
-    # has plant data, has mussels, was in the original AOL, has docs, has
-    # photos etc
-    has_mussels = models.BooleanField(default=False, blank=True)
-    has_plants = models.BooleanField(default=False, blank=True)
-    has_docs = models.BooleanField(default=False, blank=True)
-    has_photos = models.BooleanField(default=False, blank=True)
-    # some lakes in the NHD are not in oregon, so we cache this value so we
-    # don't have to join on the lake_county table
-    is_in_oregon = models.BooleanField(default=False, blank=True)
-
-    objects = NHDLakeManager()
-    unfiltered = models.Manager()
+class County(models.Model):
+    name = models.CharField(max_length=255)
 
     class Meta:
-        db_table = 'nhd'
+        verbose_name_plural = 'counties'
 
     def __str__(self):
-        return self.title or self.gnis_name or self.pk
+        return self.name
 
-    @classmethod
-    def update_cached_fields(cls):
-        """
-        Important lakes are lakes with plant data, mussel data, photos docs, etc.
-        We cache these booleans (has_mussels, has_plants, etc) on the model
-        itself for performance reasons, so this class method needs to be called
-        to refresh thos booleans.
 
-        It also refreshes the is_in_oregon flag
-        """
-        cursor = connection.cursor()
-        cursor.execute("""
-            SELECT
-                reachcode,
-                MAX(has_plants) AS has_plants,
-                MAX(has_docs) AS has_docs,
-                MAX(has_photos) AS has_photos,
-                MAX(has_aol_page) AS has_aol_page,
-                MAX(has_mussels) AS has_mussels
-            FROM (
-                -- get all reachcodes for lakes with plants
-                SELECT reachcode, 1 AS has_plants, 0 AS has_docs, 0 AS has_photos, 0 AS has_aol_page, 0 AS has_mussels FROM "lake_plant" GROUP BY reachcode HAVING COUNT(*) >= 1
-                UNION
-                -- get all reachcodes for lakes with documents
-                SELECT reachcode, 0 AS has_plants, 1 AS has_docs, 0 AS has_photos, 0 AS has_aol_page, 0 AS has_mussels FROM "document" GROUP BY reachcode HAVING COUNT(*) >= 1
-                UNION
-                -- get all reachcodes for lakes with photos
-                SELECT reachcode, 0 AS has_plants, 0 AS has_docs, 1 AS has_photos, 0 AS has_aol_page, 0 AS has_mussels FROM "photo" GROUP BY reachcode HAVING COUNT(*) >= 1
-                UNION
-                -- get all original AOL lakes
-                SELECT reachcode, 0 AS has_plants, 0 AS has_docs, 0 AS has_photos, 1 AS has_aol_page, 0 AS has_mussels FROM "nhd" WHERE aol_page IS NOT NULL
-                UNION
-                SELECT DISTINCT reachcode, 0 AS has_plants, 0 AS has_docs, 0 AS has_photos, 0 AS has_aol_page, 1 AS has_mussels FROM mussels.observation INNER JOIN "lake_geom" ON (ST_BUFFER(ST_TRANSFORM(observation.the_geom, 3644), %s) && lake_geom.the_geom)
-            ) k
-            GROUP BY reachcode
-        """, [DISTANCE_FROM_ITEM]) # noqa
-        for row in dictfetchall(cursor):
-            NHDLake.unfiltered.filter(reachcode=row['reachcode']).update(
-                has_plants=row['has_plants'],
-                has_docs=row['has_docs'],
-                has_photos=row['has_photos'],
-                has_mussels=row['has_mussels']
-            )
+class FishingZone(models.Model):
+    odfw = models.CharField(max_length=255)
 
-        # now update the is_in_oregon flag
-        cursor.execute("""
-            WITH foo AS (SELECT COUNT(*) AS the_count, reachcode FROM lake_county GROUP BY reachcode)
-            UPDATE nhd SET is_in_oregon = foo.the_count > 0 FROM foo WHERE foo.reachcode = nhd.reachcode
-        """)
+    def __str__(self):
+        return self.odfw.capitalize()
 
-    @cached_property
-    def area(self):
-        """
-        Returns the area of the lake in acres.
+    def get_absolute_url(self):
+        return "https://myodfw.com/recreation-report/fishing-report/{}-zone".format(self.odfw.lower())
 
-        Pre-existing implementation used 'ST_AREA' and assumed a measurement given in sq. ft.,
-        due to http://spatialreference.org/ref/epsg/3644/.
 
-        While the result given by postgis (with standard units determined by SRID) claims to
-        be m^2, this value is interpreted as sqft. nonetheless in order to match existing values.
-        Additionally, it appears that performing the conversion to acre in PostgreSQL yields
-        marginally different values than when converted in Python.
+class LakeManager(models.Manager):
+    """
+    We only want to return lakes that are coded as LakePond or Reservoir
+    which have the types 390, 436 in the NHD.
 
-        E.g., McKay Reservoir
-              1174.2 acres (pg) v. 1171.8 acres (py)
-        """
-        lake_geoms = LakeGeom.objects.filter(reachcode=self.pk).annotate(area=functions.Area('the_geom'))
-        return lake_geoms[0].area.standard / 43650.
+    Refs: https://prd-wret.s3-us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/atoms/files/NHDv2.2.1_poster_081216.pdf
+    """
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(parent__isnull=True)
 
-    @cached_property
-    def perimeter(self):
-        """
-        Returns the perimeter length of the lake in miles.
+    def get_for_point(self, lon, lat):
+        queryset = self.get_queryset()
+        coord_transform = CoordTransform(SpatialReference(4326),
+                                         SpatialReference(3644))
+        point_geom = Point(lon, lat)
+        point_geom.transform(coord_transform)
+        return queryset.filter(the_geom__contains=point_geom)
 
-        Pre-existing implementation used 'ST_DISTANCE' and assumed a measurement given in ft.,
-        due to http://spatialreference.org/ref/epsg/3644/
-        """
-        lake_geoms = LakeGeom.objects.filter(reachcode=self.pk).annotate(perimeter=functions.Perimeter('the_geom'))
-        return lake_geoms[0].perimeter.mi
+    def major(self):
+        queryset = self.get_queryset()
+        return queryset.filter(
+            is_major=True,
+            waterbody_type__in=[enums.WATERBODY_TYPE_LAKE_POND,
+                                enums.WATERBODY_TYPE_RESERVOIR]
+        )
 
-    @cached_property
-    def bounding_box(self):
-        lake_geoms = LakeGeom.objects.filter(reachcode=self.pk).annotate(envelope=functions.Envelope('the_geom'))
-        coords = lake_geoms[0].envelope.coords[0]
-        expand_factor = 1000
+    def minor(self):
+        queryset = self.get_queryset()
+        queryset = queryset.exclude(gnis_id='')
+        return queryset.filter(
+            is_major=False,
+            waterbody_type__in=[enums.WATERBODY_TYPE_LAKE_POND,
+                                enums.WATERBODY_TYPE_RESERVOIR]
+        )
 
-        return BoundingBox(topleft=Point(x=coords[0][0]-expand_factor,
-                                         y=coords[0][1]-expand_factor),
-                           bottomright=Point(x=coords[2][0]+expand_factor,
-                                             y=coords[2][1]+expand_factor))
+
+class Lake(models.Model):
+    title = models.CharField(max_length=255, blank=True)
+    aol_page = models.IntegerField(null=True, blank=True)
+    body = models.TextField()
+    photo = models.ForeignKey('photos.Photo', null=True, blank=True,
+                              related_name='lake_cover_photo',
+                              on_delete=models.SET_NULL)
+
+    reachcode = models.CharField(max_length=32, primary_key=True)
+    permanent_id = models.CharField(max_length=64)
+    parent = models.ForeignKey('self', null=True, blank=True,
+                               on_delete=models.SET_NULL)
+
+    gnis_id = models.CharField(max_length=32)
+    gnis_name = models.CharField(max_length=255)
+
+    fishing_zone = models.ForeignKey('FishingZone', null=True,
+                                     on_delete=models.SET_NULL)
+    county_set = models.ManyToManyField('County')
+    plants = models.ManyToManyField('plants.Plant', through="plants.PlantObservation")
+    mussels = models.ManyToManyField('mussels.Mussel', through="mussels.MusselObservation")
+
+    the_geom = models.MultiPolygonField('Lake geometry', srid=3644)
+    waterbody_type = models.IntegerField(choices=enums.WATERBODY_TYPE_CHOICES,
+                                         default=enums.WATERBODY_TYPE_UNKNOWN)
+
+    is_major = models.BooleanField(default=False, db_index=True)
+    has_photos = models.BooleanField(default=False, db_index=True)
+    has_docs = models.BooleanField(default=False, db_index=True)
+    has_resources = models.BooleanField(default=False, db_index=True)
+    has_plants = models.BooleanField(default=False, db_index=True)
+    has_mussels = models.BooleanField(default=False, db_index=True)
+
+    class Meta:
+        ordering = ('is_major', 'title', )
 
     @property
     def counties(self):
@@ -264,271 +119,39 @@ class NHDLake(models.Model):
         self._counties = value
 
     @property
-    def watershed_tile_url(self):
-        """
-        Returns the URL to the watershed tile thumbnail from the arcgis
-        server for this lake
-        """
-        # get the bounding box of the huc6 geom for the lake. The magic 300
-        # here is from the original AOL
-        results = HUC6.objects.raw("""
-        SELECT Box2D(st_envelope(st_expand(the_geom, 300))) AS bbox, huc6.huc6_id
-        FROM huc6 WHERE huc6.huc6_id = %s
-        """, (self.huc6_id,))
-
-        try:
-            bbox = list(results)[0].bbox
-        except IndexError:
-            # this lake does not have a watershed
-            return None
-
-        return self._bbox_thumbnail_url(bbox)
+    def area(self):
+        obj = Lake.objects.filter(pk=self.pk).annotate(computed_area=Area('the_geom')).get()
+        # area is given in sq ft.; however, GeoDjango believes it to be sq m.
+        return obj.computed_area.standard / 43560.04
 
     @property
-    def basin_tile_url(self):
+    def shoreline(self):
+        obj = Lake.objects.filter(pk=self.pk).annotate(computed_shoreline=Perimeter('the_geom')).get()
+        return obj.computed_shoreline.mi
+
+    def update_status(self):
         """
-        Return the URL to the lakebasin tile thumbnail from the arcgis server
+        TBD
         """
-        # the magic 1000 here is from the original AOL too
-        results = LakeGeom.objects.raw("""
-        SELECT Box2D(st_envelope(st_expand(the_geom,1000))) as bbox, reachcode
-        FROM lake_geom where reachcode = %s
-        """, (self.pk,))
+        self._status_updated = True
 
-        bbox = results[0].bbox
-        return self._bbox_thumbnail_url(bbox)
+        self.has_photos = self.photos.exists()
+        self.has_docs = self.documents.exists()
+        self.has_resources = self.resources.exists()
+        self.has_plants = self.plant_observations.exists()
+        self.has_mussels = self.mussel_observations.exists()
 
-    def _bbox_thumbnail_url(self, bbox):
-        """
-        Take a boundingbox string from postgis, for example:
-        BOX(727773.25 1372170,829042.75 1430280.75)
-        and build the URL to a tile of that bounding box in the arcgis server
-        """
-        # extract out the numbers from the bbox, and comma separate them
-        bbox = re.sub(r'[^0-9.-]', " ", bbox).split()
-        bbox = ",".join(bbox)
-        path = "export?bbox=%s&bboxSR=&layers=&layerdefs=&size=&imageSR=&format=jpg&transparent=false&dpi=&time=&layerTimeOptions=&f=image"
-        return settings.TILE_URL + (path % bbox)
-
-    @property
-    def mussels(self):
-        """
-        This queries the mussel DB for any mussels that are within a certain
-        distance of this lake. It returns a comma separated string of the
-        status of the mussels
-        """
-        if not hasattr(self, "_mussels"):
-            cursor = connection.cursor()
-            cursor.execute("""
-                SELECT
-                    DISTINCT
-                    specie.name as species,
-                    date_checked,
-                    agency.name as agency
-                FROM
-                    mussels.observation
-                INNER JOIN
-                    mussels.specie USING(specie_id)
-                INNER JOIN
-                    mussels.agency USING(agency_id)
-                WHERE
-                    ST_BUFFER(ST_TRANSFORM(the_geom, 3644), %s) && (SELECT the_geom FROM lake_geom WHERE reachcode = %s)
-                ORDER BY date_checked DESC
-            """, (DISTANCE_FROM_ITEM, self.pk))
-            results = []
-            for row in cursor:
-                results.append({
-                    "species": row[0],
-                    "date_checked": row[1],
-                    "source": row[2]
-                })
-            self._mussels = results
-
-        return self._mussels
-
-
-class LakeGeom(models.Model):
-    reachcode = models.OneToOneField(NHDLake, primary_key=True, db_column="reachcode")
-    the_geom = models.MultiPolygonField(srid=3644)
-    the_geom_866k = models.MultiPolygonField(srid=3644)
-    the_geom_217k = models.MultiPolygonField(srid=3644)
-    the_geom_108k = models.MultiPolygonField(srid=3644)
-    the_geom_54k = models.MultiPolygonField(srid=3644)
-    the_geom_27k = models.MultiPolygonField(srid=3644)
-
-    class Meta:
-        db_table = "lake_geom"
-
-    def save(self, *args, **kwargs):
-        with transaction.atomic():
-            instance = super(LakeGeom, self).save(*args, **kwargs)
-            cursor = connection.cursor()
-            # update the fishing zone
-            cursor.execute("""
-                UPDATE
-                    nhd
-                SET
-                    fishing_zone_id = (
-                        SELECT
-                            fishing_zone_id
-                        FROM
-                            fishing_zone
-                        WHERE
-                            ST_Intersects(fishing_zone.the_geom, (SELECT the_geom FROM lake_geom WHERE reachcode = %s)) LIMIT 1
-                    )
-                WHERE
-                    nhd.reachcode = %s
-                """, (self.pk, self.pk))
-            # update the huc6
-            cursor.execute("""
-                WITH foo AS (
-                    SELECT
-                        huc6.huc6_id,
-                        reachcode
-                    FROM
-                        lake_geom
-                    INNER JOIN
-                        huc6 ON ST_Covers(huc6.the_geom, lake_geom.the_geom)
-                    WHERE reachcode = %s
-                )
-                UPDATE
-                    nhd
-                SET
-                    huc6_id = foo.huc6_id
-                FROM
-                    foo
-                WHERE
-                    nhd.reachcode = foo.reachcode
-            """, (self.pk,))
-
-            # update counties
-            cursor.execute("""DELETE FROM lake_county WHERE reachcode = %s""", (self.pk,))
-            cursor.execute("""
-                INSERT INTO lake_county (county_id, reachcode) (
-                    SELECT
-                        county_id, lake_geom.reachcode
-                    FROM
-                       county
-                    INNER JOIN
-                        lake_geom ON ST_INTERSECTS(county.the_geom, lake_geom.the_geom)
-                    WHERE reachcode = %s
-                )
-            """, (self.pk,))
-
-        return instance
-
-
-class LakeCounty(models.Model):
-    lake_county_id = models.AutoField(primary_key=True)
-    lake = models.ForeignKey(NHDLake, db_column="reachcode")
-    county = models.ForeignKey("County")
-
-    class Meta:
-        db_table = "lake_county"
-
-
-class DeferGeomManager(models.Manager):
-    """
-    Models that use this manager will always defer the "the_geom" column. This
-    is necessary because the geom columns are huge, and rarely need to be
-    accessed.
-    """
-    def get_queryset(self, *args, **kwargs):
-        qs = super(DeferGeomManager, self).get_queryset(*args, **kwargs).defer("the_geom")
-        return qs
-
-
-class FishingZone(models.Model):
-    fishing_zone_id = models.AutoField(primary_key=True)
-    odfw = models.CharField(max_length=255)
-    the_geom = models.MultiPolygonField(srid=3644)
-
-    objects = DeferGeomManager()
-
-    class Meta:
-        db_table = "fishing_zone"
+        self.is_major = False
+        if any([self.aol_page is not None,
+                self.has_photos,
+                self.has_docs,
+                self.has_resources,
+                self.has_plants,
+                self.has_mussels]):
+            self.is_major = True
 
     def __str__(self):
-        return self.odfw.capitalize()
+        return self.title or self.gnis_name
 
-    def get_absolute_url(self):
-        return "https://myodfw.com/recreation-report/fishing-report/{}-zone".format(self.odfw.lower())
-
-
-class HUC6(models.Model):
-    huc6_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255, db_column="hu_12_name")
-    the_geom = models.MultiPolygonField(srid=3644)
-
-    objects = DeferGeomManager()
-
-    class Meta:
-        db_table = "huc6"
-
-    def __str__(self):
-        return self.name
-
-
-class County(models.Model):
-    county_id = models.AutoField(primary_key=True)
-    name = models.CharField(db_column="altname", max_length=255)
-    # includes the "County" suffix
-    full_name = models.CharField(db_column="instname", max_length=255)
-    the_geom = models.MultiPolygonField(srid=3644)
-
-    objects = DeferGeomManager()
-
-    class Meta:
-        db_table = "county"
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.full_name
-
-
-class Plant(models.Model):
-    plant_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-    # the name of the plant in lower case
-    normalized_name = models.CharField(max_length=255, unique=True)
-    common_name = models.CharField(max_length=255) # Common name of the plant
-    noxious_weed_designation = models.CharField(max_length=255, default="", choices=(
-        ("", ""),
-        ("A", "ODA Class A"),
-        ("B", "ODA Class B"),
-        ("Federal", "Federal"),
-    ))
-    is_native = models.NullBooleanField(default=None, choices=(
-        (True, "Native"),
-        (False, "Non-native"),
-        (None, ""),
-    ))
-
-    class Meta:
-        db_table = "plant"
-
-    def __str__(self):
-        return self.name
-
-
-class LakePlant(models.Model):
-    lake_plant_id = models.AutoField(primary_key=True)
-    lake = models.ForeignKey(NHDLake, db_column="reachcode")
-    plant = models.ForeignKey("Plant", related_name="plant_set")
-    observation_date = models.DateField(null=True)
-    source = models.CharField(max_length=255, default="", choices=(
-        ("", ""),
-        ("CLR", "Center for Lakes and Reservoir"),
-        ("IMAP", "iMapInvasives"),
-    ))
-    survey_org = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = "lake_plant"
-        ordering = ['-observation_date']
-
-    def source_link(self):
-        return {
-            "CLR": "http://www.clr.pdx.edu/",
-            "IMAP": "http://www.imapinvasives.org",
-        }.get(self.source, '#')
+    objects = models.Manager()
+    active = LakeManager()

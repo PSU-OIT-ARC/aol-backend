@@ -1,5 +1,14 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.5.0.rc1 - 2019-10-21
+
+This release series signficantly revises the structure, implementation
+and composition of the AOL project such that its primary purpose is
+to provide backend support to the new AOL frontend application.
+
+- Uses the Django 2.2 LTS release.
+- Supports the new AOL frontend application.
+
 ## 1.4.0 - 2019-05-06
 
 - Configures the project to use the 'emcee.backends.aws' backend.

@@ -57,25 +57,32 @@ setup(
     zip_safe=False,
 
     install_requires=[
-        'psu.oit.wdt.emcee>=1.0.0.rc8,<1.1',
-        'django~=1.11.20',
-        'django-arcutils[ldap]~=2.24',
-        'django-bootstrap-form~=3.4',
-        'django-pgcli~=0.0.3',
         'pytz',
-        'requests~=2.21.0',
-        'Pillow~=6.0.0',
-        'psycopg2-binary~=2.8.2',
+        'dateparser~=0.7.2',
+        'beautifulsoup4~=4.8.1',
+        'requests~=2.22.0',
+        'Pillow~=6.2.1',
+        'psycopg2-binary~=2.8.4',
         'pyshp~=2.1.0',
         'Shapely~=1.6.4',
-        'sentry-sdk~=0.7.14'
+        'uritemplate~=3.0.0',
+        'psu.oit.wdt.emcee>=1.0.0,<1.1',
+        'django~=2.2.6',
+        'djangorestframework~=3.10.3',
+        'celery~=4.3.0',
+        'django-filter~=2.2.0',
+        'social-auth-core~=3.2.0',
+        'social-auth-app-django~=3.1.0',
+        'django-ckeditor~=5.7.1',
+        'sentry-sdk~=0.13.0',
     ],
     extras_require={
         'dev': [
             'flake8',
             'mock',
             'model_mommy',
-            'docker-compose'
+            'docker-compose',
+            'django-cors-middleware'
         ]
     },
     classifiers=[
