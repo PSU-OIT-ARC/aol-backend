@@ -30,9 +30,7 @@ environment:
       host: aol-backend-stage.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
       user: aol_backend_l
       name: aol
-    remote:
-      nginx:
-        access_control_origin: "http://aol.stage.wdt.pdx.edu"
+
   prod:
     db:
       host: aol-backend-prod.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
