@@ -13,6 +13,8 @@ remote:
   host_name: aol-backend
   nginx:
     client_max_body_size: 5m
+    limit_conn_perserver: 1000
+    limit_conn_perip: 100
     csp_policy: "default-src 'unsafe-inline' *.wdt.pdx.edu"
     access_control_origin: "*"
     static_expires_time: "1d"
