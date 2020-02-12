@@ -1,2 +1,2 @@
--f https://pypi.research.pdx.edu/dist
+-f https://packages.wdt.pdx.edu/dist
 -e .[dev]
