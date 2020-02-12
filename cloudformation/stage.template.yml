@@ -4,16 +4,16 @@ Resources:
   AppRole:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20190607/iam/application_role.template.yml
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/iam/application_role.template.yml
       Parameters:
         Name: aol-backend
         VpcStackName: vpc-stage
   Host:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20190607/ec2/private_host/private_host.template.yml
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/private_host/private_host.template.yml
       Parameters:
-        ImageId: ami-d2f06baa
+        ImageId: ami-082b5a644766e0e6f
         ImageDistribution: amazon2
         HostName: !GetAtt 'AppRole.Outputs.Name'
         VpcStackName: !GetAtt 'AppRole.Outputs.VpcStackName'
@@ -25,7 +25,7 @@ Resources:
   Networking:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20190607/ec2/private_host/networking.template.yml
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/private_host/networking.template.yml
       Parameters:
         EC2Instance: !GetAtt 'Host.Outputs.InstanceId'
         PrivateIp: !GetAtt 'Host.Outputs.PrivateIP'
@@ -38,7 +38,7 @@ Resources:
   PostgreSQL:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20190607/rds/postgres.template.yml
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/rds/postgres.template.yml
       Parameters:
         VpcStackName: !GetAtt 'AppRole.Outputs.VpcStackName'
         AvailabilityZone: us-west-2a
@@ -49,10 +49,11 @@ Resources:
   Volume:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20190607/ec2/ebs/volume.template.yml
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/ebs/volume.template.yml
       Parameters:
         Name: aol-backend-stage
         AvailabilityZone: us-west-2a
+
 Parameters:
   ELBListenerPriority:
     Type: String
