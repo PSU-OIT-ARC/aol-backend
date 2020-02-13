@@ -67,6 +67,7 @@ setup(
         'Shapely~=1.6.4',
         'uritemplate~=3.0.0',
         'psu.oit.wdt.emcee>=1.0.1,<1.1',
+        'psu.oit.wdt.emcee~=1.0.4',
         'django~=2.2.6',
         'djangorestframework~=3.10.3',
         'celery~=4.3.0',
