@@ -1,5 +1,10 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.5.0.rc2 - 2020-02-13
+
+- Updates package dependency versions.
+- Uses new releases of 'emcee', 'cloud-config'.
+
 ## 1.5.0.rc1 - 2019-10-21
 
 This release series signficantly revises the structure, implementation
