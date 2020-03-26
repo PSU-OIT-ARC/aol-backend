@@ -13,6 +13,11 @@ remote:
   host_name: aol-backend
   nginx:
     client_max_body_size: 5m
+    # uses default nginx configuration to avoid HTTP 400 when
+    # backend users have very bloated 'pdx.edu' cookies.
+    large_client_header_buffers: "4 8k"
+    limit_conn_perserver: 1000
+    limit_conn_perip: 100
     csp_policy: "default-src 'unsafe-inline' *.wdt.pdx.edu"
     access_control_origin: "*"
     static_expires_time: "1d"
@@ -28,9 +33,7 @@ environment:
       host: aol-backend-stage.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
       user: aol_backend_l
       name: aol
-    remote:
-      nginx:
-        access_control_origin: "http://aol.stage.wdt.pdx.edu"
+
   prod:
     db:
       host: aol-backend-prod.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
@@ -38,4 +41,4 @@ environment:
       name: aol
     remote:
       nginx:
-        access_control_origin: "https://aol.wdt.pdx.edu"
+        access_control_origin: "https://oregonlakesatlas.org"
