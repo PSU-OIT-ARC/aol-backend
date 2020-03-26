@@ -41,4 +41,4 @@ environment:
       name: aol
     remote:
       nginx:
-        access_control_origin: "https://aol.wdt.pdx.edu"
+        access_control_origin: "https://oregonlakesatlas.org"
