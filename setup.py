@@ -5,8 +5,8 @@ import sys
 import re
 import os
 
-if sys.version_info < (3, 5):
-    raise Exception('AOL requires Python versions 3.5 or later.')
+if sys.version_info < (3, 6):
+    raise Exception('AOL requires Python versions 3.6 or later.')
 
 
 def get_requirements():
@@ -88,7 +88,6 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable'
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
