@@ -5,8 +5,8 @@ import sys
 import re
 import os
 
-if sys.version_info < (3, 5):
-    raise Exception('AOL requires Python versions 3.5 or later.')
+if sys.version_info < (3, 6):
+    raise Exception('AOL requires Python versions 3.6 or later.')
 
 
 def get_requirements():
@@ -58,10 +58,10 @@ setup(
 
     install_requires=[
         'pytz',
-        'dateparser~=0.7.6',
-        'beautifulsoup4~=4.8.1',
+        'dateparser~=1.0.0',
+        'beautifulsoup4~=4.9.3',
         'requests~=2.24.0',
-        'Pillow~=7.2.0',
+        'Pillow~=8.0.0',
         'psycopg2~=2.8.6',
         'pyshp~=2.1.0',
         'Shapely~=1.7.0',
@@ -70,11 +70,11 @@ setup(
         'django~=2.2.16',
         'djangorestframework~=3.11.1',
         'celery~=4.4.7',
-        'django-filter~=2.3.0',
+        'django-filter~=2.4.0',
         'social-auth-core~=3.3.3',
         'social-auth-app-django~=4.0.0',
         'django-ckeditor~=6.0.0',
-        'sentry-sdk~=0.17.4',
+        'sentry-sdk~=0.19.4',
     ],
     extras_require={
         'dev': [
@@ -88,7 +88,6 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable'
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],

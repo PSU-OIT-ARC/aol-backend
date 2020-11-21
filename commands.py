@@ -22,7 +22,7 @@ from emcee.provision.secrets import provision_secret, show_secret
 
 from emcee.deploy.utils import copy_file_local
 from emcee.deploy.base import push_crontab, push_supervisor_config
-from emcee.deploy.python import push_uwsgi_ini, push_uwsgi_config, restart_uwsgi
+from emcee.deploy.python import push_uwsgi_config, restart_uwsgi
 from emcee.deploy.django import LocalProcessor, Deployer
 
 from emcee.backends.aws.provision.db import provision_database, import_database, update_database_ca
@@ -41,6 +41,7 @@ def provision_app(createdb=False):
     provision_host(initialize_host=True)
     provision_python()
     provision_gis()
+    provision_uwsgi()
     provision_nginx()
     provision_supervisor()
     provision_rabbitmq()

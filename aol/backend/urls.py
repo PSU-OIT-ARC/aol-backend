@@ -6,11 +6,13 @@ from rest_framework import routers
 
 from aol.lakes import views as lake_views
 from aol.backend import views
+from aol import __version__
 
 
 # Schema
 schema_view = get_schema_view(title='Atlas of Oregon Lakes API',
-                              # url='https://aol.research.pdx.edu'
+                              url='https://oregonlakesatlas.org',
+                              version=__version__,
                               urlconf='aol.backend.urls',
                               renderer_classes=[JSONOpenAPIRenderer])
 
