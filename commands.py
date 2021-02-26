@@ -1,3 +1,5 @@
+import os.path
+
 from emcee.runner.config import YAMLCommandConfiguration
 from emcee.runner import command, configs, config
 from emcee.runner.commands import remote
