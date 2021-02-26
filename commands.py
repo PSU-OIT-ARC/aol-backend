@@ -1,3 +1,5 @@
+import os.path
+
 from emcee.runner.config import YAMLCommandConfiguration
 from emcee.runner import command, configs, config
 from emcee.runner.commands import remote
@@ -25,10 +27,14 @@ from emcee.deploy.base import push_crontab, push_supervisor_config
 from emcee.deploy.python import push_uwsgi_config, restart_uwsgi
 from emcee.deploy.django import LocalProcessor, Deployer
 
-from emcee.backends.aws.provision.db import provision_database, import_database, update_database_ca
-from emcee.backends.aws.provision.volumes import provision_volume
-from emcee.backends.aws.deploy import EC2RemoteProcessor
 from emcee.backends.aws.infrastructure.commands import *
+from emcee.backends.aws.provision.db import (provision_database,
+                                             import_database,
+                                             update_database_ca,
+                                             update_database_client)
+from emcee.backends.aws.provision.volumes import (provision_volume,
+                                                  provision_swapfile)
+from emcee.backends.aws.deploy import EC2RemoteProcessor
 
 
 configs.load('default', 'commands.yml', YAMLCommandConfiguration)
@@ -42,18 +48,24 @@ def provision_app(createdb=False):
     provision_python()
     provision_gis()
     provision_uwsgi()
+
+    # Provision application services
     provision_nginx()
     provision_supervisor()
     provision_rabbitmq()
 
     # Initialize/prepare attached EBS volume
-    provision_volume(mount_point='/vol/store')
+    provision_volume(mount_point='/vol/store', filesystem='ext4')
 
+    # Initialize swapfile on EBS volume
+    provision_swapfile(1024, path='/vol/store')
+
+    # Provision database dependencies
+    update_database_client('postgresql', with_devel=True)
+    update_database_ca('postgresql')
     if createdb:
-        backend_options={'with_postgis': True,
-                         'with_devel': True,
-                         'extensions': ['hstore']}
-        provision_database(backend_options=backend_options)
+        provision_database(with_postgis=True,
+                           extensions=['hstore'])
 
     # Provision application secrets
     client_id = input("Enter the ArcGIS Client ID: ")
