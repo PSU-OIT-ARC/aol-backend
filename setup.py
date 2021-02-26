@@ -61,7 +61,7 @@ setup(
         'dateparser~=1.0.0',
         'beautifulsoup4~=4.9.3',
         'requests~=2.24.0',
-        'Pillow~=8.0.0',
+        'Pillow~=8.1.0',
         'psycopg2~=2.8.6',
         'pyshp~=2.1.0',
         'Shapely~=1.7.0',
@@ -74,7 +74,7 @@ setup(
         'social-auth-core~=3.3.3',
         'social-auth-app-django~=4.0.0',
         'django-ckeditor~=6.0.0',
-        'sentry-sdk~=0.19.4',
+        'sentry-sdk~=0.20.3',
     ],
     extras_require={
         'dev': [
