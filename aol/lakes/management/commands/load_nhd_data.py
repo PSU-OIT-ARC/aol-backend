@@ -44,6 +44,8 @@ class Command(BaseCommand):
                 print("Skipping lake with no reachcode and permanent_id=%s" % record['PERMANENT_'].strip())
                 continue
 
+            print("Creating or updating lake: {}".format(record))
+
             # this stupid pyshp library has no way to spit out the wkt
             # which is what GEOSGeometry needs, so we have to rely on
             # another library to do the conversion

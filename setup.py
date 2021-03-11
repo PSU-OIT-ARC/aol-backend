@@ -66,9 +66,11 @@ setup(
         'pyshp~=2.1.0',
         'Shapely~=1.7.0',
         'uritemplate~=3.0.1',
-        'psu.oit.wdt.emcee~=1.0.5',
+        'psu.oit.wdt.emcee[aws]~=1.1.0.dev0',
         'django~=2.2.16',
+        # TODO: adapt for DRF 3.12
         'djangorestframework~=3.11.1',
+        # TODO: adapt for celery 5
         'celery~=4.4.7',
         'django-filter~=2.4.0',
         'social-auth-core~=3.3.3',
@@ -90,5 +92,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
 )

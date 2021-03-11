@@ -4,32 +4,30 @@ from emcee.runner.config import YAMLCommandConfiguration
 from emcee.runner import command, configs, config
 from emcee.runner.commands import remote
 from emcee.runner.utils import confirm
-from emcee.app.config import LegacyAppConfiguration
+from emcee.app.config import YAMLAppConfiguration
 from emcee.app import app_configs
-from emcee import printer
 
-from emcee.commands.db import pg_dump, pg_restore
 from emcee.commands.deploy import deploy
 from emcee.commands.python import virtualenv, install
 from emcee.commands.django import manage, manage_remote
 from emcee.commands.files import copy_file
 
 from emcee.provision.base import provision_host, patch_host
-from emcee.provision.python import provision_python
+from emcee.provision.python import provision_python, provision_uwsgi
 from emcee.provision.gis import provision_gis
 from emcee.provision.services import (provision_nginx,
                                       provision_supervisor,
                                       provision_rabbitmq)
 from emcee.provision.secrets import provision_secret, show_secret
 
-from emcee.deploy.utils import copy_file_local
 from emcee.deploy.base import push_crontab, push_supervisor_config
 from emcee.deploy.python import push_uwsgi_config, restart_uwsgi
 from emcee.deploy.django import LocalProcessor, Deployer
 
 from emcee.backends.aws.infrastructure.commands import *
 from emcee.backends.aws.provision.db import (provision_database,
-                                             import_database,
+                                             archive_database,
+                                             restore_database,
                                              update_database_ca,
                                              update_database_client)
 from emcee.backends.aws.provision.volumes import (provision_volume,
@@ -38,7 +36,7 @@ from emcee.backends.aws.deploy import EC2RemoteProcessor
 
 
 configs.load('default', 'commands.yml', YAMLCommandConfiguration)
-# app_configs.load('default', LegacyAppConfiguration)
+app_configs.load('default', YAMLAppConfiguration, native=False)
 
 
 @command
@@ -64,8 +62,8 @@ def provision_app(createdb=False):
     update_database_client('postgresql', with_devel=True)
     update_database_ca('postgresql')
     if createdb:
-        provision_database(with_postgis=True,
-                           extensions=['hstore'])
+        provision_database(backend_options={'with_postgis': True,
+                                            'extensions': ['hstore']})
 
     # Provision application secrets
     client_id = input("Enter the ArcGIS Client ID: ")
@@ -79,7 +77,7 @@ def provision_app(createdb=False):
 @command
 def provision_media_assets():
     app_media_root = os.path.join(config.remote.path.root, 'media')
-    owner = '{}:{}'.format(config.iam.user, config.remote.nginx.group)
+    owner = '{}:{}'.format(config.iam.user, config.services.nginx.group)
 
     # Create media directory on EBS mount and link to app's media root
     remote(('mkdir', '-p', '/vol/store/media'), sudo=True)
@@ -104,24 +102,11 @@ def provision_media_assets():
         )
 
 
-class AOLLocalProcessor(LocalProcessor):
-    def make_dists(self):
-        """
-        Handles preparation of the environment-specific settings module
-        as this project utilizes pure-python configuration and does not
-        engage built-in support in Emcee to manage app configuration.
-        """
-        copy_file_local('aol/settings/{}.py'.format(config.env),
-                        'aol/settings/current.py')
-
-        super(AOLLocalProcessor, self).make_dists()
-
-
 class AOLDeployer(Deployer):
     """
     TBD
     """
-    local_processor_cls = AOLLocalProcessor
+    local_processor_cls = LocalProcessor
     remote_processor_cls = EC2RemoteProcessor
 
     def bootstrap_application(self):
@@ -140,3 +125,9 @@ class AOLDeployer(Deployer):
 @command
 def deploy_app(rebuild=True):
     deploy(AOLDeployer, rebuild=rebuild)
+
+
+# @command
+# def create_database():
+#     provision_database(backend_options={'with_postgis': True,
+#                                         'extensions': ['hstore']})

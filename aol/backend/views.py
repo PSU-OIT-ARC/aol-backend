@@ -3,7 +3,6 @@ import requests
 from django.contrib.flatpages.models import FlatPage
 from django.conf import settings
 
-from emcee.backends.aws.processors import ssm
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -25,10 +24,8 @@ class ArcGISAuthTokenView(APIView):
         headers = {'content-type': 'application/x-www-form-urlencoded',
                    'accept': 'application/json',
                    'cache-control': 'no-cache'}
-        ssm_params = {'region': settings.AWS_REGION,
-                      'ssm_prefix': settings.SSM_KEY}
-        payload = {'client_id': ssm('ArcGISClientID', **ssm_params),
-                   'client_secret': ssm('ArcGISClientSecret', **ssm_params),
+        payload = {'client_id': settings.ARCGIS_CLIENT_ID,
+                   'client_secret': settings.ARCGIS_CLIENT_SECRET,
                    'grant_type': 'client_credentials'}
         response = requests.post(settings.ARCGIS_ONLINE_TOKEN_URL,
                                  data=payload,

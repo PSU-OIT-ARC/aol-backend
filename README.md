@@ -7,7 +7,7 @@
 - PostgreSQL 10
 - PostGIS 2.4
 - Python 3.7
-- Django 1.11.x
+- Django 2.2.x
 - ArcGIS (Cloud/SaaS)
 
 ## Getting started

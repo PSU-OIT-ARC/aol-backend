@@ -25,6 +25,7 @@ from aol.mussels import admin as mussels_admin
 
 class AdminSite(admin.AdminSite):
     site_header = "Atlas of Oregon Lakes Administration"
+    login_template = 'admin/custom_login.html'
 
 admin_site = AdminSite(name='admin')
 
