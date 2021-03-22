@@ -1,0 +1,20 @@
+DEBUG: True
+DEBUG_PROPOGATE_EXCEPTIONS: True
+TEMPLATE_DEBUG: True
+
+ALLOWED_HOSTS:
+  - jarmusch.lan.ninjawirel.us
+INTERNAL_IPS:
+  - localhost
+  - '172.20.0.1'
+
+CSRF_COOKIE_SECURE: False
+CORS_ORIGIN_ALLOW_ALL: True
+
+DATABASES:
+  default:
+    HOST: postgres
+    USER: aol
+    NAME: aol
+
+CELERY_BROKER_URL: 'pyamqp://guest:guest@rabbitmq//'

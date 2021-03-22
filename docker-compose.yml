@@ -1,5 +1,11 @@
 version: "3"
 
+secrets:
+  SecretKey:
+    file: docker/secret_key.txt
+  DBPassword:
+    file: docker/db_password.txt
+
 networks:
   default:
     driver: bridge
@@ -31,27 +37,33 @@ services:
       - POSTGRES_DBNAME=aol
       - ALLOW_IP_RANGE=172.20.0.0/16
     volumes:
-      - ./volumes/postgres:/var/lib/postgresql
+      - /vol/aol/postgres:/var/lib/postgresql
+      - /vol/aol/dumps:/archive
 
   rabbitmq:
     image: rabbitmq
     networks:
       - default
-    ports:
-      - "5672:5672"
+    # ports:
+    #   - "5672:5672"
 
   aol:
     build: docker
     user: aol
     environment:
-      - LOCAL_SETTINGS_FILE=local.base.cfg#docker
+      - APP_CONFIG=app.docker.yml
       - APP_ROOT=/webapps/aol
       - APP_VENV=/venv/venv-docker
+      - EMCEE_CMD_ENV=docker
     networks:
       - default
     ports:
-      - 0.0.0.0:8000:8000
+      - 0.0.0.0:8888:8000
     volumes:
       - ./:/webapps/aol
+      - /home/thom/code/emcee:/emcee
     depends_on:
       - postgres
+    secrets:
+      - SecretKey
+      - DBPassword

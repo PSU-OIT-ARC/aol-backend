@@ -1,44 +1,44 @@
-extends: emcee.backends.aws:commands.yml
-name: Atlas of Oregon Lakes
-distribution: psu.oit.arc.aol
-package: aol-backend
-
+extends: emcee:commands.yml
+project:
+  name: aol-backend
+  full_name: Atlas of Oregon Lakes Backend
+  namespace: aol-backend
+  namespace_s: aol_backend
 iam:
   user: aol-backend
 python:
   package: aol
-django:
-  settings_module: aol.settings.current
-remote:
-  host_name: aol-backend
+  distribution: psu.oit.arc.aol
+services:
+  db:
+    name: aol
   nginx:
     client_max_body_size: 5m
-    # uses default nginx configuration to avoid HTTP 400 when
-    # backend users have very bloated 'pdx.edu' cookies.
-    large_client_header_buffers: "4 8k"
+    large_client_header_buffers: 4 8k
     limit_conn_perserver: 1000
     limit_conn_perip: 100
-    csp_policy: "default-src 'unsafe-inline' *.wdt.pdx.edu"
-    access_control_origin: "*"
-    static_expires_time: "1d"
+    access_control_origin: '*'
+    static_expires_time: 1d
 environment:
   dev:
-    python:
-      venv: venv
+    backend: emcee.backends.dev
   docker:
+    backend: emcee.backends.docker
     python:
       venv: /venv/venv-docker
   stage:
-    db:
-      host: aol-backend-stage.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
-      user: aol_backend_l
-      name: aol
-
-  prod:
-    db:
-      host: aol-backend-prod.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
-      user: aol_backend_l
-      name: aol
-    remote:
+    backend: emcee.backends.aws
+    services:
+      db:
+        host: aol-backend-stage.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
       nginx:
-        access_control_origin: "https://oregonlakesatlas.org"
+        csp_policy: default-src 'unsafe-inline' *.stage.wdt.pdx.edu
+        access_control_origin: https://aol.stage.wdt.pdx.edu
+  prod:
+    backend: emcee.backends.aws
+    services:
+      db:
+        host: aol-backend-prod.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
+      nginx:
+        csp_policy: default-src 'unsafe-inline' *.wdt.pdx.edu
+        access_control_origin: https://oregonlakesatlas.org
