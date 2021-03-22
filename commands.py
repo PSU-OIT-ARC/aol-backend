@@ -4,32 +4,33 @@ from emcee.runner.config import YAMLCommandConfiguration
 from emcee.runner import command, configs, config
 from emcee.runner.commands import remote
 from emcee.runner.utils import confirm
-from emcee.app.config import LegacyAppConfiguration
-from emcee.app import app_configs
-from emcee import printer
+from emcee.app.config import YAMLAppConfiguration
 
-from emcee.commands.db import pg_dump, pg_restore
-from emcee.commands.deploy import deploy
-from emcee.commands.python import virtualenv, install
-from emcee.commands.django import manage, manage_remote
+from emcee.commands.transport import warmup
 from emcee.commands.files import copy_file
+from emcee.commands.deploy import deploy, list_builds
+from emcee.commands.python import virtualenv, install
+from emcee.commands.django import manage
 
 from emcee.provision.base import provision_host, patch_host
-from emcee.provision.python import provision_python
+from emcee.provision.python import provision_python, provision_uwsgi
 from emcee.provision.gis import provision_gis
 from emcee.provision.services import (provision_nginx,
                                       provision_supervisor,
                                       provision_rabbitmq)
 from emcee.provision.secrets import provision_secret, show_secret
 
-from emcee.deploy.utils import copy_file_local
-from emcee.deploy.base import push_crontab, push_supervisor_config
+from emcee.deploy import deployer
+from emcee.deploy.services import (push_crontab,
+                                   push_supervisor_config,
+                                   restart_supervisor)
 from emcee.deploy.python import push_uwsgi_config, restart_uwsgi
 from emcee.deploy.django import LocalProcessor, Deployer
 
 from emcee.backends.aws.infrastructure.commands import *
 from emcee.backends.aws.provision.db import (provision_database,
-                                             import_database,
+                                             archive_database,
+                                             restore_database,
                                              update_database_ca,
                                              update_database_client)
 from emcee.backends.aws.provision.volumes import (provision_volume,
@@ -37,14 +38,13 @@ from emcee.backends.aws.provision.volumes import (provision_volume,
 from emcee.backends.aws.deploy import EC2RemoteProcessor
 
 
-configs.load('default', 'commands.yml', YAMLCommandConfiguration)
-# app_configs.load('default', LegacyAppConfiguration)
+configs.load(YAMLCommandConfiguration)
 
 
 @command
-def provision_app(createdb=False):
+def provision(createdb=False):
     # Configure host properties and prepare host platforms
-    provision_host(initialize_host=True)
+    provision_host()
     provision_python()
     provision_gis()
     provision_uwsgi()
@@ -64,8 +64,8 @@ def provision_app(createdb=False):
     update_database_client('postgresql', with_devel=True)
     update_database_ca('postgresql')
     if createdb:
-        provision_database(with_postgis=True,
-                           extensions=['hstore'])
+        provision_database(backend_options={'with_postgis': True,
+                                            'extensions': ['hstore']})
 
     # Provision application secrets
     client_id = input("Enter the ArcGIS Client ID: ")
@@ -78,18 +78,17 @@ def provision_app(createdb=False):
 
 @command
 def provision_media_assets():
-    app_media_root = os.path.join(config.remote.path.root, 'media')
-    owner = '{}:{}'.format(config.iam.user, config.remote.nginx.group)
-
     # Create media directory on EBS mount and link to app's media root
+    printer.header("Creating media directory on EBS volume...")
     remote(('mkdir', '-p', '/vol/store/media'), sudo=True)
-    remote(('mkdir', '-p', app_media_root), sudo=True)
     remote(('test', '-h', config.remote.path.media, '||',
             'ln', '-sf', '/vol/store/media', config.remote.path.media), sudo=True)
 
     # Set the correct permissions on generated assets
+    printer.header("Setting permissions on media assets...")
+    owner = '{}:{}'.format(config.iam.user, config.services.nginx.group)
     remote(('chown', '-R', owner, '/vol/store/media'), sudo=True)
-    remote(('chown', '-R', owner, app_media_root), sudo=True)
+    remote(('chown', '-R', owner, config.remote.path.media), sudo=True)
 
     # Synchronize icons and assorted media assets:
     archive_path = 'media.tar'
@@ -104,39 +103,25 @@ def provision_media_assets():
         )
 
 
-class AOLLocalProcessor(LocalProcessor):
-    def make_dists(self):
-        """
-        Handles preparation of the environment-specific settings module
-        as this project utilizes pure-python configuration and does not
-        engage built-in support in Emcee to manage app configuration.
-        """
-        copy_file_local('aol/settings/{}.py'.format(config.env),
-                        'aol/settings/current.py')
+class AOLRemoteProcessor(EC2RemoteProcessor):
+    def activate_application(self, archive_path):
+        super().activate_application(archive_path)
 
-        super(AOLLocalProcessor, self).make_dists()
+        # Reload the supervisor process
+        restart_supervisor()
 
 
+@deployer()
 class AOLDeployer(Deployer):
-    """
-    TBD
-    """
-    local_processor_cls = AOLLocalProcessor
-    remote_processor_cls = EC2RemoteProcessor
-
-    def bootstrap_application(self):
-        super().bootstrap_application()
-
-        # Install crontab
-        push_crontab(template='assets/crontab')
+    local_processor_cls = LocalProcessor
+    remote_processor_cls = AOLRemoteProcessor
+    app_config_cls = YAMLAppConfiguration
 
     def setup_application_hosting(self):
         super().setup_application_hosting()
 
+        # Install crontab
+        push_crontab(template='assets/crontab')
+
         # Install supervisor worker configuration
         push_supervisor_config(template='assets/supervisor.conf')
-
-
-@command
-def deploy_app(rebuild=True):
-    deploy(AOLDeployer, rebuild=rebuild)

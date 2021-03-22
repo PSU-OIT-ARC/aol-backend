@@ -66,7 +66,7 @@ setup(
         'pyshp~=2.1.0',
         'Shapely~=1.7.0',
         'uritemplate~=3.0.1',
-        'psu.oit.wdt.emcee~=1.0.5',
+        'psu.oit.wdt.emcee[aws]~=1.1.0.b3',
         'django~=2.2.16',
         'djangorestframework~=3.11.1',
         'celery~=4.4.7',
@@ -90,5 +90,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
 )

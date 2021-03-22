@@ -1,70 +1,69 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Resource stack for Atlas of Oregon Lakes
 Resources:
-  AppRole:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/iam/application_role.template.yml
-      Parameters:
-        Name: aol-backend
-        VpcStackName: vpc-prod
-  Host:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/private_host/private_host.template.yml
-      Parameters:
-        ImageId: ami-082b5a644766e0e6f
-        ImageDistribution: amazon2
-        HostName: !GetAtt 'AppRole.Outputs.Name'
-        VpcStackName: !GetAtt 'AppRole.Outputs.VpcStackName'
-        IAMAppRoleName: !GetAtt 'AppRole.Outputs.RoleName'
-        ExternalZoneName: wdt.pdx.edu
-        InternalZoneName: internal
-        UseEFSFilesystem: true
-        EbsVolumeId: !GetAtt 'Volume.Outputs.EbsVolume'
-  Networking:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/private_host/networking.template.yml
-      Parameters:
-        EC2Instance: !GetAtt 'Host.Outputs.InstanceId'
-        PrivateIp: !GetAtt 'Host.Outputs.PrivateIP'
-        DnsHostName: !GetAtt 'AppRole.Outputs.Name'
-        VpcStackName: !GetAtt 'AppRole.Outputs.VpcStackName'
-        ExternalZoneName: !GetAtt 'Host.Outputs.ExternalZoneName'
-        InternalZoneName: !GetAtt 'Host.Outputs.InternalZoneName'
-        ELBListenerPriority: !Ref 'ELBListenerPriority'
-        ListenOn80: true
-  PostgreSQL:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/rds/postgres.template.yml
-      Parameters:
-        VpcStackName: !GetAtt 'AppRole.Outputs.VpcStackName'
-        MultiAZ: true
-        DBInstanceClass: db.t3.small
-        DBInstanceName: aol-backend-prod
-        DBUsername: aol_backend_l
-        DBPassword: !Ref 'DBPassword'
-        EnableEncryption: true
-        KmsKey: !GetAtt 'AppRole.Outputs.KmsKeyArn'
-        EC2SecurityGroupId: !GetAtt 'Host.Outputs.EC2SecurityGroup'
-        DeletionPolicy: Snapshot
-  Volume:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/ebs/volume.template.yml
-      Parameters:
-        Name: aol-backend--prod
-        AvailabilityZone: us-west-2a
-        EnableEncryption: true
-        KmsKey: !GetAtt 'AppRole.Outputs.KmsKeyArn'
-        DeletionPolicy: Snapshot
-
+    AppRole:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/iam/application_role.template.yml
+            Parameters:
+                Name: aol-backend
+                VpcStackName: vpc-prod
+    Host:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/private_host/private_host.template.yml
+            Parameters:
+                ImageId: ami-0873b46c45c11058d
+                ImageDistribution: amazon2
+                HostName: !GetAtt 'AppRole.Outputs.Name'
+                VpcStackName: !GetAtt 'AppRole.Outputs.VpcStackName'
+                IAMAppRoleName: !GetAtt 'AppRole.Outputs.RoleName'
+                ExternalZoneName: wdt.pdx.edu
+                InternalZoneName: internal
+                UseEFSFilesystem: true
+                EbsVolumeId: !GetAtt 'Volume.Outputs.EbsVolume'
+    Networking:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/private_host/networking.template.yml
+            Parameters:
+                EC2Instance: !GetAtt 'Host.Outputs.InstanceId'
+                PrivateIp: !GetAtt 'Host.Outputs.PrivateIP'
+                DnsHostName: !GetAtt 'AppRole.Outputs.Name'
+                VpcStackName: !GetAtt 'AppRole.Outputs.VpcStackName'
+                ExternalZoneName: !GetAtt 'Host.Outputs.ExternalZoneName'
+                InternalZoneName: !GetAtt 'Host.Outputs.InternalZoneName'
+                ELBListenerPriority: !Ref 'ELBListenerPriority'
+                ListenOn80: true
+    PostgreSQL:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/rds/postgres.template.yml
+            Parameters:
+                VpcStackName: !GetAtt 'AppRole.Outputs.VpcStackName'
+                MultiAZ: true
+                DBInstanceClass: db.t3.small
+                DBInstanceName: aol-backend-prod
+                DBUsername: aol_backend_l
+                DBPassword: !Ref 'DBPassword'
+                EnableEncryption: true
+                KmsKey: !GetAtt 'AppRole.Outputs.KmsKeyArn'
+                EC2SecurityGroupId: !GetAtt 'Host.Outputs.EC2SecurityGroup'
+                DeletionPolicy: Snapshot
+    Volume:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/ebs/volume.template.yml
+            Parameters:
+                Name: aol-backend--prod
+                AvailabilityZone: us-west-2a
+                EnableEncryption: true
+                KmsKey: !GetAtt 'AppRole.Outputs.KmsKeyArn'
+                DeletionPolicy: Snapshot
 Parameters:
-  ELBListenerPriority:
-    Type: String
-    Description: Mechanism for declaring ELBListenerPriority
-  DBPassword:
-    Type: String
-    Description: Mechanism for declaring DBPassword
+    ELBListenerPriority:
+        Type: String
+        Description: Mechanism for declaring ELBListenerPriority
+    DBPassword:
+        Type: String
+        Description: Mechanism for declaring DBPassword
