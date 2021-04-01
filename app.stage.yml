@@ -1,0 +1,20 @@
+DEBUG: false
+DEBUG_PROPOGATE_EXCEPTIONS: false
+TEMPLATE_DEBUG: false
+ALLOWED_HOSTS:
+- aol-backend.stage.wdt.pdx.edu
+SERVER_EMAIL: no-reply@stage.wdt.pdx.edu
+DEFAULT_FROM_EMAIL: no-reply@stage.wdt.pdx.edu
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+AUTHENTICATION_BACKENDS:
+- social_core.backends.google.GoogleOAuth2
+- django.contrib.auth.backends.ModelBackend
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: 993800419264-pmdf4qihda6b6da78jtbsutng6icr14b.apps.googleusercontent.com
+STATIC_ROOT: /vol/www/aol-backend/static
+MEDIA_ROOT: /vol/www/aol-backend/media
+DATABASES:
+  default:
+    HOST: aol-backend-stage.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
+    USER: aol_backend_l
+    NAME: aol
+    PASSWORD: ''

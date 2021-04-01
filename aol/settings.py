@@ -4,22 +4,27 @@ import os.path
 from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse_lazy
 
-from .paths import *
+from emcee.runner.config import YAMLCommandConfiguration
+from emcee.runner import configs, config
+from emcee.app.config import YAMLAppConfiguration, load_app_configuration
+from emcee.app import app_configs, app_config, processors
+
+configs.load(YAMLCommandConfiguration)
+app_configs.load(YAMLAppConfiguration)
 
 
-# TODO: Settings to review
-# 
-# DISTRIBUTION = "psu.oit.arc.aol"
-# PROJECT.title = "Atlas of Oregon Lakes"
-# PROJECT.short_title = "AOL"
+BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+FILE_ROOT = os.path.abspath(os.path.join(BASE_PATH, '..'))
 
 WSGI_APPLICATION = 'aol.wsgi.application'
 ROOT_URLCONF = 'aol.urls'
 SITE_ID = 1
 
 # Email/correspondence settings
-SERVER_EMAIL = 'do-not-reply@wdt.pdx.edu'
+SERVER_EMAIL = 'do-not-reply@oregonlakesatlas.org'
 DEFAULT_FROM_EMAIL = SERVER_EMAIL
+ADMINS = [["PSU Web & Mobile Team", "webteam@pdx.edu"]]
+MANAGERS = [["PSU Web & Mobile Team", "webteam@pdx.edu"]]
 EMAIL_SUBJECT_PREFIX = "[Atlas of Oregon Lakes] "
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
@@ -41,9 +46,6 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-
-SECRET_KEY = 'NOTASECRET'
-
 # CSRF Defaults
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = True
@@ -54,7 +56,9 @@ CSRF_COOKIE_SECURE = True
 # ArcGIS Online
 ARCGIS_ONLINE_TOKEN_URL = 'https://www.arcgis.com/sharing/rest/oauth2/token'
 
+STATIC_ROOT = os.path.join(FILE_ROOT, 'static')
 STATIC_URL = '/static/'
+MEDIA_ROOT = os.path.join(FILE_ROOT, 'media')
 MEDIA_URL = '/media/'
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', )
@@ -98,6 +102,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -119,6 +124,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
 
+    'corsheaders',
     'social_django',
     'django_filters',
     'rest_framework',
@@ -177,3 +183,26 @@ CELERY_WORKER_CONCURRENCY = 1
 CELERY_TASK_IGNORE_RESULT = True
 ## Celerybeat settings
 CELERY_BEAT_SCHEDULER = 'celery.beat.PersistentScheduler'
+
+
+settings = load_app_configuration(app_config, globals())
+processors.set_secret_key(config, settings)
+processors.set_database_parameters(config, settings)
+processors.set_sentry_dsn(config, settings)
+processors.set_smtp_parameters(config, settings)
+
+if config.env in ['stage', 'prod']:
+    from emcee.backends.aws.ssm import ssm
+
+    # Configure ArcGIS credentials
+    ARCGIS_CLIENT_ID = ssm('ArcGISClientID',
+                           ssm_prefix=config.infrastructure.ssm_prefix,
+                           region=config.infrastructure.region)
+    ARCGIS_CLIENT_SECRET = ssm('ArcGISClientSecret',
+                               ssm_prefix=config.infrastructure.ssm_prefix,
+                               region=config.infrastructure.region)
+    
+    # Configure Google OAUTH2
+    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ssm('GoogleOAuth2Secret',
+                                           ssm_prefix=config.infrastructure.ssm_prefix,
+                                           region=config.infrastructure.region)

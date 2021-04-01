@@ -1,5 +1,34 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.5.5 - 2021-03-31
+
+- Uses Emcee 1.1.
+- Updates package dependency versions.
+
+## 1.5.4 - 2021-02-26
+
+- Updates package dependency versions.
+- Revises Emcee command module implementation to modernize
+  database client configuration and add swapfile provisioning.
+
+## 1.5.3 - 2020-11-20
+
+- Uses Emcee 1.0.6.
+- Removes support for Python 3.5.
+- Updates package dependency versions.
+
+## 1.5.2 - 2020-09-09
+
+- Updates package dependency versions.
+
+## 1.5.1 - 2020-06-09
+
+- Updates package dependency versions.
+
+## 1.5.0 - 2020-03-26
+
+- Adds custom domain support for 'oregonlakesatlas.org'
+
 ## 1.5.0.rc2 - 2020-02-13
 
 - Updates package dependency versions.
