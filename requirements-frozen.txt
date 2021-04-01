@@ -1,5 +1,5 @@
 -f https://packages.wdt.pdx.edu/dist/
-psu.oit.arc.aol==1.5.5.dev0
+psu.oit.arc.aol==1.5.5
 amqp==5.0.5
 attrs==20.3.0
 awscli==1.19.17

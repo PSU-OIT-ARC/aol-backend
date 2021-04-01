@@ -1,5 +1,10 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.5.5 - 2021-03-31
+
+- Uses Emcee 1.1.
+- Updates package dependency versions.
+
 ## 1.5.4 - 2021-02-26
 
 - Updates package dependency versions.
