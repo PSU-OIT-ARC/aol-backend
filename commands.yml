@@ -19,6 +19,8 @@ services:
     limit_conn_perip: 100
     access_control_origin: '*'
     static_expires_time: 1d
+  uwsgi:
+    request_header_buffer_size: 32768
 environment:
   dev:
     backend: emcee.backends.dev
