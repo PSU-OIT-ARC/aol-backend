@@ -6,7 +6,7 @@ from emcee.runner.commands import remote
 from emcee.runner.utils import confirm
 from emcee.app.config import YAMLAppConfiguration
 
-from emcee.commands.transport import warmup
+from emcee.commands.transport import warmup, shell
 from emcee.commands.files import copy_file
 from emcee.commands.deploy import deploy, list_builds
 from emcee.commands.python import virtualenv, install
@@ -24,7 +24,6 @@ from emcee.deploy import deployer
 from emcee.deploy.services import (push_crontab,
                                    push_supervisor_config,
                                    restart_supervisor)
-from emcee.deploy.python import push_uwsgi_config, restart_uwsgi
 from emcee.deploy.django import LocalProcessor, Deployer
 
 from emcee.backends.aws.infrastructure.commands import *
@@ -36,7 +35,6 @@ from emcee.backends.aws.provision.db import (provision_database,
 from emcee.backends.aws.provision.volumes import (provision_volume,
                                                   provision_swapfile)
 from emcee.backends.aws.deploy import EC2RemoteProcessor
-
 
 configs.load(YAMLCommandConfiguration)
 

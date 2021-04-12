@@ -46,7 +46,7 @@ oyaml==1.0
 packaging==20.9
 paramiko==2.7.2
 Pillow==8.1.2
-psu.oit.wdt.emcee==1.1.0.b3
+psu.oit.wdt.emcee==1.1.0.b4
 psycopg2==2.8.6
 pwgen==0.8.2.post0
 pyasn1==0.4.8
