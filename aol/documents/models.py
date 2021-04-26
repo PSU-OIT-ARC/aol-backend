@@ -1,5 +1,6 @@
 import os.path
 
+from django.urls import reverse
 from django.db import models
 
 from aol.documents import enums
@@ -29,6 +30,9 @@ class Document(models.Model):
 
     class Meta:
         ordering = ('lake', 'rank')
+
+    def get_absolute_url(self):
+        return reverse('api:doc-detail', kwargs={'pk': self.pk})
 
     def __str__(self):
         return '{} ({})'.format(self.name, self.lake)

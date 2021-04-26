@@ -1,23 +1,19 @@
 DEBUG: True
 DEBUG_PROPOGATE_EXCEPTIONS: True
 TEMPLATE_DEBUG: True
-
 SECRET_KEY: notasecret
-
 ALLOWED_HOSTS:
   - jarmusch.lan.ninjawirel.us
 INTERNAL_IPS:
   - localhost
   - '172.20.0.1'
-
 CSRF_COOKIE_SECURE: False
 CORS_ORIGIN_ALLOW_ALL: True
-
+SENDFILE_BACKEND: django_sendfile.backends.development
 DATABASES:
   default:
     HOST: '172.20.0.1'
     USER: aol
     PASSWORD: aol
     NAME: aol
-
 CELERY_BROKER_URL: 'pyamqp://guest:guest@172.20.0.1//'

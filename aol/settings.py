@@ -60,6 +60,8 @@ STATIC_ROOT = os.path.join(FILE_ROOT, 'static')
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(FILE_ROOT, 'media')
 MEDIA_URL = '/media/'
+SENDFILE_ROOT = MEDIA_ROOT
+SENDFILE_URL = MEDIA_URL
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', )
 LOGIN_URL = reverse_lazy('social:begin')
@@ -129,6 +131,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'ckeditor',
+    'django_sendfile',
 
     'aol.apps.MainAppConfig',
     'aol.lakes',

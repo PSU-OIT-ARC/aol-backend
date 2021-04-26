@@ -75,6 +75,7 @@ setup(
         'social-auth-app-django~=4.0.0',
         'django-ckeditor~=6.0.0',
         'sentry-sdk~=1.0.0',
+        'django-sendfile2~=0.6.0',
     ],
     extras_require={
         'dev': [
