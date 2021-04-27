@@ -36,7 +36,7 @@ environment:
         host: aol-backend-stage.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
       nginx:
         csp_policy: default-src 'unsafe-inline' *.stage.wdt.pdx.edu
-        access_control_origin: https://aol.stage.wdt.pdx.edu
+        access_control_origin: https://aol-frontend.stage.wdt.pdx.edu
   prod:
     backend: emcee.backends.aws
     services:
