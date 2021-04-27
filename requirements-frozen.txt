@@ -1,5 +1,5 @@
 -f https://packages.wdt.pdx.edu/dist/
-psu.oit.arc.aol==1.5.5
+psu.oit.arc.aol==1.5.6
 amqp==5.0.5
 awscli==1.19.59
 beautifulsoup4==4.9.3
