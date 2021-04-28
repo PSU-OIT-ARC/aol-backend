@@ -1,3 +1,4 @@
+from django.utils.text import slugify
 from django.views.generic import DetailView
 
 from django_sendfile import sendfile
@@ -13,5 +14,17 @@ class DocumentDownloadView(DetailView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
+        lake_counties = self.object.lake.county_set.values_list('name', flat=True)
 
-        return sendfile(request, self.object.file.path)
+        response = sendfile(request, self.object.file.path)
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(
+            '+'.join([
+                '{}[{}]'.format(
+                    slugify(str(self.object.lake)),
+                    ','.join([slugify(c) for c in lake_counties])
+                ),
+                slugify(self.object.name)
+            ])
+        )
+
+        return response
