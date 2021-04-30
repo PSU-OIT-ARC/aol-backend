@@ -61,7 +61,6 @@ services:
       - 0.0.0.0:8888:8000
     volumes:
       - ./:/webapps/aol
-      - /home/thom/code/emcee:/emcee
     depends_on:
       - postgres
     secrets:

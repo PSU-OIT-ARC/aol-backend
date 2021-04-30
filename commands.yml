@@ -19,6 +19,9 @@ services:
     limit_conn_perip: 100
     access_control_origin: '*'
     static_expires_time: 1d
+    media_internal: 'internal;'
+  uwsgi:
+    request_header_buffer_size: 32768
 environment:
   dev:
     backend: emcee.backends.dev
@@ -33,7 +36,7 @@ environment:
         host: aol-backend-stage.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
       nginx:
         csp_policy: default-src 'unsafe-inline' *.stage.wdt.pdx.edu
-        access_control_origin: https://aol.stage.wdt.pdx.edu
+        access_control_origin: https://aol-frontend.stage.wdt.pdx.edu
   prod:
     backend: emcee.backends.aws
     services:

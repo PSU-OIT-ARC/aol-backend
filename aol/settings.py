@@ -60,6 +60,8 @@ STATIC_ROOT = os.path.join(FILE_ROOT, 'static')
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(FILE_ROOT, 'media')
 MEDIA_URL = '/media/'
+SENDFILE_ROOT = MEDIA_ROOT
+SENDFILE_URL = MEDIA_URL
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', )
 LOGIN_URL = reverse_lazy('social:begin')
@@ -102,7 +104,6 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -124,11 +125,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
 
-    'corsheaders',
     'social_django',
     'django_filters',
     'rest_framework',
     'ckeditor',
+    'django_sendfile',
 
     'aol.apps.MainAppConfig',
     'aol.lakes',
@@ -206,3 +207,7 @@ if config.env in ['stage', 'prod']:
     SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ssm('GoogleOAuth2Secret',
                                            ssm_prefix=config.infrastructure.ssm_prefix,
                                            region=config.infrastructure.region)
+
+elif config.env in ['dev', 'docker']:
+    INSTALLED_APPS.append('corsheaders')
+    MIDDLEWARE.insert(3, 'corsheaders.middleware.CorsMiddleware')

@@ -18,6 +18,7 @@ from aol.mussels.serializers import MusselObservationSerializer
 from aol.lakes import models
 
 logger = logging.getLogger(__name__)
+site = Site.objects.get_current()
 
 
 class LakeBaseSerializer(serializers.Serializer):
@@ -56,9 +57,10 @@ class LakeBaseSerializer(serializers.Serializer):
         if not obj.photo:
             return ''
 
-        site = Site.objects.get_current()
-        return urllib.parse.urljoin('//{}'.format(site.domain),
-                                    obj.photo.file.url)
+        return urllib.parse.urljoin(
+            '//{}'.format(site.domain),
+            obj.photo.get_absolute_url()
+        )
 
     def get_counties(self, obj):
         return [str(c) for c in obj.county_set.all()]

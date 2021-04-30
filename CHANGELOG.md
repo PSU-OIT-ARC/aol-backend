@@ -1,5 +1,12 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.5.6 - 2021-04-27
+
+- Uses X-Sendfile semantics to deliver lake assets.
+- Adds 'Content-Disposition' header to document requests in
+  order to use a more human-friendly attachment filename.
+- Updates package dependency versions.
+
 ## 1.5.5 - 2021-03-31
 
 - Uses Emcee 1.1.

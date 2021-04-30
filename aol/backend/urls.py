@@ -4,6 +4,8 @@ from rest_framework.schemas import get_schema_view
 from rest_framework.renderers import JSONOpenAPIRenderer
 from rest_framework import routers
 
+from aol.documents import views as doc_views
+from aol.photos import views as photo_views
 from aol.lakes import views as lake_views
 from aol.backend import views
 from aol import __version__
@@ -25,4 +27,6 @@ urlpatterns = [
     url(r'^flatpage/(?P<slug>[-_\w]+)/$', views.FlatPageDetailView.as_view(), name='flatpage-detail'),
     url(r'^lake/$', lake_views.LakeListView.as_view(), name='lake-index'),
     url(r'^lake/(?P<pk>\d+)/$', lake_views.LakeDetailView.as_view(), name='lake-detail'),
+    url(r'^document/(?P<pk>\d+)/$', doc_views.DocumentDownloadView.as_view(), name='doc-detail'),
+    url(r'^photo/(?P<pk>\d+)/$', photo_views.PhotoAccessView.as_view(), name='photo-detail')
 ]
