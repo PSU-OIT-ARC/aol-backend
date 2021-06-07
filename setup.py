@@ -76,6 +76,7 @@ setup(
         'django-ckeditor~=6.0.0',
         'sentry-sdk~=1.0.0',
         'django-sendfile2~=0.6.0',
+        'django-robots~=4.0',
     ],
     extras_require={
         'dev': [

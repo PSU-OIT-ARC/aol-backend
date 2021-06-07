@@ -22,7 +22,8 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     url(r'^admin/', admin_site.urls),
-    url(r'', include('social_django.urls', namespace='social'))
+    url(r'', include('social_django.urls', namespace='social')),
+    url(r'^robots\.txt', include('robots.urls'))
 ]
 
 if settings.DEBUG:

@@ -130,6 +130,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'ckeditor',
     'django_sendfile',
+    'robots',
 
     'aol.apps.MainAppConfig',
     'aol.lakes',
