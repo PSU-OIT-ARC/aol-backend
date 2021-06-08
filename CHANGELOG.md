@@ -1,5 +1,11 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.5.7 - 2021-06-08
+
+- Removes abandoned static assets.
+- Adds 'django-robots' package to manage '/robots.txt' path.
+- Updates package dependency versions.
+
 ## 1.5.6 - 2021-04-27
 
 - Uses X-Sendfile semantics to deliver lake assets.
