@@ -61,7 +61,7 @@ setup(
         'dateparser~=1.0.0',
         'beautifulsoup4~=4.9.0',
         'requests~=2.25.0',
-        'Pillow~=8.2.0',
+        'Pillow>=8.2,<8.4',
         'psycopg2~=2.8.0',
         'pyshp~=2.1.0',
         'Shapely~=1.7.0',
