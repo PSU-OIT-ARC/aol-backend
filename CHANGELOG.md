@@ -1,5 +1,9 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.5.8 - 2021-10-14
+
+- Updates package dependency versions.
+
 ## 1.5.7 - 2021-06-08
 
 - Removes abandoned static assets.
