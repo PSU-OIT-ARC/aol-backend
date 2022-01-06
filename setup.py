@@ -70,7 +70,7 @@ setup(
         'psu.oit.wdt.emcee[aws]~=1.1.0.b4',
         'django~=2.2.0',
         'djangorestframework~=3.12.0',
-        'celery~=5.1.0',
+        'celery>=5.1,<5.3',
         'django-filter~=21.0',
         'social-auth-core~=4.1.0',
         'social-auth-app-django~=5.0.0',
