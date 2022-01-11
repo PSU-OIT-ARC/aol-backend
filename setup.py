@@ -5,8 +5,8 @@ import sys
 import re
 import os
 
-if sys.version_info < (3, 6):
-    raise Exception('AOL requires Python versions 3.6 or later.')
+if sys.version_info < (3, 7):
+    raise Exception('AOL requires Python versions 3.7 or later.')
 
 
 # Metadata extraction by parsing 'aol' module directly.
@@ -83,7 +83,6 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable'
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
