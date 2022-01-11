@@ -1,5 +1,14 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.6.0 - 2022-01-10
+
+- Updates package dependency versions.
+- Relaxes default limit on 'client_max_body_size' to accomodate
+  uploads in the admin backend.
+- Explicitly configures 'FILE_UPLOAD_PERMISSION' to use the (changed)
+  default in Django 3.2 LTS in order to properly support uploads
+  in the admin backend.
+
 ## 1.5.8 - 2021-10-14
 
 - Updates package dependency versions.
