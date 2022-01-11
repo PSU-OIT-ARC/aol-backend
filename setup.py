@@ -9,14 +9,6 @@ if sys.version_info < (3, 6):
     raise Exception('AOL requires Python versions 3.6 or later.')
 
 
-def get_requirements():
-    with open('requirements.txt', 'r') as requirements:
-        return [line.strip()
-                for line in requirements
-                if line and \
-                not line.startswith('#') and \
-                not line.startswith('--')]
-
 # Metadata extraction by parsing 'aol' module directly.
 #   https://github.com/celery/kombu/blob/master/setup.py
 re_meta = re.compile(r'__(\w+?)__\s*=\s*(.*)')
@@ -85,7 +77,7 @@ setup(
             'mock',
             'model_mommy',
             'docker-compose',
-            'django-cors-middleware'
+            'django-cors-headers'
         ]
     },
     classifiers=[

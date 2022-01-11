@@ -1,3 +1,4 @@
+ENV: stage
 DEBUG: false
 DEBUG_PROPOGATE_EXCEPTIONS: false
 TEMPLATE_DEBUG: false

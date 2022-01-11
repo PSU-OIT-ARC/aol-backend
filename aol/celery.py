@@ -6,7 +6,7 @@ from celery import Celery
 logger = logging.getLogger(__name__)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE',
-                      'aol.settings.current')
+                      'aol.settings')
 from django.conf import settings
 
 app = Celery('aol')
