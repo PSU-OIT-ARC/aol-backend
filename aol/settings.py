@@ -15,6 +15,8 @@ app_configs.load(YAMLAppConfiguration)
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 FILE_ROOT = os.path.abspath(os.path.join(BASE_PATH, '..'))
+FILE_UPLOAD_PERMISSIONS = 0o644  # 0o644 is the default in 3.2 LTS,
+                                 # None is the default in 2.2 LTS
 
 WSGI_APPLICATION = 'aol.wsgi.application'
 ROOT_URLCONF = 'aol.urls'
