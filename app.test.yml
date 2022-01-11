@@ -1,4 +1,4 @@
-ENV: dev
+ENV: docker
 DEBUG: true
 DEBUG_PROPOGATE_EXCEPTIONS: true
 TEMPLATE_DEBUG: true
@@ -10,11 +10,11 @@ CELERY_TASK_ALWAYS_EAGER: true
 SECRET_KEY: "NOT A SECRET"
 DATABASES:
   default:
-    HOST: '172.20.0.1'
+    HOST: postgres
     USER: aol
-    PASSWORD: aol
     NAME: aol
-CELERY_BROKER_URL: 'pyamqp://guest:guest@172.20.0.1//'
+CELERY_BROKER_URL: 'pyamqp://guest:guest@rabbitmq//'
 SENDFILE_BACKEND: django_sendfile.backends.development
-STATIC_ROOT: static
-MEDIA_ROOT: media
+SENDFILE_ROOT: /webapps/aol/media
+MEDIA_ROOT: /webapps/aol/media
+STATIC_ROOT: /webapps/aol/static

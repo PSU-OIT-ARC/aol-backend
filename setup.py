@@ -5,17 +5,9 @@ import sys
 import re
 import os
 
-if sys.version_info < (3, 6):
-    raise Exception('AOL requires Python versions 3.6 or later.')
+if sys.version_info < (3, 7):
+    raise Exception('AOL requires Python versions 3.7 or later.')
 
-
-def get_requirements():
-    with open('requirements.txt', 'r') as requirements:
-        return [line.strip()
-                for line in requirements
-                if line and \
-                not line.startswith('#') and \
-                not line.startswith('--')]
 
 # Metadata extraction by parsing 'aol' module directly.
 #   https://github.com/celery/kombu/blob/master/setup.py
@@ -59,25 +51,25 @@ setup(
         'pytz',
         'dateparser~=1.1.0',
         'beautifulsoup4~=4.10.0',
-        'requests~=2.26.0',
-        'Pillow~=8.3.0',
+        'requests~=2.27.0',
+        'Pillow~=9.0.0',
         # Django 2.2 can only tolerate psycopg2<2.9
         # Refs: https://github.com/psycopg/psycopg2/issues/1293
         'psycopg2~=2.8.0',
         'pyshp~=2.1.0',
-        'Shapely~=1.7.0',
+        'Shapely~=1.8.0',
         'uritemplate~=4.1.0',
         'psu.oit.wdt.emcee[aws]~=1.1.0.b4',
         'django~=2.2.0',
-        'djangorestframework~=3.12.0',
-        'celery~=5.1.0',
+        'djangorestframework~=3.13.0',
+        'celery~=5.2.0',
         'django-filter~=21.0',
         'social-auth-core~=4.1.0',
         'social-auth-app-django~=5.0.0',
-        'django-ckeditor~=6.1.0',
-        'sentry-sdk~=1.4.0',
+        'django-ckeditor~=6.2.0',
+        'sentry-sdk~=1.5.0',
         'django-sendfile2~=0.6.0',
-        'django-robots~=4.0',
+        'django-robots~=5.0',
     ],
     extras_require={
         'dev': [
@@ -85,13 +77,12 @@ setup(
             'mock',
             'model_mommy',
             'docker-compose',
-            'django-cors-middleware'
+            'django-cors-headers'
         ]
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable'
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',

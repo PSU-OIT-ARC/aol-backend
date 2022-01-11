@@ -1,20 +1,19 @@
-DEBUG: True
-DEBUG_PROPOGATE_EXCEPTIONS: True
-TEMPLATE_DEBUG: True
-ALLOWED_HOSTS:
-  - jarmusch.lan.ninjawirel.us
-INTERNAL_IPS:
-  - localhost
-  - '172.20.0.1'
-CSRF_COOKIE_SECURE: False
-CORS_ORIGIN_ALLOW_ALL: True
-MEDIA_ROOT: /webapps/aol/media
-STATIC_ROOT: /webapps/aol/static
-SENDFILE_BACKEND: django_sendfile.backends.development
-SENDFILE_ROOT: /webapps/aol/media
+ENV: docker
+DEBUG: true
+DEBUG_PROPOGATE_EXCEPTIONS: true
+TEMPLATE_DEBUG: true
+EMAIL_BACKEND: django.core.mail.backends.console.EmailBackend
+ALLOWED_HOSTS: ["*"]
+CSRF_COOKIE_SECURE: false
+CORS_ORIGIN_ALLOW_ALL: true
+SECRET_KEY: "NOT A SECRET"
 DATABASES:
   default:
     HOST: postgres
     USER: aol
     NAME: aol
 CELERY_BROKER_URL: 'pyamqp://guest:guest@rabbitmq//'
+SENDFILE_BACKEND: django_sendfile.backends.development
+SENDFILE_ROOT: /webapps/aol/media
+MEDIA_ROOT: /webapps/aol/media
+STATIC_ROOT: /webapps/aol/static

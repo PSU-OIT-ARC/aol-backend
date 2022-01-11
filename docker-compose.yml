@@ -41,28 +41,52 @@ services:
       - /vol/aol/dumps:/archive
 
   rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:3-alpine
     networks:
       - default
-    # ports:
-    #   - "5672:5672"
+    volumes:
+      - /vol/aol/rabbitmq:/var/lib/rabbitmq
+    # override hostname to prevent reinitialization of data
+    # on container delete/init cycle.
+    #   Refs: https://github.com/docker-library/rabbitmq/issues/106#issuecomment-241882358
+    hostname: 'rabbitmq-dev'
+    user: '1000'  # adjust uid with a local account uid
 
-  aol:
+  app:
     build: docker
     user: aol
     environment:
       - APP_CONFIG=app.docker.yml
-      - APP_ROOT=/webapps/aol
-      - APP_VENV=/venv/venv-docker
+      - APP_SERVICE=wsgi
       - EMCEE_CMD_ENV=docker
     networks:
       - default
     ports:
-      - 0.0.0.0:8888:8000
+      - 8000:8000
     volumes:
       - ./:/webapps/aol
+      - /vol/aol/static:/static
+      - /vol/aol/media:/media
     depends_on:
       - postgres
+      - rabbitmq
+    secrets:
+      - SecretKey
+      - DBPassword
+
+  celery:
+    build: docker
+    environment:
+      - APP_CONFIG=app.docker.yml
+      - APP_SERVICE=celery
+      - EMCEE_CMD_ENV=docker
+    networks:
+      - default
+    volumes:
+      - ./:/webapps/aol
+      - /vol/aol/media:/media
+    depends_on:
+      - app
     secrets:
       - SecretKey
       - DBPassword
