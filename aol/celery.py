@@ -1,9 +1,7 @@
-import logging
 import os
 
 from celery import Celery
 
-logger = logging.getLogger(__name__)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE',
                       'aol.settings')

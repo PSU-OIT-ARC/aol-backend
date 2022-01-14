@@ -11,13 +11,14 @@ AUTHENTICATION_BACKENDS:
 - social_core.backends.google.GoogleOAuth2
 - django.contrib.auth.backends.ModelBackend
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: 993800419264-pmdf4qihda6b6da78jtbsutng6icr14b.apps.googleusercontent.com
-STATIC_ROOT: /vol/www/aol-backend/static
-MEDIA_ROOT: /vol/www/aol-backend/media
 SENDFILE_BACKEND: django_sendfile.backends.nginx
-SENDFILE_ROOT: /vol/www/aol-backend/media
+SENDFILE_ROOT: /media
 DATABASES:
   default:
     HOST: aol-backend-stage.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
     USER: aol_backend_l
     NAME: aol
     PASSWORD: ''
+CELERY_BROKER_URL: 'pyamqp://guest:guest@rabbitmq//'
+STATIC_ROOT: /static
+MEDIA_ROOT: /media

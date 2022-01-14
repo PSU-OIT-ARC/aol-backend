@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+import datetime
 import os.path
 
 from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse_lazy
+
+from celery.schedules import crontab
 
 from emcee.runner.config import YAMLCommandConfiguration
 from emcee.runner import configs, config
@@ -52,12 +55,6 @@ USE_TZ = True
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = True
 
-# Google Analytics
-# GOOGLE.analytics.tracking_id = null
-
-# ArcGIS Online
-ARCGIS_ONLINE_TOKEN_URL = 'https://www.arcgis.com/sharing/rest/oauth2/token'
-
 STATIC_ROOT = os.path.join(FILE_ROOT, 'static')
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(FILE_ROOT, 'media')
@@ -65,9 +62,46 @@ MEDIA_URL = '/media/'
 SENDFILE_ROOT = MEDIA_ROOT
 SENDFILE_URL = MEDIA_URL
 
-AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', )
+# Logging configuration
+FIRST_PARTY_LOGGER = {
+    'handlers': ['console'],
+    'propagate': False,
+    'level': 'INFO'
+}
+THIRD_PARTY_LOGGER = {
+    'handlers': ['console'],
+    'propagate': False,
+    'level': 'WARN'
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s %(levelname)s [%(name)s] %(message)s'
+        }
+    },
+    'filters': {},
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'aol': FIRST_PARTY_LOGGER,
+        'celery.task': FIRST_PARTY_LOGGER,
+        'django': THIRD_PARTY_LOGGER,
+    },
+    'root': THIRD_PARTY_LOGGER
+}
+
 LOGIN_URL = reverse_lazy('social:begin')
 LOGIN_REDIRECT_URL = reverse_lazy('admin:index')
+
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', )
 SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy('admin:login')
 SOCIAL_AUTH_WHITELISTED_DOMAINS = ('pdx.edu', )
 SOCIAL_AUTH_POSTGRES_JSONFIELD = True
@@ -102,19 +136,6 @@ TEMPLATES = [{
     }
 }]
 
-MIDDLEWARE = [
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'social_django.middleware.SocialAuthExceptionMiddleware',
-    'django.middleware.http.ConditionalGetMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
-]
-
 INSTALLED_APPS = [
     'django.contrib.admin.apps.SimpleAdminConfig',
     'django.contrib.auth',
@@ -143,6 +164,32 @@ INSTALLED_APPS = [
     'aol.mussels'
 ]
 
+MIDDLEWARE = [
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
+]
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_PATH, '.cache')
+    }
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -158,22 +205,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': None
 }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-    }
-}
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_PATH, '.cache')
-    }
-}
-
 CELERY_ENABLE_UTC = True
 CELERY_TIMEZONE = TIME_ZONE
-# CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_ALWAYS_EAGER = False
 CELERY_TASK_EAGER_PROPAGATES = True
 CELERY_SEND_TASK_ERROR_EMAILS = True
@@ -188,6 +221,27 @@ CELERY_TASK_IGNORE_RESULT = True
 ## Celerybeat settings
 CELERY_BEAT_SCHEDULER = 'celery.beat.PersistentScheduler'
 
+CELERY_BEAT_SCHEDULE = {
+    ## Caches lake index data
+    ## Every hour
+    "cache_lakes": {
+        "task": "aol.lakes.tasks.cache_lakes",
+        "schedule": datetime.timedelta(hours=1)
+    },
+
+    ## Clears expired sessions
+    ## 3:00 a.m.
+    "clear_expired_sessions": {
+        "task": "aol.tasks.clear_expired_sessions",
+        "schedule": crontab(hour=3, minute=0),
+    },
+}
+
+# Application-sepcific configuration
+ARCGIS_ONLINE_TOKEN_URL = 'https://www.arcgis.com/sharing/rest/oauth2/token'
+
+GOOGLE_ANALYTICS_TRACKING_ID = None
+
 
 settings = load_app_configuration(app_config, globals())
 processors.set_secret_key(config, settings)
@@ -197,6 +251,10 @@ processors.set_smtp_parameters(config, settings)
 
 if config.env in ['stage', 'prod']:
     from emcee.backends.aws.ssm import ssm
+
+    # Instruct Django to inspect HTTP header to help determine
+    # whether the request was made securely
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
     # Configure ArcGIS credentials
     ARCGIS_CLIENT_ID = ssm('ArcGISClientID',

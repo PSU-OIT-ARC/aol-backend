@@ -24,8 +24,6 @@ services:
     image: kartoza/postgis:11.0-2.5
     networks:
       - default
-    ports:
-      - 5432:5432
     environment:
       # In some cases, the logic present in the kartoza/postgis
       # entrypoint may fail to recognize that this database already
@@ -37,15 +35,15 @@ services:
       - POSTGRES_DBNAME=aol
       - ALLOW_IP_RANGE=172.20.0.0/16
     volumes:
-      - /vol/aol/postgres:/var/lib/postgresql
-      - /vol/aol/dumps:/archive
+      - ./volumes/postgres:/var/lib/postgresql
+      - ./volumes/dumps:/archive
 
   rabbitmq:
     image: rabbitmq:3-alpine
     networks:
       - default
     volumes:
-      - /vol/aol/rabbitmq:/var/lib/rabbitmq
+      - ./volumes/rabbitmq:/var/lib/rabbitmq
     # override hostname to prevent reinitialization of data
     # on container delete/init cycle.
     #   Refs: https://github.com/docker-library/rabbitmq/issues/106#issuecomment-241882358
@@ -53,40 +51,49 @@ services:
     user: '1000'  # adjust uid with a local account uid
 
   app:
-    build: docker
-    user: aol
+    build:
+      context: docker
+      # args:
+      #   - APP_USER_ID=  # adjust uid/gid with local account
+      #   - APP_GROUP_ID=
     environment:
+      - EMCEE_CMD_ENV=docker
       - APP_CONFIG=app.docker.yml
       - APP_SERVICE=wsgi
-      - EMCEE_CMD_ENV=docker
     networks:
       - default
     ports:
       - 8000:8000
     volumes:
-      - ./:/webapps/aol
-      - /vol/aol/static:/static
-      - /vol/aol/media:/media
+      - ./:/app
+      - ./volumes/static:/static
+      - ./volumes/media:/media
     depends_on:
       - postgres
       - rabbitmq
     secrets:
       - SecretKey
       - DBPassword
+    # user: '1000:1000'
 
   celery:
-    build: docker
+    build:
+      context: docker
+      # args:
+      #   - APP_USER_ID=  # adjust uid/gid with local account
+      #   - APP_GROUP_ID=
     environment:
+      - EMCEE_CMD_ENV=docker
       - APP_CONFIG=app.docker.yml
       - APP_SERVICE=celery
-      - EMCEE_CMD_ENV=docker
     networks:
       - default
     volumes:
-      - ./:/webapps/aol
-      - /vol/aol/media:/media
+      - ./:/app
+      - ./volumes/media:/media
     depends_on:
       - app
     secrets:
       - SecretKey
       - DBPassword
+    # user: '1000:1000'
