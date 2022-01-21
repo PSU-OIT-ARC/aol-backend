@@ -53,14 +53,12 @@ setup(
         'beautifulsoup4~=4.10.0',
         'requests~=2.27.0',
         'Pillow~=9.0.0',
-        # Django 2.2 can only tolerate psycopg2<2.9
-        # Refs: https://github.com/psycopg/psycopg2/issues/1293
-        'psycopg2~=2.8.0',
+        'psycopg2~=2.9.0',
         'pyshp~=2.1.0',
         'Shapely~=1.8.0',
         'uritemplate~=4.1.0',
         'psu.oit.wdt.emcee[aws]~=1.1.0.b6',
-        'django~=2.2.0',
+        'django~=3.2.0',
         'djangorestframework~=3.13.0',
         'celery~=5.2.0',
         'uwsgi~=2.0.0',
