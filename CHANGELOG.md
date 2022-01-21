@@ -1,5 +1,11 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.6.1 - 2022-01-21
+
+- Uses Django 3.2 LTS.
+- Uses fully container-based deployment architecture.
+- Uses more powerful EC2 instance 't3.small'.
+
 ## 1.6.0 - 2022-01-10
 
 - Updates package dependency versions.
