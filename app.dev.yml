@@ -8,6 +8,7 @@ CSRF_COOKIE_SECURE: false
 CORS_ORIGIN_ALLOW_ALL: true
 CELERY_TASK_ALWAYS_EAGER: true
 SECRET_KEY: "NOT A SECRET"
+SENDFILE_BACKEND: django_sendfile.backends.development
 DATABASES:
   default:
     HOST: '172.20.0.1'
@@ -15,6 +16,5 @@ DATABASES:
     PASSWORD: aol
     NAME: aol
 CELERY_BROKER_URL: 'pyamqp://guest:guest@172.20.0.1//'
-SENDFILE_BACKEND: django_sendfile.backends.development
 STATIC_ROOT: static
 MEDIA_ROOT: media

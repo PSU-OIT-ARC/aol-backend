@@ -4,15 +4,16 @@ Resources:
     AppRole:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/iam/application_role.template.yml
+            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20210115/iam/application_role.template.yml
             Parameters:
                 Name: aol-backend
                 VpcStackName: vpc-prod
     Host:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/private_host/private_host.template.yml
+            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20210115/ec2/private_host/private_host.template.yml
             Parameters:
+                InstanceType: t3.small
                 ImageId: ami-0873b46c45c11058d
                 ImageDistribution: amazon2
                 HostName: !GetAtt 'AppRole.Outputs.Name'
@@ -25,7 +26,7 @@ Resources:
     Networking:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/private_host/networking.template.yml
+            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20210115/ec2/private_host/networking.template.yml
             Parameters:
                 EC2Instance: !GetAtt 'Host.Outputs.InstanceId'
                 PrivateIp: !GetAtt 'Host.Outputs.PrivateIP'
@@ -38,7 +39,7 @@ Resources:
     PostgreSQL:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/rds/postgres.template.yml
+            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20210115/rds/postgres.template.yml
             Parameters:
                 VpcStackName: !GetAtt 'AppRole.Outputs.VpcStackName'
                 MultiAZ: true
@@ -53,7 +54,7 @@ Resources:
     Volume:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20200206/ec2/ebs/volume.template.yml
+            TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/20210115/ec2/ebs/volume.template.yml
             Parameters:
                 Name: aol-backend--prod
                 AvailabilityZone: us-west-2a

@@ -1,0 +1,112 @@
+version: "3.7"
+
+networks:
+  overlay:
+    driver: overlay
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-alpine
+    networks:
+      - overlay
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/passwd:/etc/passwd:ro
+      - /vol/www/aol-backend/services/rabbitmq:/var/lib/rabbitmq
+    logging:
+      driver: json-file
+    deploy:
+      endpoint_mode: dnsrr
+      replicas: 1
+    # override hostname to prevent reinitialization of data data
+    # on container delete/init cycle.
+    #   Refs: https://github.com/docker-library/rabbitmq/issues/106#issuecomment-241882358
+    hostname: 'rabbitmq-prod'
+    user: '1102:1102'
+
+  app:
+    image: ghcr.io/psu-oit-arc/aol-backend/app:prod
+    networks:
+      - overlay
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /vol/www/aol-backend/active/uwsgi:/uwsgi
+      - /vol/www/aol-backend/active:/app
+      - /vol/www/aol-backend/static:/static
+      - /vol/store/media:/media
+    environment:
+      - EMCEE_CMD_ENV=prod
+      - APP_CONFIG=app.prod.yml
+      - APP_SERVICE=wsgi
+    logging:
+      driver: json-file
+    deploy:
+      replicas: 1
+    user: '1102:1102'  # aol-backend:aol-backend'
+
+  celery:
+    image: ghcr.io/psu-oit-arc/aol-backend/app:prod
+    networks:
+      - overlay
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /vol/www/aol-backend/active:/app
+      - /vol/store/media:/media
+    environment:
+      - EMCEE_CMD_ENV=prod
+      - APP_CONFIG=app.prod.yml
+      - APP_SERVICE=celery
+    logging:
+      driver: json-file
+    deploy:
+      replicas: 1
+    depends_on:
+      - rabbitmq
+    user: '1102:1102'  # aol-backend:aol-backend'
+
+  scheduler:
+    image: ghcr.io/psu-oit-arc/aol-backend/app:prod
+    networks:
+      - overlay
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /vol/www/aol-backend/active:/app
+      - /vol/store/media:/media
+    environment:
+      - EMCEE_CMD_ENV=prod
+      - APP_CONFIG=app.prod.yml
+      - APP_SERVICE=scheduler
+    logging:
+      driver: json-file
+    deploy:
+      replicas: 1
+    depends_on:
+      - rabbitmq
+    user: '1102:1102'  # aol-backend:aol-backend'
+
+  proxy:
+    image: nginx:stable
+    networks:
+      - overlay
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /vol/www/aol-backend/active/nginx/aol-backend.conf:/etc/nginx/conf.d/default.conf
+      - /vol/www/aol-backend/active/nginx/host_defaults.conf:/etc/nginx/host_defaults.conf
+      - /vol/www/aol-backend/active/nginx/server_defaults.conf:/etc/nginx/server_defaults.conf
+      - /vol/www/aol-backend/static:/static
+      - /vol/store/media:/media
+    logging:
+      driver: json-file
+    deploy:
+      mode: global
+      resources:
+        limits:
+          memory: 128M
+    depends_on:
+      - app
+    # user: '1102:1102'  # aol-backend:aol-backend'
