@@ -12,9 +12,9 @@ RUN apt update && apt install -y \
 ARG APP_PYTHON=python3.7
 ARG APP_ENV=/opt/venv
 
-ARG APP_USER=aol
+ARG APP_USER=aol-backend
 ARG APP_USER_ID=1000
-ARG APP_GROUP=aol
+ARG APP_GROUP=aol-backend
 ARG APP_GROUP_ID=1000
 
 # Export build arguments as environment variables
