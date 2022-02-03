@@ -1,5 +1,6 @@
 FROM python:3.7-bullseye
 MAINTAINER Thom Linton <tlinton@pdx.edu>
+LABEL org.opencontainers.image.source https://github.com/PSU-OIT-ARC/aol-backend
 
 
 # Install project dependencies

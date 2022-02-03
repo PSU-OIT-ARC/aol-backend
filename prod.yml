@@ -3,6 +3,7 @@ version: "3.7"
 networks:
   overlay:
     driver: overlay
+    attachable: true
 
 services:
   rabbitmq:
@@ -25,7 +26,7 @@ services:
     user: '1102:1102"  # aol-backend:aol-backend'
 
   app:
-    image: ghcr.io/psu-oit-arc/aol-backend/app:prod
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod
     networks:
       - overlay
     volumes:
@@ -46,7 +47,7 @@ services:
     user: 'aol-backend:aol-backend'
 
   celery:
-    image: ghcr.io/psu-oit-arc/aol-backend/app:prod
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod
     networks:
       - overlay
     volumes:
@@ -68,7 +69,7 @@ services:
     user: 'aol-backend:aol-backend'
 
   scheduler:
-    image: ghcr.io/psu-oit-arc/aol-backend/app:prod
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod
     networks:
       - overlay
     volumes:

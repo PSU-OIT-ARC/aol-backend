@@ -14,20 +14,22 @@ fi
 if [[ ${APP_SERVICE} == "wsgi" ]]; then
     if [[ ${EMCEE_CMD_ENV} == "docker" ]]; then
         ${APP_ENV}/bin/pip install -r requirements-dev.txt
+        ${APP_ENV}/bin/uwsgi \
+          --module oro.${APP_MODULE}.wsgi \
+          --http-socket :8000 \
+          --http-auto-chunked \
+          --http-keepalive \
+          --ignore-sigpipe \
+          --ignore-write-errors \
+          --disable-write-exception \
+          --python-auto-reload 2
+    else
+        exec ${APP_ENV}/bin/uwsgi --include /uwsgi/uwsgi.ini
     fi
-    exec ${APP_ENV}/bin/uwsgi --include /uwsgi/uwsgi.ini
-          # --processes ${APP_NUM_PROCS} \
-          # --module aol.wsgi \
-          # --http-socket :8000 \
-          # --http-auto-chunked \
-          # --http-keepalive \
-          # --ignore-sigpipe \
-          # --ignore-write-errors \
-          # --disable-write-exception
 elif [[ ${APP_SERVICE} == "celery" ]]; then
     exec ${APP_ENV}/bin/celery -A aol worker -l INFO
 elif [[ ${APP_SERVICE} == "scheduler" ]]; then
-    exec ${APP_ENV}/bin/celery -A aol beat -l INFO
+    exec ${APP_ENV}/bin/celery -A aol beat --pidfile=`mktemp` -l INFO
 elif [[ ${APP_SERVICE} == "test" ]]; then
     ${APP_ENV}/bin/pip install -r requirements-dev.txt
     exec ${APP_ENV}/bin/python manage.py test
