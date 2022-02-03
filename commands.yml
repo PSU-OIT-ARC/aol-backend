@@ -6,7 +6,8 @@ project:
   namespace_s: aol_backend
 iam:
   user: aol-backend
-  uid: 1102
+  uid: 1101
+  gid: 1101
 python:
   package: aol
   distribution: psu.oit.arc.aol

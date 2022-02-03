@@ -23,7 +23,7 @@ services:
     # on container delete/init cycle.
     #   Refs: https://github.com/docker-library/rabbitmq/issues/106#issuecomment-241882358
     hostname: 'rabbitmq-stage'
-    user: '1102:1102"  # aol-backend:aol-backend'
+    user: '1101:1101'  # 'aol-backend:aol-backend'
 
   app:
     image: ghcr.io/psu-oit-arc/aol-backend/app-stage

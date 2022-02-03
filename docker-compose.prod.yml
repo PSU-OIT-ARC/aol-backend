@@ -7,5 +7,5 @@ services:
     build:
       context: docker
       args:
-        - APP_USER_ID=1102
-        - APP_GROUP_ID=1102
+        - APP_USER_ID=1101
+        - APP_GROUP_ID=1101
