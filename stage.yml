@@ -38,7 +38,6 @@ services:
       - /vol/store/media:/vol/store/media
     environment:
       - EMCEE_CMD_ENV=stage
-      - APP_CONFIG=app.stage.yml
       - APP_SERVICE=wsgi
     logging:
       driver: json-file
@@ -58,7 +57,6 @@ services:
       - /vol/store/media:/vol/store/media
     environment:
       - EMCEE_CMD_ENV=stage
-      - APP_CONFIG=app.stage.yml
       - APP_SERVICE=celery
     logging:
       driver: json-file
@@ -80,7 +78,6 @@ services:
       - /vol/store/media:/vol/store/media
     environment:
       - EMCEE_CMD_ENV=stage
-      - APP_CONFIG=app.stage.yml
       - APP_SERVICE=scheduler
     logging:
       driver: json-file
