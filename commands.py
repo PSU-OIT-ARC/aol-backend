@@ -10,11 +10,10 @@ from emcee import printer
 from emcee.commands.transport import warmup, shell
 from emcee.commands.files import copy_file
 from emcee.commands.deploy import deploy, list_builds
-from emcee.commands.python import virtualenv, install
 from emcee.commands.django import manage
 
 from emcee.provision.base import provision_host, patch_host
-from emcee.provision.docker import provision_docker
+from emcee.provision.docker import provision_docker, authenticate_ghcr
 from emcee.provision.secrets import provision_secret, show_secret
 
 from emcee.deploy.docker import publish_images
@@ -28,7 +27,6 @@ from emcee.backends.aws.provision.db import (provision_database,
                                              update_database_client)
 from emcee.backends.aws.provision.volumes import (provision_volume,
                                                   provision_swapfile)
-from emcee.backends.aws.deploy import DockerRemoteProcessor
 
 configs.load(YAMLCommandConfiguration)
 
@@ -114,7 +112,7 @@ class AOLLocalProcessor(docker.LocalProcessor):
 @deployer()
 class AOLDeployer(docker.Deployer):
     local_processor_cls = AOLLocalProcessor
-    remote_processor_cls = DockerRemoteProcessor
+    remote_processor_cls = docker.RemoteProcessor
     app_config_cls = YAMLAppConfiguration
 
     def get_bootstrap_container(self):

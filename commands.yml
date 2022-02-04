@@ -6,7 +6,8 @@ project:
   namespace_s: aol_backend
 iam:
   user: aol-backend
-  uid: 1102
+  uid: 1101
+  gid: 1101
 python:
   package: aol
   distribution: psu.oit.arc.aol
@@ -29,8 +30,6 @@ environment:
     backend: emcee.backends.dev
   docker:
     backend: emcee.backends.docker
-    python:
-      venv: /venv/venv-docker
   stage:
     backend: emcee.backends.aws
     services:

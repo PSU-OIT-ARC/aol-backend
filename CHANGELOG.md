@@ -1,5 +1,10 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.6.2 - 2022-02-03
+
+- Updates package dependency versions.
+- Revises Emcee integration to support 1.1.0b8.
+
 ## 1.6.1 - 2022-01-21
 
 - Uses Django 3.2 LTS.

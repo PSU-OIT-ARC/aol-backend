@@ -3,6 +3,7 @@ version: "3.7"
 networks:
   overlay:
     driver: overlay
+    attachable: true
 
 services:
   rabbitmq:
@@ -22,18 +23,19 @@ services:
     # on container delete/init cycle.
     #   Refs: https://github.com/docker-library/rabbitmq/issues/106#issuecomment-241882358
     hostname: 'rabbitmq-prod'
-    user: '1102:1102'
+    user: '1101:1101'  # 'aol-backend:aol-backend'
 
   app:
-    image: ghcr.io/psu-oit-arc/aol-backend/app:prod
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod
     networks:
       - overlay
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /vol/www/aol-backend/active/uwsgi:/uwsgi
+      - /etc/passwd:/etc/passwd:ro
+      - /vol/www/aol-backend:/vol/www/aol-backend
       - /vol/www/aol-backend/active:/app
-      - /vol/www/aol-backend/static:/static
-      - /vol/store/media:/media
+      - /vol/www/aol-backend/active/uwsgi:/uwsgi
+      - /vol/store/media:/vol/store/media
     environment:
       - EMCEE_CMD_ENV=prod
       - APP_CONFIG=app.prod.yml
@@ -42,16 +44,18 @@ services:
       driver: json-file
     deploy:
       replicas: 1
-    user: '1102:1102'  # aol-backend:aol-backend'
+    user: 'aol-backend:aol-backend'
 
   celery:
-    image: ghcr.io/psu-oit-arc/aol-backend/app:prod
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod
     networks:
       - overlay
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - /etc/passwd:/etc/passwd:ro
+      - /vol/www/aol-backend:/vol/www/aol-backend
       - /vol/www/aol-backend/active:/app
-      - /vol/store/media:/media
+      - /vol/store/media:/vol/store/media
     environment:
       - EMCEE_CMD_ENV=prod
       - APP_CONFIG=app.prod.yml
@@ -62,16 +66,18 @@ services:
       replicas: 1
     depends_on:
       - rabbitmq
-    user: '1102:1102'  # aol-backend:aol-backend'
+    user: 'aol-backend:aol-backend'
 
   scheduler:
-    image: ghcr.io/psu-oit-arc/aol-backend/app:prod
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod
     networks:
       - overlay
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - /etc/passwd:/etc/passwd:ro
+      - /vol/www/aol-backend:/vol/www/aol-backend
       - /vol/www/aol-backend/active:/app
-      - /vol/store/media:/media
+      - /vol/store/media:/vol/store/media
     environment:
       - EMCEE_CMD_ENV=prod
       - APP_CONFIG=app.prod.yml
@@ -82,7 +88,7 @@ services:
       replicas: 1
     depends_on:
       - rabbitmq
-    user: '1102:1102'  # aol-backend:aol-backend'
+    user: 'aol-backend:aol-backend'
 
   proxy:
     image: nginx:stable
@@ -109,4 +115,3 @@ services:
           memory: 128M
     depends_on:
       - app
-    # user: '1102:1102'  # aol-backend:aol-backend'

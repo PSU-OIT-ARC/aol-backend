@@ -267,6 +267,6 @@ if config.env in ['stage', 'prod']:
                                            ssm_prefix=config.infrastructure.ssm_prefix,
                                            region=config.infrastructure.region)
 
-elif config.env in ['dev', 'docker']:
+elif os.environ.get('APP_SERVICE') == 'wsgi' and config.env in ['dev', 'docker']:
     INSTALLED_APPS.append('corsheaders')
     MIDDLEWARE.insert(3, 'corsheaders.middleware.CorsMiddleware')
