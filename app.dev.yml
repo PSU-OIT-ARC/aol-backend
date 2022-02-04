@@ -11,10 +11,8 @@ SECRET_KEY: "NOT A SECRET"
 SENDFILE_BACKEND: django_sendfile.backends.development
 DATABASES:
   default:
-    HOST: '172.20.0.1'
+    HOST: '127.0.0.1'
     USER: aol
     PASSWORD: aol
     NAME: aol
-CELERY_BROKER_URL: 'pyamqp://guest:guest@172.20.0.1//'
-STATIC_ROOT: static
-MEDIA_ROOT: media
+CELERY_BROKER_URL: 'pyamqp://guest:guest@127.0.0.1//'

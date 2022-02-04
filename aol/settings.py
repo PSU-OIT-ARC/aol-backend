@@ -237,35 +237,57 @@ CELERY_BEAT_SCHEDULE = {
 
 # Application-sepcific configuration
 ARCGIS_ONLINE_TOKEN_URL = 'https://www.arcgis.com/sharing/rest/oauth2/token'
-
 GOOGLE_ANALYTICS_TRACKING_ID = None
 
+# Configure 'INTERNAL_IPS' to support development environments
+if config.env in ['dev', 'docker']:
+    import ipaddress
 
+    class CIDRList(object):
+        addresses = [
+            "127.0.0.0/8",
+            "169.254.0.0/16",  # RFC 3927/6890
+            "10.0.0.0/8",  # RFC 1918
+            "172.0.0.0/12",
+            "192.168.0.0/16",
+            "fe80::/10",
+            "fd00::/8"  # RFC 7436
+        ]
+
+        def __init__(self):
+            """Create a new ip_network object for each address range provided."""
+            self.networks = [
+                ipaddress.ip_network(address)
+                for address in self.addresses
+            ]
+
+        def __contains__(self, address):
+            """Check if the given address is contained in any of the networks."""
+            return any([
+                ipaddress.ip_address(address) in network
+                for network in self.networks
+            ])
+
+    INTERNAL_IPS = CIDRList()
+
+# Configure application secrets
 settings = load_app_configuration(app_config, globals())
 processors.set_secret_key(config, settings)
 processors.set_database_parameters(config, settings)
 processors.set_sentry_dsn(config, settings)
 processors.set_smtp_parameters(config, settings)
 
-if config.env in ['stage', 'prod']:
-    from emcee.backends.aws.ssm import ssm
+# Configure ArcGIS credentials
+ARCGIS_CLIENT_ID = processors.get_secret_value(config, 'ArcGISClientID')
+ARCGIS_CLIENT_SECRET = processors.get_secret_value(config, 'ArcGISClientSecret')
 
+# Configure Google OAUTH2
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = processors.get_secret_value(config, 'GoogleOAuth2Secret')
+
+if config.env in ['stage', 'prod']:
     # Instruct Django to inspect HTTP header to help determine
     # whether the request was made securely
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-    # Configure ArcGIS credentials
-    ARCGIS_CLIENT_ID = ssm('ArcGISClientID',
-                           ssm_prefix=config.infrastructure.ssm_prefix,
-                           region=config.infrastructure.region)
-    ARCGIS_CLIENT_SECRET = ssm('ArcGISClientSecret',
-                               ssm_prefix=config.infrastructure.ssm_prefix,
-                               region=config.infrastructure.region)
-    
-    # Configure Google OAUTH2
-    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ssm('GoogleOAuth2Secret',
-                                           ssm_prefix=config.infrastructure.ssm_prefix,
-                                           region=config.infrastructure.region)
 
 elif os.environ.get('APP_SERVICE') == 'wsgi' and config.env in ['dev', 'docker']:
     INSTALLED_APPS.append('corsheaders')

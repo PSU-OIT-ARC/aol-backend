@@ -6,14 +6,13 @@ EMAIL_BACKEND: django.core.mail.backends.console.EmailBackend
 ALLOWED_HOSTS: ["*"]
 CSRF_COOKIE_SECURE: false
 CORS_ORIGIN_ALLOW_ALL: true
-SECRET_KEY: "NOT A SECRET"
 SENDFILE_BACKEND: django_sendfile.backends.development
-SENDFILE_ROOT: /media
+SENDFILE_ROOT: /app/media
 DATABASES:
   default:
     HOST: postgres
     USER: aol
     NAME: aol
 CELERY_BROKER_URL: 'pyamqp://guest:guest@rabbitmq//'
-STATIC_ROOT: /static
-MEDIA_ROOT: /media
+STATIC_ROOT: /app/static
+MEDIA_ROOT: /app/media
