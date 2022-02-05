@@ -82,6 +82,7 @@ services:
     networks:
       - default
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ./volumes/media:/media
       - ./:/app
     depends_on:
