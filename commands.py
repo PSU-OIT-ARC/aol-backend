@@ -102,6 +102,10 @@ def provision(createdb=False):
     oauth_secret = input("Enter the Google OAuth secret: ")
     provision_secret('GoogleOAuth2Secret', oauth_secret)
 
+    # Authenticates appropriate user on remote host for
+    # interaction with the GitHub Container Registry.
+    authenticate_ghcr()
+
 
 class AOLLocalProcessor(docker.LocalProcessor):
     include_app = True
