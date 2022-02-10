@@ -18,7 +18,7 @@ help:
 test:  ## Runs tests in current environment
 	@$(bin)/python manage.py test --keepdb --failfast
 test_container:  ## Runs tests in docker environment
-	$(docker_compose) -f docker-compose.dev.yml run --user=aol --rm -e EMCEE_APP_CONFIG=app.test.yml -e APP_SERVICE=test app
+	$(bin)/docker-compose run --user=aol-backend --rm -e EMCEE_APP_CONFIG=app.test.yml -e APP_SERVICE=test app
 shell:
 	$(bin)/python manage.py shell
 run:

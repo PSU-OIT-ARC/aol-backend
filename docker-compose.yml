@@ -9,21 +9,14 @@ secrets:
 networks:
   default:
     driver: bridge
-    ipam:
-      config:
-        # this value is a soft-reservation of the subnet in
-        # order to reduce friction w.r.t. a given local docker
-        # environment and project configuration.
-        # 
-        # if you encounter network definition conflicts, change
-        # the value below and revise its use in 'local.*.cfg'.
-        - subnet: 172.20.0.0/16
 
 services:
   postgres:
     image: kartoza/postgis:11.0-2.5
     networks:
       - default
+    ports:
+      - "127.0.0.1:5432:5432"
     environment:
       # In some cases, the logic present in the kartoza/postgis
       # entrypoint may fail to recognize that this database already
@@ -37,11 +30,14 @@ services:
     volumes:
       - ./volumes/postgres:/var/lib/postgresql
       - ./volumes/dumps:/archive
+    # user: '1000'  # adjust uid with a local account uid
 
   rabbitmq:
     image: rabbitmq:3-alpine
     networks:
       - default
+    ports:
+      - "127.0.0.1:5672:5672"
     volumes:
       - ./volumes/rabbitmq:/var/lib/rabbitmq
     # override hostname to prevent reinitialization of data
@@ -58,23 +54,21 @@ services:
       #   - APP_GROUP_ID=
     environment:
       - EMCEE_CMD_ENV=docker
-      - APP_CONFIG=app.docker.yml
       - APP_SERVICE=wsgi
     networks:
       - default
     ports:
       - 8000:8000
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ./:/app
-      - ./volumes/static:/static
-      - ./volumes/media:/media
     depends_on:
       - postgres
       - rabbitmq
     secrets:
       - SecretKey
       - DBPassword
-    # user: '1000:1000'
+    user: '1000:1000'  # adjust uid with a local account uid
 
   celery:
     build:
@@ -84,16 +78,16 @@ services:
       #   - APP_GROUP_ID=
     environment:
       - EMCEE_CMD_ENV=docker
-      - APP_CONFIG=app.docker.yml
       - APP_SERVICE=celery
     networks:
       - default
     volumes:
-      - ./:/app
+      - /etc/localtime:/etc/localtime:ro
       - ./volumes/media:/media
+      - ./:/app
     depends_on:
       - app
     secrets:
       - SecretKey
       - DBPassword
-    # user: '1000:1000'
+    user: '1000:1000'  # adjust uid with a local account uid

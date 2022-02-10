@@ -15,6 +15,6 @@ DATABASES:
     NAME: aol
 CELERY_BROKER_URL: 'pyamqp://guest:guest@rabbitmq//'
 SENDFILE_BACKEND: django_sendfile.backends.development
-SENDFILE_ROOT: /webapps/aol/media
-MEDIA_ROOT: /webapps/aol/media
-STATIC_ROOT: /webapps/aol/static
+SENDFILE_ROOT: /app/media
+MEDIA_ROOT: /app/media
+STATIC_ROOT: /app/static

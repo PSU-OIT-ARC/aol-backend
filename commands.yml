@@ -4,18 +4,21 @@ project:
   full_name: Atlas of Oregon Lakes Backend
   namespace: aol-backend
   namespace_s: aol_backend
+python:
+  package: aol
+  distribution: psu.oit.arc.aol
 iam:
   user: aol-backend
   uid: 1101
   gid: 1101
-python:
-  package: aol
-  distribution: psu.oit.arc.aol
+docker:
+  dockerfiles:
+    - docker/Dockerfile
 services:
   db:
     name: aol
   nginx:
-    http_upstream: "app:8000"
+    http_upstream: "http://app:8000"
     client_max_body_size: 0
     large_client_header_buffers: 4 8k
     limit_conn_perserver: 1000

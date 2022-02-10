@@ -2,11 +2,9 @@
 set -e
 
 
-# Bootstrap application if requested
-if [[ ${EMCEE_BOOTSTRAP} == "yes" ]]; then
-    cd /app-build
-    ${APP_ENV}/bin/python manage.py migrate --noinput
-    ${APP_ENV}/bin/python manage.py collectstatic --noinput
+if [[ ${APP_SERVICE} == "bootstrap" ]]; then
+    ${APP_ENV}/bin/python manage.py migrate --no-input
+    ${APP_ENV}/bin/python manage.py collectstatic --no-input
     exit 0
 fi
 
@@ -14,8 +12,11 @@ fi
 if [[ ${APP_SERVICE} == "wsgi" ]]; then
     if [[ ${EMCEE_CMD_ENV} == "docker" ]]; then
         ${APP_ENV}/bin/pip install -r requirements-dev.txt
+        ${APP_ENV}/bin/python manage.py collectstatic --noinput
         ${APP_ENV}/bin/uwsgi \
-          --module oro.${APP_MODULE}.wsgi \
+          --module aol.wsgi \
+          --static-map /static=/app/static \
+          --static-map /media=/app/media \
           --http-socket :8000 \
           --http-auto-chunked \
           --http-keepalive \
