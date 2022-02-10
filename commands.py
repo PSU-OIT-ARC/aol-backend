@@ -147,3 +147,6 @@ class AOLDeployer(docker.Deployer):
         # force bootstrap service to run
         if self.remote_processor.is_service_available('bootstrap'):
             self.remote_processor.scale_stack_service('bootstrap', 1, wait=True)
+
+        # force update check for all service images not uniquely tagged/versioned
+        self.remote_processor.pull_stack_images()
