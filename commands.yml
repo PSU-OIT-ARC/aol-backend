@@ -15,7 +15,7 @@ services:
   db:
     name: aol
   nginx:
-    http_upstream: "app:8000"
+    http_upstream: "http://app:8000"
     client_max_body_size: 0
     large_client_header_buffers: 4 8k
     limit_conn_perserver: 1000
