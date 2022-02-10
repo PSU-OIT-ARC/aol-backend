@@ -1,4 +1,5 @@
 import os.path
+import time
 
 from emcee.runner.config import YAMLCommandConfiguration
 from emcee.runner import command, configs, config
@@ -119,5 +120,30 @@ class AOLDeployer(docker.Deployer):
     remote_processor_cls = docker.RemoteProcessor
     app_config_cls = YAMLAppConfiguration
 
-    def get_bootstrap_container(self):
-        return 'app'
+    def get_services(self):
+        return [
+            ['scheduler', 'app'],
+            ['celery']
+        ]
+
+    def bootstrap_application(self):
+        if not self.remote_processor.is_stack_active():
+            printer.error("Stack is not active in remote environment.")
+            return
+
+        printer.info("Bootstrapping application...")
+        services = self.get_services()
+
+        # remove user-facing services from stack
+        if self.remote_processor.remove_stack_services(services[0]):
+            # wait a predetermined about of time for the
+            # task queues to be emptied of work
+            printer.info("Waiting 60s for task queue to empty...")
+            time.sleep(60)
+
+        # remove the remaining services from stack
+        self.remote_processor.remove_stack_services(services[1])
+
+        # force bootstrap service to run
+        if self.remote_processor.is_service_available('bootstrap'):
+            self.remote_processor.scale_stack_service('bootstrap', 1, wait=True)
