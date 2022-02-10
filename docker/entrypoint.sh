@@ -2,11 +2,9 @@
 set -e
 
 
-# Bootstrap application if requested
-if [[ ${EMCEE_BOOTSTRAP} == "yes" ]]; then
-    cd /app-build
-    ${APP_ENV}/bin/python manage.py migrate --noinput
-    ${APP_ENV}/bin/python manage.py collectstatic --noinput
+if [[ ${APP_SERVICE} == "bootstrap" ]]; then
+    ${APP_ENV}/bin/python manage.py migrate --no-input
+    ${APP_ENV}/bin/python manage.py collectstatic --no-input
     exit 0
 fi
 
