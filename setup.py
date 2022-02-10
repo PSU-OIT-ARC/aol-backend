@@ -57,7 +57,7 @@ setup(
         'pyshp~=2.2.0',
         'Shapely~=1.8.0',
         'uritemplate~=4.1.0',
-        'psu.oit.wdt.emcee[aws]~=1.1.0.b8',
+        'psu.oit.wdt.emcee[aws]~=1.1.0.b9',
         'django~=3.2.0',
         'djangorestframework~=3.13.0',
         'celery~=5.2.0',
