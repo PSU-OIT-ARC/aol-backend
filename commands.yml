@@ -4,13 +4,16 @@ project:
   full_name: Atlas of Oregon Lakes Backend
   namespace: aol-backend
   namespace_s: aol_backend
+python:
+  package: aol
+  distribution: psu.oit.arc.aol
 iam:
   user: aol-backend
   uid: 1101
   gid: 1101
-python:
-  package: aol
-  distribution: psu.oit.arc.aol
+docker:
+  dockerfiles:
+    - docker/Dockerfile
 services:
   db:
     name: aol
