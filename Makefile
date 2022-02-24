@@ -31,7 +31,7 @@ update_pip_requirements:  ## Updates python dependencies
 	@if [ ! -d "./release-env" ]; then python3 -m venv ./release-env; fi
 	@./release-env/bin/pip install --upgrade $(venv_autoinstall)
 	@./release-env/bin/pip install --upgrade --upgrade-strategy=eager -r requirements.txt
-	@./release-env/bin/pip freeze > docker/requirements-frozen.txt
-	@sed -i '1 i\--find-links https://packages.wdt.pdx.edu/dist/' docker/requirements-frozen.txt
-	@sed -i '/psu.oit.arc.aol/d' docker/requirements-frozen.txt
+	@./release-env/bin/pip freeze > docker/requirements.txt
+	@sed -i '1 i\--find-links https://packages.wdt.pdx.edu/dist/' docker/requirements.txt
+	@sed -i '/psu.oit.arc.aol/d' docker/requirements.txt
 	@./release-env/bin/pip list --outdated

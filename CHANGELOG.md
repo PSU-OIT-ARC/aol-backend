@@ -1,5 +1,15 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.6.4 - 2022-02-24
+
+- Updates package dependency versions.
+- Bugfix/maintenance release.
+
+## 1.6.3 - 2022-02-09
+
+- Updates package dependency versions.
+- Revises Emcee integration to support 1.1.0b9.
+
 ## 1.6.2 - 2022-02-03
 
 - Updates package dependency versions.
