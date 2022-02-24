@@ -209,7 +209,8 @@ CELERY_TASK_ALWAYS_EAGER = False
 CELERY_TASK_EAGER_PROPAGATES = True
 CELERY_SEND_TASK_ERROR_EMAILS = True
 
-CELERY_ACCEPT_CONTENT = ['json', 'pickle']
+# TODO: Verify removal of 'pickle' serializer
+CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 ## Celeryd settings
