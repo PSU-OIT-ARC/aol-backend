@@ -235,12 +235,23 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-# Application-sepcific configuration
+# Application-specific configuration
 ARCGIS_ONLINE_TOKEN_URL = 'https://www.arcgis.com/sharing/rest/oauth2/token'
 GOOGLE_ANALYTICS_TRACKING_ID = None
 
-# Configure 'INTERNAL_IPS' to support development environments
-if config.env in ['dev', 'docker']:
+# Configure environment-specific configuration
+if config.env in ['stage', 'prod']:
+    # Instruct Django to inspect HTTP header to help determine
+    # whether the request was made securely
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+elif config.env in ['dev', 'docker']:
+    # Enable installed apps, middleware for development environments
+    if os.environ.get('APP_SERVICE') == 'wsgi':
+        INSTALLED_APPS.append('corsheaders')
+        MIDDLEWARE.insert(3, 'corsheaders.middleware.CorsMiddleware')
+
+    # Configure 'INTERNAL_IPS' to support development environments
     import ipaddress
 
     class CIDRList(object):
@@ -281,14 +292,5 @@ processors.set_smtp_parameters(config, settings)
 ARCGIS_CLIENT_ID = processors.get_secret_value(config, 'ArcGISClientID')
 ARCGIS_CLIENT_SECRET = processors.get_secret_value(config, 'ArcGISClientSecret')
 
-# Configure Google OAUTH2
+# Configure Google OAuth2
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = processors.get_secret_value(config, 'GoogleOAuth2Secret')
-
-if config.env in ['stage', 'prod']:
-    # Instruct Django to inspect HTTP header to help determine
-    # whether the request was made securely
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-elif os.environ.get('APP_SERVICE') == 'wsgi' and config.env in ['dev', 'docker']:
-    INSTALLED_APPS.append('corsheaders')
-    MIDDLEWARE.insert(3, 'corsheaders.middleware.CorsMiddleware')
