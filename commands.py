@@ -11,7 +11,6 @@ from emcee import printer
 from emcee.commands.transport import warmup, shell
 from emcee.commands.files import copy_file
 from emcee.commands.deploy import deploy, list_builds
-from emcee.commands.django import manage
 
 from emcee.provision.base import provision_host, patch_host
 from emcee.provision.docker import provision_docker, authenticate_ghcr
@@ -108,45 +107,64 @@ def provision(createdb=False):
     authenticate_ghcr()
 
 
+@command
+def maintenance_mode():
+    printer.info("Activating application maintenance mode...")
+    remote_processor = AOLRemoteProcessor(options=None)
+
+    # remove user-facing services from stack
+    if remote_processor.remove_stack_services(AOL_SERVICES['frontend']):
+        # wait a predetermined about of time for the
+        # task queues to be emptied of work
+        printer.info("Waiting 60s for task queue to empty...")
+        time.sleep(60)
+
+    # remove the remaining services from stack
+    remote_processor.remove_stack_services(AOL_SERVICES['backend'])
+
+
 class AOLLocalProcessor(docker.LocalProcessor):
     include_app = True
     include_uwsgi = True
     include_nginx = True
 
 
+class AOLRemoteProcessor(docker.RemoteProcessor):
+    """
+    TBD
+    """
+
+
 @deployer()
 class AOLDeployer(docker.Deployer):
     local_processor_cls = AOLLocalProcessor
-    remote_processor_cls = docker.RemoteProcessor
+    remote_processor_cls = AOLRemoteProcessor
     app_config_cls = YAMLAppConfiguration
-
-    def get_services(self):
-        return [
-            ['scheduler', 'app'],
-            ['celery']
-        ]
 
     def bootstrap_application(self):
         if not self.remote_processor.is_stack_active():
             printer.error("Stack is not active in remote environment.")
             return
 
+        # Enable maintenance mode before bootstrapping application
+        maintenance_mode()
+
         printer.info("Bootstrapping application...")
-        services = self.get_services()
-
-        # remove user-facing services from stack
-        if self.remote_processor.remove_stack_services(services[0]):
-            # wait a predetermined about of time for the
-            # task queues to be emptied of work
-            printer.info("Waiting 60s for task queue to empty...")
-            time.sleep(60)
-
-        # remove the remaining services from stack
-        self.remote_processor.remove_stack_services(services[1])
+        bootstrap_stackfile = '{}-bootstrap.yml'.format(config.env)
+        self.remote_processor.deploy_stack(stackfile=bootstrap_stackfile)
 
         # force bootstrap service to run
-        if self.remote_processor.is_service_available('bootstrap'):
-            self.remote_processor.scale_stack_service('bootstrap', 1, wait=True)
+        self.remote_processor.scale_stack_service('bootstrap', 1, wait=True)
+        self.remote_processor.scale_stack_service('bootstrap', 0)
 
         # force update check for all service images not uniquely tagged/versioned
         self.remote_processor.pull_stack_images()
+
+
+AOL_SERVICES = {}
+AOL_SERVICES['frontend'] = [
+    'scheduler', 'app'
+]
+AOL_SERVICES['backend'] = [
+    'celery'
+]

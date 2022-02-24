@@ -25,25 +25,6 @@ services:
     hostname: 'rabbitmq-stage'
     user: '1101:1101'  # 'aol-backend:aol-backend'
 
-  bootstrap:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.3
-    networks:
-      - overlay
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/passwd:/etc/passwd:ro
-      - /vol/store/media:/vol/store/media
-      - /vol/www/aol-backend:/vol/www/aol-backend
-      - ./:/app
-    environment:
-      - EMCEE_CMD_ENV=stage
-      - APP_SERVICE=bootstrap
-    logging:
-      driver: json-file
-    deploy:
-      replicas: 0
-    user: 'aol-backend:aol-backend'
-
   app:
     image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.3
     networks:

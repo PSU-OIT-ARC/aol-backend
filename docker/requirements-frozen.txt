@@ -34,7 +34,7 @@ oyaml==1.0
 packaging==21.3
 Pillow==9.0.1
 prompt-toolkit==3.0.27
-psu.oit.wdt.emcee==1.1.0b9
+psu.oit.wdt.emcee==1.1.2
 psycopg2==2.9.3
 pwgen==0.8.2.post0
 pyasn1==0.4.8
