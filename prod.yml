@@ -26,7 +26,7 @@ services:
     user: '1101:1101'  # 'aol-backend:aol-backend'
 
   app:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.6.3
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.6.4
     networks:
       - overlay
     volumes:
@@ -46,7 +46,7 @@ services:
     user: 'aol-backend:aol-backend'
 
   celery:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.6.3
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.6.4
     networks:
       - overlay
     volumes:
@@ -67,7 +67,7 @@ services:
     user: 'aol-backend:aol-backend'
 
   scheduler:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.6.3
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.6.4
     networks:
       - overlay
     volumes:

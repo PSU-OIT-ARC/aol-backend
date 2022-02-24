@@ -7,7 +7,7 @@ networks:
 
 services:
   bootstrap:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.3
+    image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.4
     networks:
       - overlay
     volumes:
