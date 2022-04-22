@@ -18,7 +18,7 @@ colorama==0.4.3
 cryptography==36.0.1
 dateparser==1.1.0
 defusedxml==0.7.1
-Django==3.2.12
+Django==3.2.13
 django-ckeditor==6.2.0
 django-filter==21.1
 django-js-asset==2.0.0
