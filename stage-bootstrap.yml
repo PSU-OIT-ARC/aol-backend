@@ -1,26 +1,24 @@
-version: "3.7"
-
+version: '3.7'
 networks:
   overlay:
     driver: overlay
     attachable: true
-
 services:
   bootstrap:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.4
+    image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.5
     networks:
-      - overlay
+    - overlay
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/passwd:/etc/passwd:ro
-      - /vol/store/media:/vol/store/media
-      - /vol/www/aol-backend:/vol/www/aol-backend
-      - ./:/app
+    - /etc/localtime:/etc/localtime:ro
+    - /etc/passwd:/etc/passwd:ro
+    - /vol/store/media:/vol/store/media
+    - /vol/www/aol-backend:/vol/www/aol-backend
+    - ./:/app
     environment:
-      - EMCEE_CMD_ENV=stage
-      - APP_SERVICE=bootstrap
+    - EMCEE_CMD_ENV=stage
+    - APP_SERVICE=bootstrap
     logging:
       driver: json-file
     deploy:
       replicas: 0
-    user: 'aol-backend:aol-backend'
+    user: aol-backend:aol-backend
