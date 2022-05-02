@@ -2,8 +2,6 @@ extends: emcee:commands.yml
 project:
   name: aol-backend
   full_name: Atlas of Oregon Lakes Backend
-  namespace: aol-backend
-  namespace_s: aol_backend
 python:
   package: aol
   distribution: psu.oit.arc.aol
