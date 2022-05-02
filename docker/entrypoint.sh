@@ -11,8 +11,7 @@ fi
 # Select the entrypoint given the APP_SERVICE
 if [[ ${APP_SERVICE} == "wsgi" ]]; then
     if [[ ${EMCEE_CMD_ENV} == "docker" ]]; then
-        ${APP_ENV}/bin/pip install -r requirements-dev.txt
-        ${APP_ENV}/bin/python manage.py collectstatic --noinput
+        ${APP_ENV}/bin/pip install -r /app/docker/requirements-dev.txt
         ${APP_ENV}/bin/uwsgi \
           --module aol.wsgi \
           --static-map /static=/app/static \
@@ -32,6 +31,6 @@ elif [[ ${APP_SERVICE} == "celery" ]]; then
 elif [[ ${APP_SERVICE} == "scheduler" ]]; then
     exec ${APP_ENV}/bin/celery -A aol beat --pidfile=`mktemp` -l INFO
 elif [[ ${APP_SERVICE} == "test" ]]; then
-    ${APP_ENV}/bin/pip install -r requirements-dev.txt
+    ${APP_ENV}/bin/pip install -r /app/docker/requirements-test.txt
     exec ${APP_ENV}/bin/python manage.py test
 fi

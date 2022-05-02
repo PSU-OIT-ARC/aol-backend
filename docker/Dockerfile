@@ -11,6 +11,7 @@ RUN apt update && apt install -y \
 # Set build arguments
 ARG APP_PYTHON=python3.9
 ARG APP_ENV=/opt/venv
+ARG APP_REQUIREMENTS=requirements.txt
 
 ARG APP_USER=aol-backend
 ARG APP_USER_ID=1000
@@ -31,7 +32,7 @@ RUN groupadd -g ${APP_GROUP_ID} "${APP_GROUP}" || echo "Group already exists"
 RUN useradd -m -g "${APP_GROUP}" -u ${APP_USER_ID} "${APP_USER}" || echo "User already exists"
 
 # Prepare virtual environment package requirements
-COPY --chown=${APP_USER}:${APP_GROUP} /requirements.txt /requirements.txt
+COPY --chown=${APP_USER}:${APP_GROUP} /${APP_REQUIREMENTS} /requirements.txt
 
 # Prepare virtual environment
 RUN mkdir -p ${APP_ENV}
