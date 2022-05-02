@@ -75,7 +75,6 @@ setup(
             'flake8',
             'mock',
             'model_mommy',
-            'docker-compose',
             'django-cors-headers'
         ]
     },

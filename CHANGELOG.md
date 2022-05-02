@@ -1,18 +1,22 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.6.5 - 2022-05-02
+
+- Uses Python 3.9
+- Updates CSP for Google Maps Platform.
+- Revises implementation and handling of requirements.
+- Updates package dependency versions.
+
 ## 1.6.4 - 2022-02-24
 
-- Updates package dependency versions.
 - Bugfix/maintenance release.
 
 ## 1.6.3 - 2022-02-09
 
-- Updates package dependency versions.
 - Revises Emcee integration to support 1.1.0b9.
 
 ## 1.6.2 - 2022-02-03
 
-- Updates package dependency versions.
 - Revises Emcee integration to support 1.1.0b8.
 
 ## 1.6.1 - 2022-01-21
@@ -23,7 +27,6 @@
 
 ## 1.6.0 - 2022-01-10
 
-- Updates package dependency versions.
 - Relaxes default limit on 'client_max_body_size' to accomodate
   uploads in the admin backend.
 - Explicitly configures 'FILE_UPLOAD_PERMISSION' to use the (changed)
@@ -32,7 +35,7 @@
 
 ## 1.5.8 - 2021-10-14
 
-- Updates package dependency versions.
+- Bugfix/maintenance release.
 
 ## 1.5.7 - 2021-06-08
 
@@ -50,11 +53,9 @@
 ## 1.5.5 - 2021-03-31
 
 - Uses Emcee 1.1.
-- Updates package dependency versions.
 
 ## 1.5.4 - 2021-02-26
 
-- Updates package dependency versions.
 - Revises Emcee command module implementation to modernize
   database client configuration and add swapfile provisioning.
 
@@ -62,15 +63,14 @@
 
 - Uses Emcee 1.0.6.
 - Removes support for Python 3.5.
-- Updates package dependency versions.
 
 ## 1.5.2 - 2020-09-09
 
-- Updates package dependency versions.
+- Bugfix/maintenance release.
 
 ## 1.5.1 - 2020-06-09
 
-- Updates package dependency versions.
+- Bugfix/maintenance release.
 
 ## 1.5.0 - 2020-03-26
 
@@ -78,7 +78,6 @@
 
 ## 1.5.0.rc2 - 2020-02-13
 
-- Updates package dependency versions.
 - Uses new releases of 'emcee', 'cloud-config'.
 
 ## 1.5.0.rc1 - 2019-10-21
