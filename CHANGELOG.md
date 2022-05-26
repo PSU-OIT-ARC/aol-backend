@@ -1,5 +1,9 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.6.6 - 2022-05-26
+
+- Updates package dependency versions.
+
 ## 1.6.5 - 2022-05-02
 
 - Uses Python 3.9
