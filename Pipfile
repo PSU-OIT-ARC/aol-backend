@@ -19,7 +19,7 @@ pyshp = "~=2.3.0"
 Shapely = "~=1.8.0"
 uritemplate = "~=4.1.0"
 "psu.oit.wdt.emcee" = {version = "~=1.1.0", extras = ["aws"], index = "wdt" }
-Django = { version = "~=3.2.0", extras = ["argon2", "bcrypt"]}
+Django = { version = "~=3.2.14", extras = ["argon2", "bcrypt"]}
 djangorestframework = "~=3.13.0"
 celery = "~=5.2.0"
 uwsgi = "~=2.0.0"
