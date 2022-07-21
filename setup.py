@@ -47,37 +47,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=[
-        'pytz',
-        'dateparser~=1.1.0',
-        'beautifulsoup4~=4.10.0',
-        'requests~=2.27.0',
-        'Pillow~=9.0.0',
-        'psycopg2~=2.9.0',
-        'pyshp~=2.2.0',
-        'Shapely~=1.8.0',
-        'uritemplate~=4.1.0',
-        'psu.oit.wdt.emcee[aws]~=1.1.0',
-        'django~=3.2.0',
-        'djangorestframework~=3.13.0',
-        'celery~=5.2.0',
-        'uwsgi~=2.0.0',
-        'django-filter~=21.0',
-        'social-auth-core~=4.2.0',
-        'social-auth-app-django~=5.0.0',
-        'django-ckeditor~=6.2.0',
-        'sentry-sdk~=1.5.0',
-        'django-sendfile2~=0.6.0',
-        'django-robots~=5.0',
-    ],
-    extras_require={
-        'dev': [
-            'flake8',
-            'mock',
-            'model_mommy',
-            'django-cors-headers'
-        ]
-    },
     classifiers=[
         'Development Status :: 5 - Production/Stable'
         'Programming Language :: Python :: 3',
