@@ -1,5 +1,9 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.6.9 - 2022-11-21
+
+- Bugfix/maintenance release.
+
 ## 1.6.8 - 2022-08-19
 
 - Bugfix/maintenance release.
