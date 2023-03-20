@@ -31,21 +31,26 @@ ENV APP_GROUP_ID ${APP_GROUP_ID}
 RUN groupadd -g ${APP_GROUP_ID} "${APP_GROUP}" || echo "Group already exists"
 RUN useradd -m -g "${APP_GROUP}" -u ${APP_USER_ID} "${APP_USER}" || echo "User already exists"
 
-# Prepare virtual environment package requirements
-COPY --chown=${APP_USER}:${APP_GROUP} /${APP_REQUIREMENTS} /requirements.txt
+# Prepare application-local path
+RUN chown ${APP_USER}:${APP_GROUP} /opt
 
 # Prepare virtual environment
-RUN mkdir -p ${APP_ENV}
-RUN chown ${APP_USER}:${APP_GROUP} ${APP_ENV}
+COPY --chown=${APP_USER}:${APP_GROUP} /Pipfile /
+COPY --chown=${APP_USER}:${APP_GROUP} /Pipfile.lock /
+
+#
+RUN pip install pipenv
 
 # Configure python virtual environment
 USER ${APP_USER}
+WORKDIR /
+
 RUN ${APP_PYTHON} -m venv ${APP_ENV}
-RUN ${APP_ENV}/bin/pip install --upgrade pip wheel
-RUN ${APP_ENV}/bin/pip install -r /requirements.txt
+RUN PIPENV_CUSTOM_VENV_NAME=${APP_ENV} pipenv sync
+RUN PIPENV_CUSTOM_VENV_NAME=${APP_ENV} pipenv check
 RUN ${APP_ENV}/bin/pip cache purge
 
 # Install container entrypoint
 WORKDIR /app
-COPY ./entrypoint.sh /entrypoint.sh
+COPY /docker/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

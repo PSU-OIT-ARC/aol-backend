@@ -1,6 +1,5 @@
 # Root
-/.env/
-/media/
+/.env
 /static/
 /build/
 /dist/
@@ -9,8 +8,6 @@
 /volumes/
 /*.egg-info/
 /.coverage
-
-/aol/settings/current.py
 
 # Anywhere
 __pycache__/

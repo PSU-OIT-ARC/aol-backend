@@ -30,9 +30,9 @@ update_pip_requirements:  ## Updates python dependencies
 	@pipenv --venv || pipenv --python $(pipenv_python)
 	@pipenv check || echo "Review the above safety issues..."
 	@pipenv update --dev
+	@pipenv verify || (echo "Verification failed!" && exit 1)
 	@pipenv clean
 	@pipenv run pip list --outdated
-	@pipenv lock --requirements > docker/requirements.txt
 
 bump_versions:  ## Updates version of project images
 	@$(pipenv_bin)/python bump_versions.py
