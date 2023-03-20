@@ -1,9 +1,10 @@
 version: '3'
 services:
   app:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.9
+    image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.10
     build:
-      context: docker
+      context: .
+      dockerfile: docker/Dockerfile
       args:
       - APP_USER_ID=1101
       - APP_GROUP_ID=1101

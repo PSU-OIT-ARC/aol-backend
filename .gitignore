@@ -1,16 +1,14 @@
 # Root
-/.env/
-/media/
-/static/
-/build/
-/dist/
-/media/
-/static/
-/volumes/
-/*.egg-info/
+/.env
+/static
+/builds
+/dist
+/media
+/static
+/volumes
+/*.egg-info
 /.coverage
-
-/aol/settings/current.py
+/trash
 
 # Anywhere
 __pycache__/

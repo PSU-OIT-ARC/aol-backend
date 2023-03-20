@@ -7,12 +7,12 @@ ALLOWED_HOSTS: ["*"]
 CSRF_COOKIE_SECURE: false
 CORS_ORIGIN_ALLOW_ALL: true
 SENDFILE_BACKEND: django_sendfile.backends.development
-SENDFILE_ROOT: /app/media
+SENDFILE_ROOT: /media
 DATABASES:
   default:
     HOST: postgres
     USER: aol
     NAME: aol
 CELERY_BROKER_URL: 'pyamqp://guest:guest@rabbitmq//'
-STATIC_ROOT: /app/static
-MEDIA_ROOT: /app/media
+STATIC_ROOT: /static
+MEDIA_ROOT: /media
