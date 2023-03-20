@@ -1,5 +1,11 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.6.10 - 2023-03-20
+
+- Maintenance release.
+- Revises docker workflow, image construction.
+- Uses Emcee 1.2.
+
 ## 1.6.9 - 2022-11-21
 
 - Bugfix/maintenance release.

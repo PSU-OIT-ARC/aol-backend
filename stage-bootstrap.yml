@@ -5,7 +5,7 @@ networks:
     attachable: true
 services:
   bootstrap:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.9
+    image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.10
     networks:
     - overlay
     volumes:
