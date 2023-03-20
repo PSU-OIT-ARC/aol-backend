@@ -1,13 +1,14 @@
 # Root
 /.env
-/static/
-/build/
-/dist/
-/media/
-/static/
-/volumes/
-/*.egg-info/
+/static
+/builds
+/dist
+/media
+/static
+/volumes
+/*.egg-info
 /.coverage
+/trash
 
 # Anywhere
 __pycache__/
