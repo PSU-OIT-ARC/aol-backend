@@ -2,9 +2,6 @@ extends: emcee:commands.yml
 project:
   name: aol-backend
   full_name: Atlas of Oregon Lakes Backend
-remote:
-  distribution:
-    name: amazon2
 python:
   package: aol
   distribution: psu.oit.arc.aol
@@ -36,6 +33,10 @@ environment:
     backend: emcee.backends.docker
   stage:
     backend: emcee.backends.aws
+    remote:
+      distribution:
+        name: amazon2
+        version: ""
     services:
       db:
         host: aol-backend-stage.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
@@ -46,6 +47,10 @@ environment:
         access_control_origin: https://aol-frontend.stage.wdt.pdx.edu
   prod:
     backend: emcee.backends.aws
+    remote:
+      distribution:
+        name: amazon2
+        version: ""
     services:
       db:
         host: aol-backend-prod.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
