@@ -1,9 +1,9 @@
-ENV: prod
+ENV: cloud
 DEBUG: false
 DEBUG_PROPOGATE_EXCEPTIONS: false
 TEMPLATE_DEBUG: false
 ALLOWED_HOSTS:
-- aol-backend.wdt.pdx.edu
+- aol-backend.cloud.wdt.pdx.edu
 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
 AUTHENTICATION_BACKENDS:
 - social_core.backends.google.GoogleOAuth2
@@ -13,8 +13,8 @@ SENDFILE_BACKEND: django_sendfile.backends.nginx
 SENDFILE_ROOT: /vol/store/media
 DATABASES:
   default:
-    HOST: aol-backend-prod.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
-    USER: aol_backend_l
+    HOST: postgresql
+    USER: aol_l
     NAME: aol
     PASSWORD: ''
 CELERY_BROKER_URL: 'pyamqp://guest:guest@rabbitmq//'

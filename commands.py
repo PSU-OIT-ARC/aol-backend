@@ -20,11 +20,6 @@ from emcee.deploy.docker import publish_images
 from emcee.deploy import deployer, docker
 
 from emcee.backends.aws.infrastructure.commands import *
-from emcee.backends.aws.provision.db import (provision_database,
-                                             archive_database,
-                                             restore_database,
-                                             update_database_ca,
-                                             update_database_client)
 from emcee.backends.aws.provision.volumes import (provision_volume,
                                                   provision_swapfile)
 
@@ -41,12 +36,26 @@ def provision(createdb=False):
 
     # Provision containers volumes
     printer.header("Initializing container volumes...")
-    for service in ['rabbitmq']:
+    for service in ['postgresql', 'rabbitmq']:
         services_path = os.path.join(config.remote.path.root, 'services', service)
         remote(('mkdir', '-p', services_path), run_as=config.iam.user)
 
-    # Initialize/prepare attached EBS volume
-    provision_volume(mount_point='/vol/store', filesystem='ext4')
+    # Provision service volume
+    printer.header("Initializing service volume...")
+    provision_volume(mount_point='/vol/store', filesystem='xfs')
+    remote(['mkdir', '-p', '/vol/store/services'], sudo=True)
+
+    for service in [
+        'postgres/data',
+        'postgres/archive',
+        'postgres/run',
+        'rabbitmq',
+    ]:
+        service_path = os.path.join('/vol/store/services', service)
+        result = remote(['mkdir', '-p', service_path], raise_on_error=False, sudo=True)
+        if result.succeeded:
+            owner = '{}:{}'.format(config.iam.user, config.iam.user)
+            remote(['chown', '-R', owner, service_path], sudo=True)
 
     # Initialize swapfile on EBS volume
     provision_swapfile(1024, path='/vol/store')
@@ -86,13 +95,6 @@ def provision(createdb=False):
     owner = '{}:{}'.format(config.iam.user, config.services.nginx.group)
     remote(('chown', '-h', owner, config.remote.path.media), sudo=True)
     remote(('chown', '-R', owner, '/vol/store/media'), sudo=True)
-
-    # Provision database dependencies
-    update_database_client('postgresql', with_devel=True)
-    update_database_ca('postgresql')
-    if createdb:
-        provision_database(backend_options={'with_postgis': True,
-                                            'extensions': ['hstore']})
 
     # Provision application secrets
     client_id = input("Enter the ArcGIS Client ID: ")

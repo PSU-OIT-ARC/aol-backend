@@ -1,26 +1,20 @@
 # Atlas of Oregon Lakes
 
-[![Build Status](https://travis-ci.org/PSU-OIT-ARC/aol.svg?branch=master)](https://travis-ci.org/PSU-OIT-ARC/aol)
-
 ## Technology stack
 
-- PostgreSQL 10
-- PostGIS 2.4
-- Python 3.7
-- Django 2.2.x
+- PostgreSQL 11
+- PostGIS 2.5
+- Python 3.11
+- Django 3.2.x
 - ArcGIS (Cloud/SaaS)
 
 ## Getting started
-
-To build the application dependencies in your host's environment:
-
-    make init
 
 To prepare the database you may use, e.g., the `import_database` command to install a copy of production data.
 
 To use the provided Docker container definitions:
 
-    venv/bin/docker-compose up -d
+    docker compose up -d
 
 To authenticate with the provided default user:
 

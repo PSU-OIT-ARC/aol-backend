@@ -4,6 +4,25 @@ networks:
     driver: overlay
     attachable: true
 services:
+  postgresql:
+    image: postgis/postgis:11-2.5
+    networks:
+    - overlay
+    volumes:
+    - type: tmpfs
+      target: /dev/shm
+      tmpfs:
+        size: 1073741824
+    - /etc/localtime:/etc/localtime:ro
+    - /etc/passwd:/etc/passwd:ro
+    - /vol/store/services/postgresql/data:/var/lib/postgresql/data
+    - /vol/store/services/postgresql/archive:/opt/archive
+    logging:
+      driver: json-file
+    deploy:
+      endpoint_mode: dnsrr
+      replicas: 1
+    user: 1101:1101
   rabbitmq:
     image: rabbitmq:3-alpine
     networks:
@@ -11,7 +30,7 @@ services:
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - /etc/passwd:/etc/passwd:ro
-    - /vol/www/aol-backend/services/rabbitmq:/var/lib/rabbitmq
+    - /vol/store/services/rabbitmq:/var/lib/rabbitmq
     logging:
       driver: json-file
     deploy:
@@ -20,7 +39,7 @@ services:
     hostname: rabbitmq-prod
     user: 1101:1101
   app:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.6.10
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.7.0
     networks:
     - overlay
     volumes:
@@ -31,7 +50,7 @@ services:
     - ./:/app
     - ./uwsgi:/uwsgi
     environment:
-    - EMCEE_CMD_ENV=prod
+    - EMCEE_CMD_ENV=cloud
     - APP_SERVICE=wsgi
     logging:
       driver: json-file
@@ -39,7 +58,7 @@ services:
       replicas: 1
     user: aol-backend:aol-backend
   celery:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.6.10
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.7.0
     networks:
     - overlay
     volumes:
@@ -49,7 +68,7 @@ services:
     - /vol/www/aol-backend:/vol/www/aol-backend
     - ./:/app
     environment:
-    - EMCEE_CMD_ENV=prod
+    - EMCEE_CMD_ENV=cloud
     - APP_SERVICE=celery
     logging:
       driver: json-file
@@ -59,7 +78,7 @@ services:
     - rabbitmq
     user: aol-backend:aol-backend
   scheduler:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.6.10
+    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.7.0
     networks:
     - overlay
     volumes:
@@ -69,7 +88,7 @@ services:
     - /vol/www/aol-backend:/vol/www/aol-backend
     - ./:/app
     environment:
-    - EMCEE_CMD_ENV=prod
+    - EMCEE_CMD_ENV=cloud
     - APP_SERVICE=scheduler
     logging:
       driver: json-file
