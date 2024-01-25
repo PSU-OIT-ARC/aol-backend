@@ -12,17 +12,7 @@ fi
 if [[ ${APP_SERVICE} == "wsgi" ]]; then
     if [[ ${EMCEE_CMD_ENV} == "docker" ]]; then
         ${APP_ENV}/bin/pip install -r /app/docker/requirements-dev.txt
-        ${APP_ENV}/bin/uwsgi \
-          --module aol.wsgi \
-          --static-map /static=/static \
-          --static-map /media=/media \
-          --http-socket :8000 \
-          --http-auto-chunked \
-          --http-keepalive \
-          --ignore-sigpipe \
-          --ignore-write-errors \
-          --disable-write-exception \
-          --python-auto-reload 2
+        ${APP_ENV}/bin/gunicorn -b 0.0.0.0:8000 --reload aol.wsgi
     else
         exec ${APP_ENV}/bin/uwsgi --include /uwsgi/uwsgi.ini
     fi
