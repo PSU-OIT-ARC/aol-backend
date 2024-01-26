@@ -8,7 +8,7 @@ from emcee.runner.utils import confirm
 from emcee.app.config import YAMLAppConfiguration
 from emcee import printer
 
-from emcee.commands.transport import warmup, shell
+from emcee.commands.transport import *
 from emcee.commands.files import copy_file
 from emcee.commands.deploy import deploy, list_builds
 
@@ -17,7 +17,7 @@ from emcee.provision.docker import provision_docker, authenticate_ghcr
 from emcee.provision.secrets import provision_secret, show_secret
 
 from emcee.deploy.docker import publish_images
-from emcee.deploy import deployer, docker
+from emcee.deploy import deployer, docker, DeploymentCheckError
 
 from emcee.backends.aws.infrastructure.commands import *
 from emcee.backends.aws.provision.volumes import (provision_volume,
@@ -34,21 +34,15 @@ def provision(createdb=False):
     # Provision application services
     provision_docker()
 
-    # Provision containers volumes
-    printer.header("Initializing container volumes...")
-    for service in ['postgresql', 'rabbitmq']:
-        services_path = os.path.join(config.remote.path.root, 'services', service)
-        remote(('mkdir', '-p', services_path), run_as=config.iam.user)
-
     # Provision service volume
     printer.header("Initializing service volume...")
     provision_volume(mount_point='/vol/store', filesystem='xfs')
     remote(['mkdir', '-p', '/vol/store/services'], sudo=True)
 
     for service in [
-        'postgres/data',
-        'postgres/archive',
-        'postgres/run',
+        'postgresql/data',
+        'postgresql/archive',
+        'postgresql/run',
         'rabbitmq',
     ]:
         service_path = os.path.join('/vol/store/services', service)
@@ -80,14 +74,14 @@ def provision(createdb=False):
 
     # Synchronize icons and assorted media assets:
     archive_path = 'media.tar'
-    if os.path.exists(archive_path):
-        if not confirm("Synchronize media from '{}'?".format(archive_path)):
-            return
+    if os.path.exists(archive_path) and \
+       confirm("Synchronize media from '{}'?".format(archive_path)):
 
-        copy_file(archive_path, config.remote.path.media)
+        copy_file(archive_path, config.remote.path.media, sudo=True)
         remote(('tar', 'xvf', archive_path, '&&',
                 'rm', archive_path),
-               cd=config.remote.path.media
+               cd=config.remote.path.media,
+               sudo=True
         )
 
     # Set the correct permissions on generated assets
@@ -95,8 +89,11 @@ def provision(createdb=False):
     owner = '{}:{}'.format(config.iam.user, config.services.nginx.group)
     remote(('chown', '-h', owner, config.remote.path.media), sudo=True)
     remote(('chown', '-R', owner, '/vol/store/media'), sudo=True)
+    remote(('chmod', 'g+X', '/vol/store/media'), sudo=True)
 
     # Provision application secrets
+    db_password = input("Enter the PostgreSQL superuser password: ")
+    provision_secret('DBPassword', db_password)
     client_id = input("Enter the ArcGIS Client ID: ")
     provision_secret('ArcGISClientID', client_id)
     client_secret = input("Enter the ArcGIS Client Secret: ")
@@ -145,11 +142,16 @@ class AOLDeployer(docker.Deployer):
 
     def bootstrap_application(self):
         if not self.remote_processor.is_stack_active():
-            printer.error("Stack is not active in remote environment.")
-            return
+            raise DeploymentCheckError("Stack is not active in remote environment.")
 
-        # Enable maintenance mode before bootstrapping application
+        # enable maintenance mode before bootstrapping application
         maintenance_mode()
+
+        # verify that the database has been initialized
+        stat_cmd = ['stat', '/vol/store/services/postgresql/data']
+        result = remote(stat_cmd, raise_on_error=False, run_as=config.iam.user)
+        if not result.succeeded:
+            raise DeploymentCheckError("PostgreSQL database must be initialized. Exiting.")
 
         printer.info("Bootstrapping application...")
         bootstrap_stackfile = '{}-bootstrap.yml'.format(config.env)

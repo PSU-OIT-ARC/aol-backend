@@ -14,7 +14,7 @@ SENDFILE_ROOT: /vol/store/media
 DATABASES:
   default:
     HOST: postgresql
-    USER: aol_l
+    USER: aol
     NAME: aol
     PASSWORD: ''
 CELERY_BROKER_URL: 'pyamqp://guest:guest@rabbitmq//'
