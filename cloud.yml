@@ -39,7 +39,7 @@ services:
     hostname: rabbitmq-prod
     user: 1101:1101
   app:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.7.0
+    image: ghcr.io/psu-oit-arc/aol-backend/app-cloud:1.7.0
     networks:
     - overlay
     volumes:
@@ -58,7 +58,7 @@ services:
       replicas: 1
     user: aol-backend:aol-backend
   celery:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.7.0
+    image: ghcr.io/psu-oit-arc/aol-backend/app-cloud:1.7.0
     networks:
     - overlay
     volumes:
@@ -78,7 +78,7 @@ services:
     - rabbitmq
     user: aol-backend:aol-backend
   scheduler:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-prod:1.7.0
+    image: ghcr.io/psu-oit-arc/aol-backend/app-cloud:1.7.0
     networks:
     - overlay
     volumes:
