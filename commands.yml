@@ -13,9 +13,8 @@ docker:
   dockerfiles:
     - docker/Dockerfile
 services:
-  db:
-    name: aol
   nginx:
+    group: 101
     http_upstream: "http://app:8000"
     client_max_body_size: 0
     large_client_header_buffers: 4 8k
@@ -26,36 +25,19 @@ services:
     media_internal: 'internal;'
   uwsgi:
     request_header_buffer_size: 32768
+remote:
+  host_name: aol-backend
+  distribtuion:
+    name: amazon
+    version: 2023
 environment:
-  dev:
-    backend: emcee.backends.dev
   docker:
     backend: emcee.backends.docker
-  stage:
+  cloud:
     backend: emcee.backends.aws
-    remote:
-      distribution:
-        name: amazon2
-        version: ""
     services:
-      db:
-        host: aol-backend-stage.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
       nginx:
         media_root: /media
         static_root: /static
-        csp_policy: default-src 'unsafe-inline' *.stage.wdt.pdx.edu
-        access_control_origin: https://aol-frontend.stage.wdt.pdx.edu
-  prod:
-    backend: emcee.backends.aws
-    remote:
-      distribution:
-        name: amazon2
-        version: ""
-    services:
-      db:
-        host: aol-backend-prod.c6xuiyamhpsi.us-west-2.rds.amazonaws.com
-      nginx:
-        media_root: /media
-        static_root: /static
-        csp_policy: default-src 'unsafe-inline' *.wdt.pdx.edu
+        csp_policy: default-src 'unsafe-inline' *.cloud.wdt.pdx.edu
         access_control_origin: https://oregonlakesatlas.org

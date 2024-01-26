@@ -12,31 +12,21 @@ networks:
 
 services:
   postgres:
-    image: kartoza/postgis:11.0-2.5
+    image: postgis/postgis:11-2.5
     networks:
       - default
-    ports:
-      - "127.0.0.1:5432:5432"
     environment:
-      # In some cases, the logic present in the kartoza/postgis
-      # entrypoint may fail to recognize that this database already
-      # exists when the container volume has already such a database
-      # present; in this case, comment the 'POSTGRES_DBNAME' entry
-      # in order to succesfully boot the container.
       - POSTGRES_USER=aol
-      - POSTGRES_PASS=aol
-      - POSTGRES_DBNAME=aol
-      - ALLOW_IP_RANGE=172.20.0.0/16
+      - POSTGRES_PASSWORD=aol
+      - POSTGRES_DB=aol
     volumes:
-      - ${VOLUME_PATH}/postgres:/var/lib/postgresql
+      - ${VOLUME_PATH}/postgres/11/main:/var/lib/postgresql/data
       - ${VOLUME_PATH}/dumps:/archive
 
   rabbitmq:
     image: rabbitmq:3-alpine
     networks:
       - default
-    ports:
-      - "127.0.0.1:5672:5672"
     volumes:
       - ${VOLUME_PATH}/rabbitmq:/var/lib/rabbitmq
     # override hostname to prevent reinitialization of data

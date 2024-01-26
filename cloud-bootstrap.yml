@@ -5,7 +5,7 @@ networks:
     attachable: true
 services:
   bootstrap:
-    image: ghcr.io/psu-oit-arc/aol-backend/app-stage:1.6.10
+    image: ghcr.io/psu-oit-arc/aol-backend/app-cloud:1.7.0
     networks:
     - overlay
     volumes:
@@ -15,7 +15,7 @@ services:
     - /vol/www/aol-backend:/vol/www/aol-backend
     - ./:/app
     environment:
-    - EMCEE_CMD_ENV=stage
+    - EMCEE_CMD_ENV=cloud
     - APP_SERVICE=bootstrap
     logging:
       driver: json-file

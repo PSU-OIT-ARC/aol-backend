@@ -1,4 +1,4 @@
-FROM python:3.9-bullseye
+FROM python:3.11-bullseye
 MAINTAINER Thom Linton <tlinton@pdx.edu>
 LABEL org.opencontainers.image.source https://github.com/PSU-OIT-ARC/aol-backend
 
@@ -9,7 +9,7 @@ RUN apt update && apt install -y \
   binutils libgdal-dev proj-bin
 
 # Set build arguments
-ARG APP_PYTHON=python3.9
+ARG APP_PYTHON=python3.11
 ARG APP_ENV=/opt/venv
 ARG APP_REQUIREMENTS=requirements.txt
 
