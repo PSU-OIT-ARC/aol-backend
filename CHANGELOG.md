@@ -1,5 +1,13 @@
 # Change Log for Atlas of Oregon Lakes
 
+## 1.7.0 - 2024-01-26
+
+- Uses Python 3.11.
+- Updates package dependency versions.
+- Adds support for PEP 517, PEP 518, PEP 621, PEP 660.
+- Adds, replaces infrastructure definitions to use new
+  host and VPC.
+
 ## 1.6.10 - 2023-03-20
 
 - Maintenance release.
