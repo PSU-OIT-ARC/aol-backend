@@ -1,4 +1,5 @@
 import os.path
+import pathlib
 import time
 
 from emcee.runner.config import YAMLCommandConfiguration
@@ -73,13 +74,11 @@ def provision(createdb=False):
             'ln', '-sf', '/vol/store/media', config.remote.path.media))
 
     # Synchronize icons and assorted media assets:
-    archive_path = 'media.tar'
-    if os.path.exists(archive_path) and \
-       confirm("Synchronize media from '{}'?".format(archive_path)):
-
+    if confirm("Synchronize media from archive?"):
+        archive_path = pathlib.Path(input("Path to archive: ").strip())
         copy_file(archive_path, config.remote.path.media, sudo=True)
-        remote(('tar', 'xvf', archive_path, '&&',
-                'rm', archive_path),
+        remote(('tar', 'xvf', archive_path.name, '&&',
+                'rm', archive_path.name),
                cd=config.remote.path.media,
                sudo=True
         )
