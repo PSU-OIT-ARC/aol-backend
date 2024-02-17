@@ -27,7 +27,7 @@ services:
     request_header_buffer_size: 32768
 remote:
   host_name: aol-backend
-  distribtuion:
+  distribution:
     name: amazon
     version: 2023
 environment:

@@ -139,7 +139,7 @@ dependencies = [ # Optional
 [tool.setuptools]
 # If there are data files included in your packages that need to be
 # installed, specify them here.
-package-data = {"oro" = []}
+package-data = {"aol" = []}
 
 [tool.setuptools.packages.find]
 # All the following settings are optional:
@@ -148,7 +148,7 @@ exclude = []  # empty by default
 namespaces = false  # true by default
 
 [tool.setuptools.dynamic]
-version = {attr = "oro.__version__"}
+version = {attr = "aol.__version__"}
 
 [build-system]
 # These are the assumed default build requirements from pip:
