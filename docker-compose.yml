@@ -35,6 +35,30 @@ services:
     hostname: 'rabbitmq-dev'
     user: '${USER_ID}'
 
+  bootstrap:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        - APP_USER_ID=${USER_ID}
+        - APP_GROUP_ID=${GROUP_ID}
+    environment:
+      - EMCEE_CMD_ENV=docker
+      - APP_SERVICE=bootstrap
+    networks:
+      - default
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${VOLUME_PATH}/media:/media
+      - ${VOLUME_PATH}/static:/static
+      - ./:/app
+    depends_on:
+      - postgres
+    secrets:
+      - SecretKey
+      - DBPassword
+    user: '${USER_ID}'
+
   app:
     build:
       context: .
